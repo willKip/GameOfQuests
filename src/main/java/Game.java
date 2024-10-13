@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Map.entry;
@@ -57,6 +59,13 @@ public final class Game {
         eventDeck.shuffleDeck();
     }
 
+    public void initPlayers() {
+    }
+
+    public int getPlayerCount() {
+        return 0;
+    }
+
     public Deck getEventDeck() {
         return eventDeck;
     }
@@ -84,5 +93,29 @@ public final class Game {
                 eventDeck.addToDiscardPile(c);
                 break;
         }
+    }
+
+    public Player getPlayerByID(final String id) {
+        return new Player();
+    }
+
+    // Return the current Player in the game's turn order.
+    public Player getCurrentPlayer() {
+        return new Player();
+    }
+
+    // Set the current player to the one provided.
+    public void setCurrentPlayer(final Player p) {
+    }
+
+    // Return the Player who will play a turn after the current one.
+    public Player getNextPlayer(final Player p) {
+        return new Player();
+    }
+
+    // Return a list of Players in the game, ordered in turn order and starting with the current player.
+    // Use for iterating through the Players in order just once.
+    public List<Player> getPlayersStartingCurrent() {
+        return new ArrayList<>();
     }
 }

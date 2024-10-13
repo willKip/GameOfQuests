@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.*;
 
@@ -283,5 +285,117 @@ public class MainTest {
 
             assertEquals(EVENT_COUNT_TARGET, actualEventCount, " '" + EVENT_NAME + "' card count");
         }
+    }
+
+    @Test
+    @DisplayName("Game sets up exactly 4 players")
+    void RESP_02_TEST_01() {
+        Game game = new Game();
+        game.initPlayers();
+        assertEquals(4, game.getPlayerCount());
+    }
+
+    @Test
+    @DisplayName("P1 is the first player in the turn order")
+    void RESP_02_TEST_02() {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player firstPlayer = game.getCurrentPlayer();
+        String firstPlayerID = firstPlayer.getID();
+
+        assertEquals("P1", firstPlayerID);
+    }
+
+    @ParameterizedTest
+    @DisplayName("Game can provide the next Player in the turn order [P1>P2>P3>P4>P1>...]")
+    @ValueSource(strings = {"P1", "P2", "P3", "P4"})
+    void RESP_02_TEST_03(String startingPlayerID) {
+        Game game = new Game();
+        game.initPlayers();
+
+        String nextPlayerID = "";
+
+        switch (startingPlayerID) {
+            case "P1" -> nextPlayerID = "P2";
+            case "P2" -> nextPlayerID = "P3";
+            case "P3" -> nextPlayerID = "P4";
+            case "P4" -> nextPlayerID = "P1";
+        }
+
+        Player startingPlayer = game.getPlayerByID(startingPlayerID);
+        Player nextPlayer = game.getNextPlayer(startingPlayer);
+
+        assertEquals(nextPlayerID, nextPlayer.getID());
+    }
+
+    @ParameterizedTest
+    @DisplayName("Game can provide an ordered list of Players starting from the current Player")
+    @ValueSource(strings = {"P1", "P2", "P3", "P4"})
+    void RESP_02_TEST_04(String currPlayerID) {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player currPlayer = game.getPlayerByID(currPlayerID);
+
+        game.setCurrentPlayer(currPlayer);
+
+        List<Player> orderedPlayerList = game.getPlayersStartingCurrent();
+        assertEquals(orderedPlayerList.size(), game.getPlayerCount(),
+                     "Ordered Player list should include all players in the game, once each");
+        assertNotEquals(0, orderedPlayerList.size(), "Player list should not be empty");
+
+        // Iterate through list save for the last element, checking that the ordering of players is consistent
+        for (int i = 0; i < orderedPlayerList.size() - 1; i++) {
+            Player thisPlayerInList = orderedPlayerList.get(i);
+            Player nextPlayerInList = orderedPlayerList.get(i + 1);
+
+            Player trueNextPlayer = game.getNextPlayer(thisPlayerInList);
+
+            assertEquals(trueNextPlayer.getID(), nextPlayerInList.getID(),
+                         trueNextPlayer.getID() + "Player after " + thisPlayerInList.getID());
+        }
+    }
+
+    @Test
+    @DisplayName("Each player is set up with 12 cards")
+    void RESP_02_TEST_05() {
+        Game game = new Game();
+        game.initPlayers();
+
+        List<Player> orderedPlayerList = game.getPlayersStartingCurrent();
+        assertNotEquals(0, orderedPlayerList.size(), "Player list should not be empty");
+
+        for (final Player p : orderedPlayerList) {
+            assertEquals(12, p.getHandSize(), p.getID() + " should start with 0 shields");
+        }
+    }
+
+    @Test
+    @DisplayName("Game can 'rig' player hands")
+    void RESP_02_TEST_06() {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player player = game.getCurrentPlayer();
+
+        // Create a rigged hand, adding the cards in proper sorted order
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+
+        player.rigHand(riggedCards);
+
+        assertEquals(riggedCards, player.getHand());
     }
 }
