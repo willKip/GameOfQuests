@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Map.entry;
 
@@ -8,9 +9,20 @@ public final class Game {
     private final Deck adventureDeck;
     private final Deck eventDeck;
 
+    private final List<Player> playerList; // Ordered list of players, representing turn order as well
+    private int currPlayerIndex;     // Index of player list denoting whose turn it is in the game.
+
     public Game() {
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
+        this.playerList = new ArrayList<>();
+        this.currPlayerIndex = 0; // Game starts with the first player in the list
+    }
+
+    // Return the corresponding player from the index, wrapping around if
+    // an index larger than the player list size is given.
+    private Player getPlayerFromIndex(final int i) {
+        return playerList.get(i % playerList.size());
     }
 
     // Set up the decks of a standard game, clearing the current decks (acting as a reset).
@@ -59,11 +71,27 @@ public final class Game {
         eventDeck.shuffleDeck();
     }
 
+    // Set up and add 4 players to the game, in the order P1 > P2 > P3 > P4 > P1 > ...
     public void initPlayers() {
+        playerList.clear();
+
+        initDecks(); // Decks must be initialised for players to be able to draw cards
+
+        currPlayerIndex = 0;
+
+        final int NUM_PLAYERS = 4;
+        final int DRAW_COUNT = 12;
+
+        for (int i = 0; i < NUM_PLAYERS; i++) {
+            int playerNumber = i + 1;
+            Player newPlayer = new Player(playerNumber);
+            newPlayer.addToHand(drawAdventureCards(DRAW_COUNT));
+            playerList.add(newPlayer);
+        }
     }
 
     public int getPlayerCount() {
-        return 0;
+        return playerList.size();
     }
 
     public Deck getEventDeck() {
@@ -76,6 +104,17 @@ public final class Game {
 
     public Card drawAdventureCard() {
         return adventureDeck.draw();
+    }
+
+    // Draw n cards from the Adventure deck and return them in a list, maintaining draw order.
+    public List<Card> drawAdventureCards(final int n) {
+        ArrayList<Card> drawnCards = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            drawnCards.add(drawAdventureCard());
+        }
+
+        return drawnCards;
     }
 
     public Card drawEventCard() {
@@ -95,27 +134,40 @@ public final class Game {
         }
     }
 
+    // Return the player matching the given ID string in the format "P1", "P2"...
     public Player getPlayerByID(final String id) {
-        return new Player();
+        for (final Player p : playerList) {
+            if (Objects.equals(p.getID(), id)) {
+                return p;
+            }
+        }
+
+        return null; // Player not found
     }
 
     // Return the current Player in the game's turn order.
     public Player getCurrentPlayer() {
-        return new Player();
+        return playerList.get(currPlayerIndex);
     }
 
-    // Set the current player to the one provided.
+    // Set the current player to the supplied player.
     public void setCurrentPlayer(final Player p) {
+        currPlayerIndex = playerList.indexOf(p);
     }
 
-    // Return the Player who will play a turn after the current one.
+    // Return the player who will play a turn after the current player
     public Player getNextPlayer(final Player p) {
-        return new Player();
+        return getPlayerFromIndex(playerList.indexOf(p) + 1);
     }
 
     // Return a list of Players in the game, ordered in turn order and starting with the current player.
     // Use for iterating through the Players in order just once.
     public List<Player> getPlayersStartingCurrent() {
-        return new ArrayList<>();
+        ArrayList<Player> orderedPlayers = new ArrayList<>();
+
+        for (int i = 0; i < getPlayerCount(); i++) {
+            orderedPlayers.add(getPlayerFromIndex(currPlayerIndex + i));
+        }
+        return orderedPlayers;
     }
 }
