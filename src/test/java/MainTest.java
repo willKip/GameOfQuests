@@ -1,4 +1,287 @@
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
+import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MainTest {
+    @Test
+    @DisplayName("Decks are set up with the correct number of cards")
+    void RESP_01_TEST_01() {
+        Game game = new Game();
+        game.initDecks();
+
+        int adventureDeckSize = game.getAdventureDeck().totalSize();
+        int eventDeckSize = game.getEventDeck().totalSize();
+
+        // Adventure deck should have 100x cards, Event deck should have 17x cards.
+        assertAll("Deck size", () -> assertEquals(100, adventureDeckSize, "Adventure deck size"),
+                  () -> assertEquals(17, eventDeckSize, "Event deck size"));
+    }
+
+    @Test
+    @DisplayName("Can draw cards of the correct type from each deck, which are updated accordingly")
+    void RESP_01_TEST_02() {
+        Game game = new Game();
+        game.initDecks();
+
+        Deck adventureDeck = game.getAdventureDeck();
+        Deck eventDeck = game.getEventDeck();
+
+        final int CARDS_TO_DRAW = 10;
+
+        final int INIT_DECK_SIZE_ADVENTURE = adventureDeck.drawPileSize();
+        final int INIT_DECK_SIZE_EVENT = eventDeck.drawPileSize();
+
+        final int DRAWN_DECK_SIZE_ADVENTURE = INIT_DECK_SIZE_ADVENTURE - CARDS_TO_DRAW;
+        final int DRAWN_DECK_SIZE_EVENT = INIT_DECK_SIZE_EVENT - CARDS_TO_DRAW;
+
+        final List<Card.CardType> ADVENTURE_DECK_CARD_TYPES = Arrays.asList(Card.CardType.FOE, Card.CardType.WEAPON);
+        final List<Card.CardType> EVENT_DECK_CARD_TYPES = Arrays.asList(Card.CardType.QUEST, Card.CardType.EVENT);
+
+        // NOTE: Junit 5 with no added dependencies does not support a more verbose way to assert that a condition
+        // matches 'one of' several valid states. We are prioritising minimal dependencies for the assignment, so the
+        // below asserts to check valid card type cannot display what the given type was.
+
+        // Draw Adventure cards and ensure only the Adventure deck is affected
+        for (int i = 0; i < CARDS_TO_DRAW; i++) {
+            Card drawnAdventure = game.drawAdventureCard();
+            Card.CardType drawnAdventureCardType = drawnAdventure.getCardType();
+            assertNotNull(drawnAdventureCardType, "Check that drawn Adventure card doesn't return null for its type");
+            assertTrue(ADVENTURE_DECK_CARD_TYPES.contains(drawnAdventureCardType),
+                       "Drawn Adventure card is a valid type (Foe/Weapon)");
+        }
+        assertEquals(DRAWN_DECK_SIZE_ADVENTURE, adventureDeck.totalSize(),
+                     "Drawn Adventure cards are removed from Adventure deck");
+        assertEquals(INIT_DECK_SIZE_EVENT, eventDeck.totalSize(),
+                     "Event deck is not affected by draws from the Adventure deck");
+
+        // Draw Event Cards and ensure only the Event deck is affected
+        for (int i = 0; i < CARDS_TO_DRAW; i++) {
+            Card drawnEvent = game.drawEventCard();
+            Card.CardType drawnEventCardType = drawnEvent.getCardType();
+            assertNotNull(drawnEventCardType, "Check that drawn Event card doesn't return null for its type");
+            assertTrue(EVENT_DECK_CARD_TYPES.contains(drawnEvent.getCardType()),
+                       "Drawn Event card is a valid type (Quest/Event)");
+        }
+        assertEquals(DRAWN_DECK_SIZE_ADVENTURE, adventureDeck.totalSize(),
+                     "Adventure deck is not affected by draws from the Event deck");
+        assertEquals(DRAWN_DECK_SIZE_EVENT, eventDeck.totalSize(), "Drawn Event cards are removed from Event deck");
+    }
+
+    @Test
+    @DisplayName("Drawn cards can be discarded to the correct discard piles")
+    void RESP_01_TEST_03() {
+        Game game = new Game();
+        game.initDecks();
+
+        Deck adventureDeck = game.getAdventureDeck();
+        Deck eventDeck = game.getEventDeck();
+
+        // Ensure discard piles start out empty
+        assertEquals(0, adventureDeck.discardPileSize(), "Adventure deck is set up with empty discard pile");
+        assertEquals(0, eventDeck.discardPileSize(), "Event deck is set up with empty discard pile");
+
+        final int CARDS_TO_DRAW = 5;
+
+        List<Card> drawnAdventureCards = new ArrayList<>();
+        List<Card> drawnEventCards = new ArrayList<>();
+
+        // Draw cards from each deck
+        for (int i = 0; i < CARDS_TO_DRAW; i++) {
+            drawnAdventureCards.add(game.drawAdventureCard());
+            drawnEventCards.add(game.drawEventCard());
+        }
+
+        // Check that discard piles of each deck are updated correctly from discard operations
+        for (Card c : drawnAdventureCards) {
+            game.discard(c);
+        }
+        assertEquals(CARDS_TO_DRAW, adventureDeck.discardPileSize(),
+                     "Discard pile of Adventure deck updated after Adventure cards discarded");
+        assertEquals(0, eventDeck.discardPileSize(),
+                     "Discard pile of Event deck unaffected after Adventure cards discarded");
+
+        for (Card c : drawnEventCards) {
+            game.discard(c);
+        }
+        assertEquals(CARDS_TO_DRAW, adventureDeck.discardPileSize(),
+                     "Discard pile of Adventure deck unaffected after Event cards discarded");
+        assertEquals(CARDS_TO_DRAW, eventDeck.discardPileSize(),
+                     "Discard pile of Event deck updated after Event cards discarded");
+    }
+
+    @Test
+    @DisplayName("When decks run out of cards, they refresh, shuffling the discard pile and using it as the deck")
+    void RESP_01_TEST_04() {
+        Game game = new Game();
+        game.initDecks();
+
+        Card lastCard; // Temporary variable to hold cards
+
+        /* General case: Deck refreshing when out of cards (but there are some in discard pile) */
+        Deck adventureDeck = game.getAdventureDeck();
+        Deck eventDeck = game.getEventDeck();
+
+        final int INIT_DRAWPILE_SIZE_ADVENTURE = adventureDeck.drawPileSize();
+
+        // Draw, then immediately discard, all but 1 card from the Adventure deck
+        for (int i = 0; i < INIT_DRAWPILE_SIZE_ADVENTURE - 1; i++) {
+            game.discard(game.drawAdventureCard());
+        }
+
+        assertEquals(1, adventureDeck.drawPileSize(), "One card remaining in Adventure deck draw pile");
+        assertEquals(INIT_DRAWPILE_SIZE_ADVENTURE - 1, adventureDeck.discardPileSize(),
+                     "All but one card in Adventure deck discard pile");
+
+        // Trigger refresh by drawing last card from deck (note that this card is separate from the deck when it
+        // refreshes; it is not included when the discard pile is shuffled back into the draw pile.)
+        lastCard = game.drawAdventureCard();
+        assertEquals(0, adventureDeck.discardPileSize(), "Discard pile empty after refresh");
+        assertEquals(INIT_DRAWPILE_SIZE_ADVENTURE - 1, adventureDeck.drawPileSize(),
+                     "All but the one drawn card are in Adventure deck draw pile after refresh");
+
+        /* Edge case: Deck not attempting to refresh if out of cards, refreshing as soon as discard pile gains a card */
+        final int INIT_DRAWPILE_SIZE_EVENT = eventDeck.drawPileSize();
+
+        // Draw every card (but do not discard them) from the Event deck
+        for (int i = 0; i < INIT_DRAWPILE_SIZE_EVENT; i++) {
+            lastCard = game.drawEventCard();
+        }
+
+        assertEquals(0, eventDeck.totalSize(), "Event deck entirely empty");
+
+        // Discard the last drawn Event card, triggering a refresh from it.
+        game.discard(lastCard);
+        assertEquals(0, eventDeck.discardPileSize(), "Event deck discard pile is empty after refresh");
+        assertEquals(1, eventDeck.drawPileSize(),
+                     "Event deck draw pile received the single card in discard pile after refresh");
+    }
+
+    @Test
+    @DisplayName("Decks set up with correct card distributions")
+    void RESP_01_TEST_05() {
+        Game game = new Game();
+        game.initDecks();
+
+        // Maps for each card type, detailing the correct number of occurrences for each specific card of a type.
+        // (e.g. entry("Dagger", 6) means there should be 6 Daggers in the adventure deck;
+        //       entry(2, 3) means there should be 3 Q2 in the event deck.)
+        final Map<Integer, Integer> FOE_MAP = Map.ofEntries(entry(5, 8), entry(10, 7), entry(15, 8), entry(20, 7),
+                                                            entry(25, 7), entry(30, 4), entry(35, 4), entry(40, 2),
+                                                            entry(50, 2), entry(70, 1));
+        final Map<String, Integer> WEAPON_MAP = Map.ofEntries(entry("Dagger", 6), entry("Horse", 12),
+                                                              entry("Sword", 16), entry("Battle-axe", 8),
+                                                              entry("Lance", 6), entry("Excalibur", 2));
+
+        final Map<Integer, Integer> QUEST_MAP = Map.ofEntries(entry(2, 3), entry(3, 4), entry(4, 3), entry(5, 2));
+        final Map<String, Integer> EVENT_MAP = Map.ofEntries(entry("Plague", 1), entry("Queen's Favor", 2),
+                                                             entry("Prosperity", 2));
+
+        // Maps for each card type that will store the number of occurrences for each specific card of a type.
+        Map<Integer, Integer> foeOccurrences = new HashMap<>();
+        Map<String, Integer> weaponOccurrences = new HashMap<>();
+        Map<Integer, Integer> questOccurrences = new HashMap<>();
+        Map<String, Integer> eventOccurrences = new HashMap<>();
+
+        // Initialise occurrence count maps
+        for (Map.Entry<Integer, Integer> entry : FOE_MAP.entrySet()) {
+            foeOccurrences.put(entry.getKey(), 0);
+        }
+        for (Map.Entry<String, Integer> entry : WEAPON_MAP.entrySet()) {
+            weaponOccurrences.put(entry.getKey(), 0);
+        }
+        for (Map.Entry<Integer, Integer> entry : QUEST_MAP.entrySet()) {
+            questOccurrences.put(entry.getKey(), 0);
+        }
+        for (Map.Entry<String, Integer> entry : EVENT_MAP.entrySet()) {
+            eventOccurrences.put(entry.getKey(), 0);
+        }
+
+        // Adventure deck
+        final int ADVENTURE_DECK_SIZE = game.getAdventureDeck().totalSize();
+        for (int i = 0; i < ADVENTURE_DECK_SIZE; i++) {
+
+            Card drawnCard = game.drawAdventureCard();
+
+            Card.CardType drawnCardType = drawnCard.getCardType();
+
+            if (drawnCardType == Card.CardType.FOE) {
+                int drawnCardValue = drawnCard.getValue();
+                Integer prevCount = foeOccurrences.get(drawnCardValue);
+
+                // If there is no matching key in occurrences map, this card's key does not exist in a standard game
+                assertNotNull(prevCount, "Invalid Foe card");
+
+                foeOccurrences.put(drawnCardValue, prevCount + 1);
+            } else if (drawnCardType == Card.CardType.WEAPON) {
+                String drawnCardName = drawnCard.getName();
+                Integer prevCount = weaponOccurrences.get(drawnCardName);
+
+                // If there is no matching key in occurrences map, this card's key does not exist in a standard game
+                assertNotNull(prevCount, "Invalid Weapon card");
+
+                weaponOccurrences.put(drawnCardName, prevCount + 1);
+            }
+        }
+
+        final int EVENT_DECK_SIZE = game.getEventDeck().totalSize();
+
+        // Event deck
+        for (int i = 0; i < EVENT_DECK_SIZE; i++) {
+            Card drawnCard = game.drawEventCard();
+
+            Card.CardType drawnCardType = drawnCard.getCardType();
+
+            if (drawnCardType == Card.CardType.QUEST) {
+                int drawnCardValue = drawnCard.getValue();
+                Integer prevCount = questOccurrences.get(drawnCardValue);
+
+                // If there is no matching key in occurrences map, this card's key does not exist in a standard game
+                assertNotNull(prevCount, "Invalid Quest card");
+
+                questOccurrences.put(drawnCardValue, prevCount + 1);
+            } else if (drawnCardType == Card.CardType.EVENT) {
+                String drawnCardName = drawnCard.getName();
+                Integer prevCount = eventOccurrences.get(drawnCardName);
+
+                // If there is no matching key in occurrences map, this card's key does not exist in a standard game
+                assertNotNull(prevCount, "Invalid Event (E) card");
+
+                eventOccurrences.put(drawnCardName, prevCount + 1);
+            }
+        }
+
+        // Confirm correct distributions
+        for (Map.Entry<Integer, Integer> entry : FOE_MAP.entrySet()) {
+            final int FOE_VALUE = entry.getKey();
+            final int FOE_COUNT_TARGET = entry.getValue();
+            final int actualFoeCount = foeOccurrences.get(FOE_VALUE);
+
+            assertEquals(FOE_COUNT_TARGET, actualFoeCount, " 'F" + FOE_VALUE + "' card count");
+        }
+        for (Map.Entry<String, Integer> entry : WEAPON_MAP.entrySet()) {
+            final String WEAPON_NAME = entry.getKey();
+            final int WEAPON_COUNT_TARGET = entry.getValue();
+            final int actualWeaponCount = weaponOccurrences.get(WEAPON_NAME);
+
+            assertEquals(WEAPON_COUNT_TARGET, actualWeaponCount, " '" + WEAPON_NAME + "' card count");
+        }
+        for (Map.Entry<Integer, Integer> entry : QUEST_MAP.entrySet()) {
+            final int QUEST_VALUE = entry.getKey();
+            final int QUEST_COUNT_TARGET = entry.getValue();
+            final int actualQuestCount = questOccurrences.get(QUEST_VALUE);
+
+            assertEquals(QUEST_COUNT_TARGET, actualQuestCount, " 'Q" + QUEST_VALUE + "' card count");
+        }
+        for (Map.Entry<String, Integer> entry : EVENT_MAP.entrySet()) {
+            final String EVENT_NAME = entry.getKey();
+            final int EVENT_COUNT_TARGET = entry.getValue();
+            final int actualEventCount = eventOccurrences.get(EVENT_NAME);
+
+            assertEquals(EVENT_COUNT_TARGET, actualEventCount, " '" + EVENT_NAME + "' card count");
+        }
+    }
 }
