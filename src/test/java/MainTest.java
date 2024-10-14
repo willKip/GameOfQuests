@@ -607,4 +607,77 @@ public class MainTest {
                   () -> assertTrue(outputString.contains("P1"), "Has all winners"),
                   () -> assertTrue(outputString.contains("P3"), "Has all winners"));
     }
+
+    @Test
+    @DisplayName("Player can trim their hand when there is 1 over the max")
+    void RESP_05_TEST_01() {
+        // List of 13 cards (in order), 1 over the max of 12
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 8));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 9));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 11));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Lance", "L", 12));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 13));
+
+        String expectedHand = "F1 F2 F3 F5 F6 F7 D8 S9 H10 B11 L12 E13"; // Foe value 4 card removed
+
+        String input = "4\n"; // Input to remove the 'F4' card
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player player = game.getCurrentPlayer();
+        player.rigHand(Collections.emptyList()); // Empty the player's existing hand
+        player.rigHand(riggedCards);
+
+        assertAll("Player trims 1 card", () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
+                  () -> assertEquals(expectedHand, player.getHandString(), "Correct card removed"));
+    }
+
+    @Test
+    @DisplayName("Player can trim their hand when there are 3 over the max")
+    void RESP_05_TEST_02() {
+        // List of 15 cards (in order), 3 over the max of 12
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 12));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 13));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 14));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+
+        String expectedHand = "F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 F13 F14";
+
+        String input = "1\n1\n13\n"; // Input to remove 'F1', 'F2', 'F15', in order.
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player player = game.getCurrentPlayer();
+        player.rigHand(Collections.emptyList()); // Empty the player's existing hand
+        player.rigHand(riggedCards);
+
+        assertAll("Player trims 3 cards",
+                  () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
+                  () -> assertEquals(expectedHand, player.getHandString(), "Correct cards removed"));
+    }
 }
