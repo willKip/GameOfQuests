@@ -3,6 +3,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 import static java.util.Map.entry;
@@ -397,5 +399,103 @@ public class MainTest {
         player.rigHand(riggedCards);
 
         assertEquals(riggedCards, player.getHand());
+    }
+
+    @Test
+    @DisplayName("A player's hand can be returned as a string with correct card ordering")
+    void RESP_03_TEST_01() {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player player = game.getCurrentPlayer();
+
+        // Create a rigged hand with cards added in the wrong order.
+        // Hand card ordering rules:
+        //   Foes always come before Weapons.
+        //   Swords must come before Horses despite the values being the same.
+        //   Ordered by value ascending otherwise.
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        player.rigHand(riggedCards);
+
+        final String correctHandOrder = "F5 F10 S10 H10 H10 E30";
+
+        assertEquals(correctHandOrder, player.getHandString());
+    }
+
+    @Test
+    @DisplayName("Game can accurately indicate the current turn player after a turn change occurs")
+    void RESP_03_TEST_02() {
+        StringWriter output = new StringWriter();
+
+        Game game = new Game();
+        game.initPlayers();
+
+        // First player in turn order
+        Player currPlayer = game.getCurrentPlayer();
+
+        game.printPlayerTurnStart(new PrintWriter(output));
+        String outputString = output.toString();
+
+        boolean initPlayerTurnDisplayed = outputString.contains(currPlayer.getID());
+
+        // Next player in turn order
+        currPlayer = game.getNextPlayer(currPlayer);
+        game.setCurrentPlayer(currPlayer);
+
+        game.printPlayerTurnStart(new PrintWriter(output));
+        outputString = output.toString();
+
+        boolean nextPlayerTurnDisplayed = outputString.contains(currPlayer.getID());
+
+        assertAll("Player indicator at turn start",
+                  () -> assertTrue(initPlayerTurnDisplayed, "Initial player displayed at turn start"),
+                  () -> assertTrue(nextPlayerTurnDisplayed,
+                                   "Next player displayed at turn start after it becomes their turn"));
+    }
+
+    @Test
+    @DisplayName("Game can indicate the player of the current turn AND display that player's hand")
+    void RESP_03_TEST_03() {
+        StringWriter output = new StringWriter();
+
+        Game game = new Game();
+        game.initPlayers();
+
+        Player currentPlayer = game.getCurrentPlayer();
+
+        // Create a rigged hand with cards added in a random order.
+        ArrayList<Card> riggedCards = new ArrayList<>();
+
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
+
+        Collections.shuffle(riggedCards);
+        currentPlayer.rigHand(riggedCards);
+
+        final String correctHandOrder = "F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30";
+
+        game.printPlayerTurnStart(new PrintWriter(output));
+
+        final String outputString = output.toString();
+
+        assertAll("Turn start printed information",
+                  () -> assertTrue(outputString.contains(currentPlayer.getID()), "Prints current player"),
+                  () -> assertTrue(outputString.contains(correctHandOrder), "Prints current player's hand"));
     }
 }

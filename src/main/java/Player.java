@@ -33,4 +33,10 @@ public class Player {
         hand.clear();
         addToHand(cards);
     }
+
+    // Return a space-separated, ordered string of the cards in the player's hand.
+    public String getHandString() {
+        // TODO: implement
+        return "";
+    }
 }
