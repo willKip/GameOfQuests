@@ -33,6 +33,7 @@ public class Player {
     public void addToHand(final Collection<Card> cards) {
         hand.addAll(cards);
         Collections.sort(hand);
+        trim();
     }
 
     // Overwrite the player's hand with the cards in the collection given.
@@ -60,5 +61,29 @@ public class Player {
     // Give n shields to this player.
     public void addShields(final int n) {
         shields += n;
+    }
+
+    private void trim() {
+        // Assignment 1 Note: Can assume selection made by user is valid
+
+        while (getHandSize() > 12) {
+            int cardIndex = 0; // Human-friendly 1-index for card list
+
+            output.println("You have too many cards in your hand. (" + getHandSize() + "/12)");
+            output.println("Please enter a card position and hit enter to discard it:");
+
+            for (final Card c : getHand()) {
+                output.println("[" + (cardIndex + 1) + "] " + c.getCardID());
+                cardIndex++;
+            }
+
+            output.print("> ");
+
+            output.flush();
+
+            int selected = Integer.parseInt(input.nextLine());
+
+            hand.remove(selected - 1);
+        }
     }
 }
