@@ -181,4 +181,16 @@ public final class Game {
 
         output.flush();
     }
+
+    // Return a list of players who have met the victory condition (7 or more shields).
+    // The returned list is empty if no players are eligible.
+    public List<Player> getWinners() {
+        // TODO: implement
+        return null;
+    }
+
+    // Print that the game has ended, and list the players given as the winners.
+    public void printGameEnd(final PrintWriter output, final List<Player> players) {
+        // TODO: implement
+    }
 }

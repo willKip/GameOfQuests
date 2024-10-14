@@ -43,4 +43,14 @@ public class Player {
 
         return sj.toString();
     }
+
+    public int getShields() {
+        // TODO: implement
+        return -1;
+    }
+
+    // Give n shields to this player.
+    public void addShields(final int n) {
+        // TODO: implement
+    }
 }

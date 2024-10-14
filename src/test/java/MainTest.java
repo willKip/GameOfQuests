@@ -498,4 +498,113 @@ public class MainTest {
                   () -> assertTrue(outputString.contains(currentPlayer.getID()), "Prints current player"),
                   () -> assertTrue(outputString.contains(correctHandOrder), "Prints current player's hand"));
     }
+
+    @Test
+    @DisplayName("Each player is set up with 0 shields")
+    void RESP_04_TEST_01() {
+        Game game = new Game();
+        game.initPlayers();
+
+        List<Player> orderedPlayerList = game.getPlayersStartingCurrent();
+        assertNotEquals(0, orderedPlayerList.size(), "Player list should not be empty");
+
+        for (final Player p : orderedPlayerList) {
+            assertEquals(0, p.getShields(), p.getID() + " should start with 0 shields");
+        }
+    }
+
+    @Test
+    @DisplayName("When no players have 7 or more shields, no players are evaluated as winners")
+    void RESP_04_TEST_02() {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player p1 = game.getPlayerByID("P1");
+        Player p2 = game.getPlayerByID("P2");
+        Player p3 = game.getPlayerByID("P3");
+        Player p4 = game.getPlayerByID("P4");
+
+        assertNotNull(p1);
+        assertNotNull(p2);
+        assertNotNull(p3);
+        assertNotNull(p4);
+
+        // P1 remains at 0 shields
+        p2.addShields(1);
+        p3.addShields(2);
+        p4.addShields(6);
+
+        List<Player> winners = game.getWinners();
+        assertNotNull(winners);
+        assertEquals(0, winners.size(), "Number of winners should be 0");
+    }
+
+    @ParameterizedTest
+    @DisplayName("When there is exactly one player that has 7 or more shields, only they are evaluated as the winner")
+    @ValueSource(strings = {"P1", "P2", "P3", "P4"})
+    void RESP_04_TEST_03(String winningPlayerID) {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player winningPlayer = game.getPlayerByID(winningPlayerID);
+        assertNotNull(winningPlayer, "Winning player should not be null");
+
+        winningPlayer.addShields(7);
+
+        List<Player> winners = game.getWinners();
+
+        // Assert that there is only one winner, and it is the player that should be winning
+        assertNotNull(winners);
+        assertTrue(winners.size() == 1 && Objects.equals(winners.getLast().getID(), winningPlayerID));
+    }
+
+    @Test
+    @DisplayName("When there are multiple players that have 7 or more shields, they are all evaluated as winners")
+    void RESP_04_TEST_04() {
+        Game game = new Game();
+        game.initPlayers();
+
+        Player p1 = game.getPlayerByID("P1");
+        Player p2 = game.getPlayerByID("P2");
+        Player p3 = game.getPlayerByID("P3");
+        Player p4 = game.getPlayerByID("P4");
+
+        assertNotNull(p1);
+        assertNotNull(p2);
+        assertNotNull(p3);
+        assertNotNull(p4);
+
+        // P2 and P4 should win
+        // P1 remains at 0 shields
+        p2.addShields(7);
+        p3.addShields(6);
+        p4.addShields(50);
+
+        List<Player> winners = game.getWinners();
+        assertNotNull(winners);
+        assertTrue(winners.size() == 2 && winners.containsAll(Arrays.asList(p2, p4)));
+    }
+
+    @Test
+    @DisplayName("Game can display a list of players as winners in console")
+    void RESP_04_TEST_05() {
+        // Note: Termination does not need to be tested for Assignment 1.
+
+        StringWriter output = new StringWriter();
+
+        Game game = new Game();
+        game.initPlayers();
+
+        ArrayList<Player> winners = new ArrayList<>();
+        winners.add(game.getPlayerByID("P1"));
+        winners.add(game.getPlayerByID("P3"));
+
+        game.printGameEnd(new PrintWriter(output), winners);
+
+        final String outputString = output.toString();
+
+        assertAll("Victory output", () -> assertTrue(outputString.contains("Winner"), "Has 'Winner' string"),
+                  () -> assertTrue(outputString.contains("P1"), "Has all winners"),
+                  () -> assertTrue(outputString.contains("P3"), "Has all winners"));
+    }
 }
