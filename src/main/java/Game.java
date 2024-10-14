@@ -238,4 +238,8 @@ public final class Game {
         output.print("\n".repeat(50));
         output.flush();
     }
+
+    public void printEventCard(final Card ec) {
+        // TODO: implement
+    }
 }

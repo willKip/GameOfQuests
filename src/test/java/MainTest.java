@@ -704,4 +704,60 @@ public class MainTest {
                                    "Indicates to press <return> to clear the display, followed by at least 30 " +
                                            "newlines to achieve this"));
     }
+
+    @Test
+    @DisplayName("Game can draw and display a Q card from the Event deck")
+    void RESP_07_TEST_01() {
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new PrintWriter(output));
+        game.initPlayers();
+
+        Card eventCard = game.drawEventCard();
+        assertNotNull(eventCard);
+
+        // Overwrite event card with our own Quest card
+        eventCard = new Card(Card.CardType.QUEST, "Quest", "Q", 5);
+
+        game.printEventCard(eventCard);
+
+        final String outputString = output.toString();
+
+        assertAll("Display a Q card draw",
+                  () -> assertTrue(outputString.contains("Drawing an Event card..."), "Drawing Event card dialogue"),
+                  () -> assertTrue(outputString.contains("A Quest of 5 stages!"), "Q card displayed"));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Game can draw and display each E card from the Event deck")
+    @ValueSource(strings = {"Plague", "Queen's Favor", "Prosperity"})
+    void RESP_07_TEST_02(String eCardName) {
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new PrintWriter(output));
+        game.initPlayers();
+
+        Card eventCard = game.drawEventCard();
+        assertNotNull(eventCard);
+
+        // Overwrite event card with our own Quest card
+        eventCard = new Card(Card.CardType.EVENT, eCardName, "E", 2);
+
+        game.printEventCard(eventCard);
+
+        String eventDesc = "";
+        switch (eCardName) {
+            case "Plague" -> eventDesc = "Current player loses 2 Shields";
+            case "Queen's Favor" -> eventDesc = "Current player draws 2 Adventure cards";
+            case "Prosperity" -> eventDesc = "All players draw 2 Adventure cards";
+        }
+        final String finalEventDesc = eventDesc;
+
+        final String outputString = output.toString();
+
+        assertAll("Display an E card draw",
+                  () -> assertTrue(outputString.contains("Drawing an Event card..."), "Drawing Event card dialogue"),
+                  () -> assertTrue(outputString.contains("Event: " + eCardName + " - " + finalEventDesc),
+                                   "Event " + eCardName + " displayed"));
+    }
 }
