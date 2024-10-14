@@ -4,6 +4,8 @@ public class Player {
     private final int number; // Identifying player number
     private final List<Card> hand; // Sorted list of cards in hand
 
+    private int shields;
+
     public Player(final int num) {
         this.number = num;
         this.hand = new ArrayList<>();
@@ -45,12 +47,11 @@ public class Player {
     }
 
     public int getShields() {
-        // TODO: implement
-        return -1;
+        return shields;
     }
 
     // Give n shields to this player.
     public void addShields(final int n) {
-        // TODO: implement
+        shields += n;
     }
 }

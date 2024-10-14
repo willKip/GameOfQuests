@@ -1,8 +1,5 @@
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static java.util.Map.entry;
 
@@ -185,12 +182,32 @@ public final class Game {
     // Return a list of players who have met the victory condition (7 or more shields).
     // The returned list is empty if no players are eligible.
     public List<Player> getWinners() {
-        // TODO: implement
-        return null;
+        ArrayList<Player> winners = new ArrayList<>();
+
+        for (final Player p : playerList) {
+            if (p.getShields() >= 7) {
+                winners.add(p);
+            }
+        }
+
+        return winners;
     }
 
     // Print that the game has ended, and list the players given as the winners.
     public void printGameEnd(final PrintWriter output, final List<Player> players) {
-        // TODO: implement
+        StringJoiner sj = new StringJoiner(", ");
+
+        for (final Player p : players) {
+            sj.add(p.getID());
+        }
+
+        // Comma-separated list of winning players from the supplied list.
+        String winnersString = sj.toString();
+
+        output.println();
+        output.println("The game has concluded!");
+        output.println("Winner(s): " + winnersString);
+
+        output.flush();
     }
 }
