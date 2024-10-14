@@ -303,4 +303,8 @@ public final class Game {
 
         output.flush();
     }
+
+    public Player findSponsor(final int questLength) {
+        return new Player(-1, input, output);
+    }
 }

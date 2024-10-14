@@ -909,4 +909,34 @@ public class MainTest {
                   () -> assertEquals(12, p3.getHandSize(), "P3 gains 2 cards from 11, trims 1"),
                   () -> assertEquals(12, p4.getHandSize(), "P4 gains 2 cards from 12, trims 2"));
     }
+
+    @Test
+    @DisplayName("Game prompts players to sponsor, gets a sponsor")
+    void RESP_09_TEST_01() {
+        String input = "n\n\nn\n\ny\n"; // P1 decline, P2 decline, P3 accept
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player sponsor = game.findSponsor(5);
+
+        assertTrue(output.toString().contains("Would you like to sponsor this Quest of 5 stages?"), "Quest prompt");
+        assertNotNull(sponsor, "A sponsor should be found");
+        assertEquals("P3", sponsor.getID(), "The correct sponsor is returned");
+    }
+
+    @Test
+    @DisplayName("Game prompts players to sponsor, all decline")
+    void RESP_09_TEST_02() {
+        String input = "n\n\nn\n\nn\n\nn\n\n"; // P1 decline, P2 decline, P3 decline, P4 decline, all with transitions
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player sponsor = game.findSponsor(10);
+
+        assertNull(sponsor, "A sponsor should not be found");
+    }
 }
