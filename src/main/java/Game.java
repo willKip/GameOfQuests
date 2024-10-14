@@ -228,6 +228,14 @@ public final class Game {
     }
 
     public void printTurnEndOf(Player player) {
-        // TODO: implement
+        output.println("The turn of " + player.getID() + " has ended!");
+        output.print("Press <return> to continue... > ");
+        output.flush();
+
+        input.nextLine();
+
+        // Flush display with several newlines
+        output.print("\n".repeat(50));
+        output.flush();
     }
 }
