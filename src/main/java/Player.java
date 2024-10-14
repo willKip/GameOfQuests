@@ -1,12 +1,19 @@
+import java.io.PrintWriter;
 import java.util.*;
 
 public class Player {
+    private final Scanner input;
+    private final PrintWriter output;
+
     private final int number; // Identifying player number
     private final List<Card> hand; // Sorted list of cards in hand
 
     private int shields;
 
-    public Player(final int num) {
+    public Player(final int num, Scanner input, PrintWriter output) {
+        this.input = input;
+        this.output = output;
+
         this.number = num;
         this.hand = new ArrayList<>();
     }

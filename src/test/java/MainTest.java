@@ -433,13 +433,13 @@ public class MainTest {
     void RESP_03_TEST_02() {
         StringWriter output = new StringWriter();
 
-        Game game = new Game();
+        Game game = new Game(new PrintWriter(output));
         game.initPlayers();
 
         // First player in turn order
         Player currPlayer = game.getCurrentPlayer();
 
-        game.printPlayerTurnStart(new PrintWriter(output));
+        game.printPlayerTurnStart();
         String outputString = output.toString();
 
         boolean initPlayerTurnDisplayed = outputString.contains(currPlayer.getID());
@@ -448,7 +448,7 @@ public class MainTest {
         currPlayer = game.getNextPlayer(currPlayer);
         game.setCurrentPlayer(currPlayer);
 
-        game.printPlayerTurnStart(new PrintWriter(output));
+        game.printPlayerTurnStart();
         outputString = output.toString();
 
         boolean nextPlayerTurnDisplayed = outputString.contains(currPlayer.getID());
@@ -464,7 +464,7 @@ public class MainTest {
     void RESP_03_TEST_03() {
         StringWriter output = new StringWriter();
 
-        Game game = new Game();
+        Game game = new Game(new PrintWriter(output));
         game.initPlayers();
 
         Player currentPlayer = game.getCurrentPlayer();
@@ -490,7 +490,7 @@ public class MainTest {
 
         final String correctHandOrder = "F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30";
 
-        game.printPlayerTurnStart(new PrintWriter(output));
+        game.printPlayerTurnStart();
 
         final String outputString = output.toString();
 
@@ -592,14 +592,14 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
 
-        Game game = new Game();
+        Game game = new Game(new PrintWriter(output));
         game.initPlayers();
 
         ArrayList<Player> winners = new ArrayList<>();
         winners.add(game.getPlayerByID("P1"));
         winners.add(game.getPlayerByID("P3"));
 
-        game.printGameEnd(new PrintWriter(output), winners);
+        game.printGameEnd(winners);
 
         final String outputString = output.toString();
 

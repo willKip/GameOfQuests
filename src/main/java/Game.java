@@ -1,16 +1,32 @@
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.*;
 
 import static java.util.Map.entry;
 
 public final class Game {
+    private final Scanner input;
+    private final PrintWriter output;
+
     private final Deck adventureDeck;
     private final Deck eventDeck;
-
     private final List<Player> playerList; // Ordered list of players, representing turn order as well
     private int currPlayerIndex;     // Index of player list denoting whose turn it is in the game.
 
     public Game() {
+        // If no output is needed, initialise a PrintWriter that discards all bytes.
+        this(new PrintWriter(OutputStream.nullOutputStream()));
+    }
+
+    public Game(PrintWriter output) {
+        // If no input is needed, 'input' an empty string (do no input).
+        this(new Scanner(""), output);
+    }
+
+    public Game(Scanner input, PrintWriter output) {
+        this.input = input;
+        this.output = output;
+
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
         this.playerList = new ArrayList<>();
@@ -82,7 +98,7 @@ public final class Game {
 
         for (int i = 0; i < NUM_PLAYERS; i++) {
             int playerNumber = i + 1;
-            Player newPlayer = new Player(playerNumber);
+            Player newPlayer = new Player(playerNumber, input, output);
             newPlayer.addToHand(drawAdventureCards(DRAW_COUNT));
             playerList.add(newPlayer);
         }
@@ -170,7 +186,7 @@ public final class Game {
     }
 
     // Print whose turn it is, and display that player's hand.
-    public void printPlayerTurnStart(final PrintWriter output) {
+    public void printPlayerTurnStart() {
         Player currPlayer = getCurrentPlayer();
 
         output.println("[" + currPlayer.getID() + "]'s Turn:");
@@ -194,7 +210,7 @@ public final class Game {
     }
 
     // Print that the game has ended, and list the players given as the winners.
-    public void printGameEnd(final PrintWriter output, final List<Player> players) {
+    public void printGameEnd(final List<Player> players) {
         StringJoiner sj = new StringJoiner(", ");
 
         for (final Player p : players) {
