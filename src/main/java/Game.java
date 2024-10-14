@@ -173,7 +173,12 @@ public final class Game {
     }
 
     // Print whose turn it is, and display that player's hand.
-    public void printPlayerTurnStart(PrintWriter output) {
-        // TODO: implement
+    public void printPlayerTurnStart(final PrintWriter output) {
+        Player currPlayer = getCurrentPlayer();
+
+        output.println("[" + currPlayer.getID() + "]'s Turn:");
+        output.println(currPlayer.getHandString());
+
+        output.flush();
     }
 }

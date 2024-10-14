@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class Player {
     private final int number; // Identifying player number
@@ -25,6 +23,7 @@ public class Player {
 
     public void addToHand(final Collection<Card> cards) {
         hand.addAll(cards);
+        Collections.sort(hand);
     }
 
     // Overwrite the player's hand with the cards in the collection given.
@@ -36,7 +35,12 @@ public class Player {
 
     // Return a space-separated, ordered string of the cards in the player's hand.
     public String getHandString() {
-        // TODO: implement
-        return "";
+        StringJoiner sj = new StringJoiner(" ");
+
+        for (Card c : hand) {
+            sj.add(c.getCardID());
+        }
+
+        return sj.toString();
     }
 }
