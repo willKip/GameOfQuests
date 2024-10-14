@@ -58,6 +58,11 @@ public class Player {
         return shields;
     }
 
+    // Remove shields, to a minimum of 0
+    public void removeShields(int n) {
+        shields = Math.max(0, shields - n);
+    }
+
     // Give n shields to this player.
     public void addShields(final int n) {
         shields += n;

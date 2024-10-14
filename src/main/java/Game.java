@@ -263,6 +263,44 @@ public final class Game {
 
     // Applies the given E card event's effects to the appropriate targets.
     public void doEvent(final Card eventCard) {
-        // TODO: implement
+        Player currPlayer = getCurrentPlayer();
+        final int eventValue = eventCard.getValue();
+
+        switch (eventCard.getName()) {
+            case "Plague":
+                // Remove current player's shields
+                currPlayer.removeShields(eventValue);
+                output.println("Your shield count is now " + currPlayer.getShields() + ".");
+                break;
+            case "Queen's Favor":
+            case "Prosperity":
+                for (final Player p : getPlayersStartingCurrent()) {
+                    List<Card> cards = drawAdventureCards(eventValue);
+
+                    output.print(p.getID() + ": you drew ");
+
+                    StringJoiner sj = new StringJoiner(", ");
+                    for (final Card c : cards) {
+                        sj.add(c.getCardID());
+                    }
+                    output.print(sj);
+                    output.println(".");
+                    output.flush();
+
+                    p.addToHand(cards);
+
+                    output.println("Hand: " + p.getHandString());
+                    output.flush();
+
+                    if (Objects.equals(eventCard.getName(), "Queen's Favor")) {
+                        break; // Only applicable to drawing player if Queen's Favor
+                    }
+
+                    printTurnEndOf(p);
+                }
+                break;
+        }
+
+        output.flush();
     }
 }
