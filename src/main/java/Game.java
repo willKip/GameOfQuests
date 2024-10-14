@@ -305,6 +305,22 @@ public final class Game {
     }
 
     public Player findSponsor(final int questLength) {
-        return new Player(-1, input, output);
+        Player sponsor = null;
+
+        for (final Player p : getPlayersStartingCurrent()) {
+            output.print(p.getID() + ": Would you like to sponsor this Quest of " + questLength + " stages? (y/n) > ");
+            output.flush();
+
+            boolean answer = input.nextLine().equalsIgnoreCase("y");
+
+            if (answer) {
+                sponsor = p;
+                break;
+            } else {
+                printTurnEndOf(p);
+            }
+        }
+
+        return sponsor;
     }
 }
