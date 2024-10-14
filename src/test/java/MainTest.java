@@ -760,4 +760,153 @@ public class MainTest {
                   () -> assertTrue(outputString.contains("Event: " + eCardName + " - " + finalEventDesc),
                                    "Event " + eCardName + " displayed"));
     }
+
+    @Test
+    @DisplayName("Event: Plague will make the drawing player lose 2 shields, to a minimum of 0")
+    void RESP_08_TEST_01() {
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new PrintWriter(output));
+        game.initPlayers();
+
+        Player p1 = game.getPlayerByID("P1");
+        Player p2 = game.getPlayerByID("P2");
+        Player p3 = game.getPlayerByID("P3");
+        Player p4 = game.getPlayerByID("P4");
+
+        assertNotNull(p1);
+        assertNotNull(p2);
+        assertNotNull(p3);
+        assertNotNull(p4);
+
+        // P1 remains at 0 shields
+        p2.addShields(1);
+        p3.addShields(2);
+        p4.addShields(6);
+
+        Card plagueCard = new Card(Card.CardType.EVENT, "Plague", "E", 2);
+
+        game.setCurrentPlayer(p2);
+        game.doEvent(plagueCard);
+
+        game.setCurrentPlayer(p4);
+        game.doEvent(plagueCard);
+
+        assertAll("Plague event triggers",
+                  () -> assertEquals(0, p1.getShields(), "P1 didn't draw Plague, shields should stay at 0"),
+                  () -> assertEquals(0, p2.getShields(), "P2 drew Plague, shields should be 1 -> 0"),
+                  () -> assertEquals(2, p3.getShields(), "P3 didn't draw Plague, shields should stay at 2"),
+                  () -> assertEquals(4, p4.getShields(), "P2 drew Plague, shields should be 6 -> 4"));
+    }
+
+    @Test
+    @DisplayName("Event: Queen's Favor will make the drawing player draw 2 cards, possibly trimming")
+    void RESP_08_TEST_02() {
+        String input = "1\n"; // Trim one card after drawing 2 to reach 13 cards in hand
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player player = game.getPlayerByID("P2"); // Arbitrary player choice
+        assertNotNull(player);
+
+        // List of 11 cards (in order), 1 under the max of 11
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
+
+        player.rigHand(riggedCards);
+
+        Card queenFavorCard = new Card(Card.CardType.EVENT, "Queen's Favor", "E", 2);
+
+        game.setCurrentPlayer(player);
+        game.doEvent(queenFavorCard);
+
+        assertEquals(12, player.getHandSize(),
+                     "Player drew 2 cards from Queen's Favour while having 11 cards in hand, trimmed to 12");
+    }
+
+    @Test
+    @DisplayName("Event: Prosperity will make every player draw 2 cards, possibly trimming")
+    void RESP_08_TEST_03() {
+        String input = "\n1\n\n1\n1\n\n\n"; // P2 next, P3 trim 1, P3 next, P4 trim 1, P4 trim 1, P4 next, P1 next
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p1 = game.getPlayerByID("P1");
+        Player p2 = game.getPlayerByID("P2");
+        Player p3 = game.getPlayerByID("P3");
+        Player p4 = game.getPlayerByID("P4");
+
+        assertNotNull(p1);
+        assertNotNull(p2);
+        assertNotNull(p3);
+        assertNotNull(p4);
+
+        ArrayList<Card> riggedCards;
+
+        // Empty P1
+        p1.rigHand(Collections.emptyList());
+
+        // P2 gets 3 cards
+        riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
+        p2.rigHand(riggedCards);
+
+        // P3 gets 11 cards
+        riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
+        p3.rigHand(riggedCards);
+
+        // P4 gets 12 cards
+        riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 12));
+        p4.rigHand(riggedCards);
+
+        // All players get 2 cards each
+        Card prosperityCard = new Card(Card.CardType.EVENT, "Prosperity", "E", 2);
+
+        game.setCurrentPlayer(p2);
+        game.doEvent(prosperityCard);
+
+        assertAll("Prosperity event triggers", () -> assertEquals(2, p1.getHandSize(), "P1 gains 2 cards from 0"),
+                  () -> assertEquals(5, p2.getHandSize(), "P2 gains 2 cards from 3"),
+                  () -> assertEquals(12, p3.getHandSize(), "P3 gains 2 cards from 11, trims 1"),
+                  () -> assertEquals(12, p4.getHandSize(), "P4 gains 2 cards from 12, trims 2"));
+    }
 }

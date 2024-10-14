@@ -260,4 +260,9 @@ public final class Game {
 
         output.flush();
     }
+
+    // Applies the given E card event's effects to the appropriate targets.
+    public void doEvent(final Card eventCard) {
+        // TODO: implement
+    }
 }
