@@ -680,4 +680,28 @@ public class MainTest {
                   () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
                   () -> assertEquals(expectedHand, player.getHandString(), "Correct cards removed"));
     }
+
+    @ParameterizedTest
+    @DisplayName("Game can indicate the end of a player's turn and clear the display when <return> key is pressed.")
+    @ValueSource(strings = {"P1", "P2", "P3", "P4"})
+    void RESP_06_TEST_01(String playerID) {
+        String input = "\n"; // Input to remove the 'F4' card
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player player = game.getPlayerByID(playerID);
+        assertNotNull(player);
+
+        game.printTurnEndOf(player);
+
+        final String outputString = output.toString();
+
+        assertAll("Player " + playerID + "'s turn ends",
+                  () -> assertTrue(outputString.contains(playerID), "Indicates correct player's end of turn"),
+                  () -> assertTrue(outputString.contains("Press <return> to continue... > " + "\n".repeat(30)),
+                                   "Indicates to press <return> to clear the display, followed by at least 30 " +
+                                           "newlines to achieve this"));
+    }
 }
