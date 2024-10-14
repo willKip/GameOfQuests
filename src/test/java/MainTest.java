@@ -701,8 +701,8 @@ public class MainTest {
         assertAll("Player " + playerID + "'s turn ends",
                   () -> assertTrue(outputString.contains(playerID), "Indicates correct player's end of turn"),
                   () -> assertTrue(outputString.contains("Press <return> to continue... > " + "\n".repeat(30)),
-                                   "Indicates to press <return> to clear the display, followed by at least 30 " +
-                                           "newlines to achieve this"));
+                                   "Indicates to press <return> to clear the display, followed by at least 30 "
+                                   + "newlines to achieve this"));
     }
 
     @Test
@@ -938,5 +938,223 @@ public class MainTest {
         Player sponsor = game.findSponsor(10);
 
         assertNull(sponsor, "A sponsor should not be found");
+    }
+
+    @Test
+    @DisplayName("A sponsor can construct a valid quest with 1 Foe and 2 Weapons.")
+    void RESP_10_TEST_01() {
+        String input = "3\n2\n1\nquit\n"; // [3] B15, [2] H19, [1] F10, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // Hand of 3 cards to be used in the quest
+        // Empty hand does not need to be handled specially because Assignment 1 specifies that we may assume players
+        // will only sponsor if they can construct a full quest; they can simply type quit with their empty hand, and
+        // it will be sufficient to finish construction of the whole quest.
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        p.rigHand(riggedCards);
+
+        // Make player build a valid stage; previous stage had value 30
+        List<Card> stageCards = game.buildStage(p, 30);
+
+        final String outputString = output.toString();
+
+        assertAll("Cards properly moved",
+                  () -> assertEquals(riggedCards, stageCards, "Chosen stage cards are returned"),
+                  () -> assertEquals(0, p.getHandSize(), "Cards used for stage removed from sponsor's hand"));
+
+        assertAll("Stage cards correctly displayed",
+                  () -> assertTrue(outputString.contains("Stage Cards: (empty)"), "Empty stage"),
+                  () -> assertTrue(outputString.contains("Stage Cards: B15"), "B15 added first"),
+                  () -> assertTrue(outputString.contains("Stage Cards: H10 B15"), "H10 added second"),
+                  () -> assertTrue(outputString.contains("Stage Cards: F10 H10 B15"), "F10 added third"));
+
+        assertAll("Stage values correctly displayed",
+                  () -> assertTrue(outputString.contains("Stage Value: 0"), "Stage value starts at 0"),
+                  () -> assertTrue(outputString.contains("Stage Value: 15"), "B15 added 15"),
+                  () -> assertTrue(outputString.contains("Stage Value: 25"), "H10 added 10"),
+                  () -> assertTrue(outputString.contains("Stage Value: 35"), "F10 added 10"));
+
+        assertTrue(outputString.contains("Stage Completed: F10 H10 B15"), "Final stage cards displayed");
+    }
+
+    @Test
+    @DisplayName("A sponsor can construct a valid quest with 1 Foe and no Weapons.")
+    void RESP_10_TEST_02() {
+        String input = "1\nquit\n"; // [1] F25, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // Hand with only one F25
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 25));
+        p.rigHand(riggedCards);
+
+        // Make player build a valid stage; previous stage had value 20, reachable with one F25
+        List<Card> stageCards = game.buildStage(p, 20);
+
+        final String outputString = output.toString();
+
+        assertAll("Cards properly moved", () -> assertEquals(riggedCards, stageCards, "Chosen F25 returned"),
+                  () -> assertEquals(0, p.getHandSize(), "F25 removed from sponsor's hand"));
+        assertTrue(outputString.contains("Stage Completed: F25"), "Stage completed with F25");
+    }
+
+    @Test
+    @DisplayName("Game will indicate no more than one foe may be used to build a stage")
+    void RESP_10_TEST_03() {
+        String input = "2\n1\nquit\n"; // [2] F20, [1] F10, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // F10, F20; use F20, F10 will be denied for being a second Foe card
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 20));
+        p.rigHand(riggedCards);
+
+        List<Card> stageCards = game.buildStage(p, 5); // Stage value target: 5
+
+        final String outputString = output.toString();
+
+        ArrayList<Card> listWithF10 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", "F", 10)));
+        ArrayList<Card> listWithF20 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", "F", 20)));
+
+        assertAll("Cards properly moved",
+                  () -> assertEquals(listWithF10, p.getHand(), "Player only has F10 left in hand"),
+                  () -> assertEquals(listWithF20, stageCards, "Chosen F20 returned"));
+        assertTrue(outputString.contains("Cannot add more than one Foe card to a stage"),
+                   "Indicate only one Foe is allowed for a stage");
+        assertTrue(outputString.contains("Stage Completed: F20"), "Stage completed with F20");
+    }
+
+    @Test
+    @DisplayName("Game will indicate no repeated weapons for building a stage")
+    void RESP_10_TEST_04() {
+        String input = "1\n1\n1\nquit\n"; // [1] F10, [1] D5, [1] D5, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // F10, D5, D5
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        p.rigHand(riggedCards);
+
+        List<Card> stageCards = game.buildStage(p, 15);
+
+        final String outputString = output.toString();
+
+        // riggedCards list now only has [F10, D5]
+        ArrayList<Card> listWithD5 = new ArrayList<>(List.of(riggedCards.removeLast()));
+
+        assertAll("Cards properly moved",
+                  () -> assertEquals(listWithD5, p.getHand(), "Player only has the other D5 left in hand"),
+                  () -> assertEquals(riggedCards, stageCards, "Chosen F10, D5 returned"));
+        assertTrue(outputString.contains("Cannot add a repeat Weapon card to a stage."),
+                   "Indicate Weapons must be unique");
+        assertTrue(outputString.contains("Stage Completed: F10 D5"), "Stage completed with F10 and D5");
+    }
+
+    @Test
+    @DisplayName("Game will indicate a stage cannot be empty to finalise")
+    void RESP_10_TEST_05() {
+        String input = "quit\n1\nquit\n"; // quit, [1] F10, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        p.rigHand(riggedCards);
+
+        List<Card> stageCards = game.buildStage(p, 10);
+
+        final String outputString = output.toString();
+
+        assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
+                  () -> assertEquals(riggedCards, stageCards, "Chosen card returned"));
+        assertTrue(outputString.contains("A stage cannot be empty"), "Indicate a stage cannot be empty");
+        assertTrue(outputString.contains("Stage Completed: F10"), "Stage completed");
+    }
+
+    @Test
+    @DisplayName("Game will indicate a stage must have a Foe to finalise")
+    void RESP_10_TEST_06() {
+        String input = "2\nquit\n1\nquit\n"; // [2] B15, quit, [1] F10, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // F10, B15; B15 is sufficient value-wise for the target 15, but 1 Foe card is required still
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        p.rigHand(riggedCards);
+
+        List<Card> stageCards = game.buildStage(p, 15);
+
+        final String outputString = output.toString();
+
+        assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
+                  () -> assertEquals(riggedCards, stageCards, "Chosen cards returned"));
+        assertTrue(outputString.contains("A stage must have a Foe card"), "Indicate a stage must have a Foe card");
+        assertTrue(outputString.contains("Stage Completed: F10 B15"), "Stage completed");
+    }
+
+    @Test
+    @DisplayName("Game will indicate sufficient value is needed for a stage")
+    void RESP_10_TEST_07() {
+        String input = "1\nquit\n1\nquit\n1\nquit\n"; // [1] F5, quit, [1] S10, quit, [1] B15, quit
+        StringWriter output = new StringWriter();
+
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // F5, S10, B15: Target 30 must be reached with all 3 cards
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        p.rigHand(riggedCards);
+
+        List<Card> stageCards = game.buildStage(p, 30);
+
+        final String outputString = output.toString();
+
+        assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
+                  () -> assertEquals(riggedCards, stageCards, "Chosen cards returned"));
+        assertTrue(outputString.contains("Insufficient value for this stage, need at least 30"),
+                   "Indicate stage value requirement");
+        assertEquals(30, Game.cardSum(stageCards), "Expected stage value returned");
+        assertTrue(outputString.contains("Stage Completed: F5 S10 B15"), "Stage completed");
     }
 }

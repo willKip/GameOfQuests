@@ -33,6 +33,11 @@ public final class Game {
         this.currPlayerIndex = 0; // Game starts with the first player in the list
     }
 
+    public static int cardSum(final List<Card> cards) {
+        // TODO: implement
+        return 0;
+    }
+
     // Return the corresponding player from the index, wrapping around if
     // an index larger than the player list size is given.
     private Player getPlayerFromIndex(final int i) {
@@ -322,5 +327,10 @@ public final class Game {
         }
 
         return sponsor;
+    }
+
+    public List<Card> buildStage(final Player sponsor, final int prevStageValue) {
+        // TODO: implement
+        return Collections.emptyList();
     }
 }
