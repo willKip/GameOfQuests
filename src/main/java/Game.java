@@ -240,6 +240,24 @@ public final class Game {
     }
 
     public void printEventCard(final Card ec) {
-        // TODO: implement
+        if (ec.getCardType() == Card.CardType.QUEST) {
+            output.println("Drawing an Event card...");
+            output.println("A Quest of " + ec.getValue() + " stages!");
+        } else if (ec.getCardType() == Card.CardType.EVENT) {
+            output.println("Drawing an Event card...");
+
+            String eventDesc = "";
+
+            switch (ec.getName()) {
+                case "Plague" -> eventDesc = "Current player loses 2 Shields";
+                case "Queen's Favor" -> eventDesc = "Current player draws 2 Adventure cards";
+                case "Prosperity" -> eventDesc = "All players draw 2 Adventure cards";
+            }
+
+            output.println("Event: " + ec.getName() + " - " + eventDesc);
+
+        }
+
+        output.flush();
     }
 }
