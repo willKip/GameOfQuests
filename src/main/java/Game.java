@@ -514,7 +514,49 @@ public final class Game {
     }
 
     public void runStage(final List<Player> eligible, final int stageValue, final int stageNum, final int stageCount) {
-        // todo
+        List<Player> lost = new ArrayList<>();
+
+        // Each player sets up a valid attack
+        for (final Player p : eligible) {
+            if (lost.contains(p)) {
+                // Lost previously, cannot participate now
+                continue;
+            }
+
+            output.println(p.getID() + ": Build an attack for stage " + stageNum);
+            output.flush();
+
+            List<Card> attackCards = buildAttack(p);
+
+            boolean wonRound = Game.cardSum(attackCards) >= stageValue;
+
+            if (wonRound) {
+                // Player wins, remain eligible.
+                output.println(p.getID() + ": You have won the stage.");
+                if (stageNum == stageCount) {
+                    // If last stage, get shield rewards as well
+                    p.addShields(stageCount);
+                    output.println("You have won the quest! You also get " + stageCount + " shields. You now have "
+                                   + p.getShields() + " shields.");
+                }
+            } else {
+                // Player loses, cannot play anymore
+                lost.add(p);
+                output.println(p.getID() + ": You have lost the stage.");
+            }
+
+            output.flush();
+
+            printTurnEndOf(p);
+
+            // Cards used for the attack of the current stage are discarded by the game.
+            for (final Card c : attackCards) {
+                discard(c);
+            }
+        }
+
+        // Remove players who lost in that stage
+        eligible.removeAll(lost);
     }
 
     // Prompt each player in the list for withdrawal, removing them from the list if they respond yes.
