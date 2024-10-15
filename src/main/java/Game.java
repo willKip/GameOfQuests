@@ -513,6 +513,10 @@ public final class Game {
         return questStages;
     }
 
+    public void runStage(final List<Player> eligible, final int stageValue, final int stageNum, final int stageCount) {
+        // todo
+    }
+
     // Prompt each player in the list for withdrawal, removing them from the list if they respond yes.
     public void promptWithdraw(final List<Player> eligible) {
         List<Player> withdrawing = new ArrayList<>();

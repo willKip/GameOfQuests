@@ -1366,4 +1366,45 @@ public class MainTest {
         assertEquals(new ArrayList<>(List.of(p1)), players, "P2 removed from list");
         assertEquals(12, p1.getHandSize(), "P1 hand size trimmed to 12");
     }
+
+    @Test
+    @DisplayName("Can run a stage for players")
+    void RESP_14_TEST_01() {
+        String input = "1\nquit\n\n1\nquit\n\n";
+
+        StringWriter output = new StringWriter();
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        // Will use excalibur and win, 30 > 20
+        Player winner = game.getPlayerByID("P1");
+
+        // Will use dagger and lose, 5 < 20
+        Player loser = game.getPlayerByID("P2");
+
+        assertNotNull(winner);
+        assertNotNull(loser);
+
+        winner.rigHand(new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30))));
+        loser.rigHand(new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Dagger", "D", 5))));
+
+        List<Player> players = new ArrayList<>();
+        players.add(winner);
+        players.add(loser);
+
+        int stageValue = 20;
+        int stageCount = 4;
+
+        // Stage value 1; final stage of 4 stage quest.
+        game.runStage(players, stageValue, stageCount, stageCount);
+
+        final String outputString = output.toString();
+
+        assertTrue(outputString.contains("P1: Build an attack for stage 4"), "P1 attack building");
+        assertTrue(outputString.contains("P2: Build an attack for stage 4"), "P2 attack building");
+
+        assertEquals(stageCount, winner.getShields(), "P1 gets [stage count] shields from winning");
+        assertEquals(0, loser.getShields(), "P2 stays at 0 shields");
+        assertEquals(new ArrayList<>(List.of(winner)), players, "P2 removed from list for losing");
+    }
 }
