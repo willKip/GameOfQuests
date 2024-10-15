@@ -1336,4 +1336,34 @@ public class MainTest {
         assertTrue(outputString.contains("Stage Completed: F15 D5 B15"), "Stage 3 completed");
         assertTrue(outputString.contains("Stage Completed: F40 B15"), "Stage 4 completed");
     }
+
+    @Test
+    @DisplayName("Can remove players from a list after prompting each for withdrawal")
+    void RESP_13_TEST_01() {
+        String input = "n\n1\n\ny\n";
+
+        StringWriter output = new StringWriter();
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p1 = game.getPlayerByID("P1");
+        Player p2 = game.getPlayerByID("P2");
+
+        assertNotNull(p1);
+        assertNotNull(p2);
+
+        List<Player> players = new ArrayList<>();
+        players.add(p1);
+        players.add(p2);
+
+        game.promptWithdraw(players);
+
+        final String outputString = output.toString();
+
+        assertTrue(outputString.contains("P1: Would you like to withdraw from this quest?"), "P1 withdrawing");
+        assertTrue(outputString.contains("P2: Would you like to withdraw from this quest?"), "P2 withdrawing");
+
+        assertEquals(new ArrayList<>(List.of(p1)), players, "P2 removed from list");
+        assertEquals(12, p1.getHandSize(), "P1 hand size trimmed to 12");
+    }
 }

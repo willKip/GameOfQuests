@@ -512,4 +512,9 @@ public final class Game {
         }
         return questStages;
     }
+
+    // Prompt each player in the list for withdrawal, removing them from the list if they respond yes.
+    public void promptWithdraw(final List<Player> eligible) {
+        // TODO
+    }
 }
