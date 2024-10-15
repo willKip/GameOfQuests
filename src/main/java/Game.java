@@ -436,4 +436,8 @@ public final class Game {
             }
         }
     }
+
+    public List<Card> buildAttack(final Player player) {
+        return Collections.emptyList();
+    }
 }

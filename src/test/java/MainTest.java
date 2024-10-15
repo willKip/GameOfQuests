@@ -1157,4 +1157,134 @@ public class MainTest {
         assertEquals(30, Game.cardSum(stageCards), "Expected stage value returned");
         assertTrue(outputString.contains("Stage Completed: F5 S10 B15"), "Stage completed");
     }
+
+    @Test
+    @DisplayName("A player can construct an attack, only choosing valid cards")
+    void RESP_11_TEST_01() {
+        String input = "2\n1\nquit\n"; // [2] B15, [1] H10, quit
+
+        StringWriter output = new StringWriter();
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        p.rigHand(riggedCards);
+
+        // Make player build an attack, return its cards
+        List<Card> attackCards = game.buildAttack(p);
+
+        final String outputString = output.toString();
+
+        assertAll("Cards properly moved",
+                  () -> assertEquals(riggedCards, attackCards, "Chosen attack cards are returned"),
+                  () -> assertEquals(0, p.getHandSize(), "Cards used for attack removed from player's hand"));
+
+        assertEquals(25, Game.cardSum(attackCards), "Correct value in returned attack cards");
+
+        assertAll("Attack cards correctly displayed",
+                  () -> assertTrue(outputString.contains("Attack Cards: (empty)"), "Empty attack"),
+                  () -> assertTrue(outputString.contains("Attack Cards: B15"), "B15 added first"),
+                  () -> assertTrue(outputString.contains("Attack Cards: H10 B15"), "H10 added second"));
+
+        assertAll("Attack values correctly displayed",
+                  () -> assertTrue(outputString.contains("Attack Value: 0"), "Attack value starts at 0"),
+                  () -> assertTrue(outputString.contains("Attack Value: 15"), "B15 added 15"),
+                  () -> assertTrue(outputString.contains("Attack Value: 25"), "H10 added 10"));
+
+        assertTrue(outputString.contains("Attack Built (Value 25): H10 B15"), "Final attack cards displayed");
+    }
+
+    @Test
+    @DisplayName("Game indicates that attacks cannot use Foe cards")
+    void RESP_11_TEST_02() {
+        String input = "1\n2\nquit\n"; // [1] F10, [2] H10, quit
+
+        StringWriter output = new StringWriter();
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        p.rigHand(riggedCards);
+
+        // Make player build an attack, return its cards
+        List<Card> attackCards = game.buildAttack(p);
+
+        final String outputString = output.toString();
+
+        ArrayList<Card> listWithF10 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", "F", 10)));
+        ArrayList<Card> listWithH10 = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", "H", 10)));
+
+        assertAll("Cards properly moved", () -> assertEquals(listWithH10, attackCards, "H10 chosen and returned"),
+                  () -> assertEquals(listWithF10, p.getHand(), "F10 remains in hand"));
+
+        assertEquals(10, Game.cardSum(attackCards), "Correct value in returned attack card");
+
+        assertTrue(outputString.contains("Attacks can only use Weapons"), "Indicate Attacks can use Weapon cards only");
+
+        assertAll("Attack cards correctly displayed",
+                  () -> assertTrue(outputString.contains("Attack Cards: (empty)"), "Empty attack"),
+                  () -> assertTrue(outputString.contains("Attack Cards: H10"), "H10 added"));
+
+        assertAll("Attack values correctly displayed",
+                  () -> assertTrue(outputString.contains("Attack Value: 0"), "Attack value starts at 0"),
+                  () -> assertTrue(outputString.contains("Attack Value: 10"), "H10 added 10"));
+
+        assertTrue(outputString.contains("Attack Built (Value 10): H10"), "Final attack card displayed");
+    }
+
+    @Test
+    @DisplayName("Game indicates that attacks cannot use repeat Weapon cards")
+    void RESP_11_TEST_03() {
+        String input = "1\n1\n2\nquit\n"; // [1] H10, [1] H10, [2] B15, quit
+
+        StringWriter output = new StringWriter();
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        ArrayList<Card> riggedCards = new ArrayList<>();
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        p.rigHand(riggedCards);
+
+        List<Card> attackCards = game.buildAttack(p); // Make player build an attack, return its cards
+
+        final String outputString = output.toString();
+
+        ArrayList<Card> expectedAttack = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", "H", 10),
+                                                                 new Card(Card.CardType.WEAPON, "Battle-axe", "B",
+                                                                          15)));
+        ArrayList<Card> expectedHand = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", "H", 10)));
+
+        assertAll("Cards properly moved",
+                  () -> assertEquals(expectedAttack, attackCards, "H10 B15 chosen and returned"),
+                  () -> assertEquals(expectedHand, p.getHand(), "H10 remains in hand"));
+
+        assertEquals(25, Game.cardSum(attackCards), "Correct value in returned attack cards");
+
+        assertTrue(outputString.contains("Cannot add a repeat Weapon card to an attack"),
+                   "Indicate Attacks cannot use repeated Weapon cards");
+
+        assertAll("Attack cards correctly displayed",
+                  () -> assertTrue(outputString.contains("Attack Cards: (empty)"), "Empty attack"),
+                  () -> assertTrue(outputString.contains("Attack Cards: H10"), "H10 added"),
+                  () -> assertTrue(outputString.contains("Attack Cards: H10 B15"), "B15 added"));
+
+        assertAll("Attack values correctly displayed",
+                  () -> assertTrue(outputString.contains("Attack Value: 0"), "Attack value starts at 0"),
+                  () -> assertTrue(outputString.contains("Attack Value: 10"), "H10 added 10"),
+                  () -> assertTrue(outputString.contains("Attack Value: 25"), "B15 added 15"));
+
+        assertTrue(outputString.contains("Attack Built (Value 25): H10 B15"), "Final attack cards displayed");
+    }
 }
