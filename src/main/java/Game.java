@@ -5,8 +5,8 @@ import java.util.*;
 import static java.util.Map.entry;
 
 public final class Game {
-    private final Scanner input;
-    private final PrintWriter output;
+    private static PrintWriter output = null;
+    private static Scanner input = null;
 
     private final Deck adventureDeck;
     private final Deck eventDeck;
@@ -24,8 +24,8 @@ public final class Game {
     }
 
     public Game(Scanner input, PrintWriter output) {
-        this.input = input;
-        this.output = output;
+        Game.input = input;
+        Game.output = output;
 
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
@@ -33,9 +33,35 @@ public final class Game {
         this.currPlayerIndex = 0; // Game starts with the first player in the list
     }
 
-    public static int cardSum(final List<Card> cards) {
-        // TODO: implement
-        return 0;
+    // Displays a prompt to select cards from a 1-indexed list; returns the user input.
+    // Note: Must -1 from user index selection since the displayed is 1-index, not the card list's true 0-index
+    static String cardSelection(final String prompt, final List<Card> cards) {
+        output.println(prompt);
+
+        if (cards.isEmpty()) {
+            output.println("[-] (no cards)");
+        } else {
+            int cardIndex = 0;
+            for (final Card c : cards) {
+                output.println("[" + (cardIndex + 1) + "] " + c.getCardID());
+                cardIndex++;
+            }
+        }
+
+        output.print("> ");
+        output.flush();
+
+        return input.nextLine();
+    }
+
+    static int cardSum(final List<Card> cards) {
+        int total = 0;
+
+        for (final Card c : cards) {
+            total += c.getValue();
+        }
+
+        return total;
     }
 
     // Return the corresponding player from the index, wrapping around if
@@ -103,7 +129,7 @@ public final class Game {
 
         for (int i = 0; i < NUM_PLAYERS; i++) {
             int playerNumber = i + 1;
-            Player newPlayer = new Player(playerNumber, input, output);
+            Player newPlayer = new Player(playerNumber);
             newPlayer.addToHand(drawAdventureCards(DRAW_COUNT));
             playerList.add(newPlayer);
         }
@@ -330,7 +356,84 @@ public final class Game {
     }
 
     public List<Card> buildStage(final Player sponsor, final int prevStageValue) {
-        // TODO: implement
-        return Collections.emptyList();
+        List<Card> stageCards = new ArrayList<>();
+
+        boolean foeAdded = false;
+        StringJoiner sj;
+
+        while (true) {
+            output.flush();
+
+            output.print("Stage Cards: ");
+            if (stageCards.isEmpty()) {
+                output.println("(empty)");
+            } else {
+                sj = new StringJoiner(" ");
+                for (final Card c : stageCards) {
+                    sj.add(c.getCardID());
+                }
+                output.println(sj);
+            }
+
+            output.println("Stage Value: " + cardSum(stageCards));
+
+            String userInput = cardSelection("Enter a card position to add it to the stage, or type 'quit':",
+                                             sponsor.getHand());
+            boolean userQuits = userInput.equalsIgnoreCase("quit");
+
+            if (!userQuits) {
+                /* Card index entered: attempt to add it to stage. Max 1 Foe, no repeat Weapons. */
+
+                int selectedIndex = Integer.parseInt(userInput) - 1;
+                Card selectedCard = sponsor.getHand().get(selectedIndex);
+                Card.CardType selectedType = selectedCard.getCardType();
+
+                output.println();
+
+                if (selectedType == Card.CardType.FOE) {
+                    // If adding a Foe, save that a Foe was added; if there is already a Foe in the stage, indicate so
+                    if (foeAdded) {
+                        output.println("Invalid: Cannot add more than one Foe card to a stage.");
+                        output.println();
+                        continue;
+                    } else {
+                        foeAdded = true;
+                    }
+                } else if (selectedType == Card.CardType.WEAPON && stageCards.contains(selectedCard)) {
+                    // If adding a weapon, indicate repeats
+                    output.println("Invalid: Cannot add a repeat Weapon card to a stage.");
+                    output.println();
+                    continue;
+                }
+
+                // No problems with card, remove from sponsor hand and add to stage cards
+                stageCards.add(sponsor.getHand().remove(selectedIndex));
+                Collections.sort(stageCards);
+            } else {
+                /* 'quit' entered: attempt to finalise stage. Exactly 1 Foe, 0 or more non-repeat weapons. */
+
+                if (stageCards.isEmpty()) {
+                    output.println("A stage cannot be empty");
+                    output.println();
+                } else if (!foeAdded) {
+                    output.println("A stage must have a Foe card");
+                    output.println();
+                } else if (cardSum(stageCards) < prevStageValue) {
+                    output.println("Insufficient value for this stage, need at least " + prevStageValue);
+                    output.println();
+                } else {
+                    // Stage is valid
+                    output.print("Stage Completed: ");
+                    sj = new StringJoiner(" ");
+                    for (final Card c : stageCards) {
+                        sj.add(c.getCardID());
+                    }
+                    output.println(sj);
+                    output.flush();
+
+                    return stageCards;
+                }
+            }
+        }
     }
 }

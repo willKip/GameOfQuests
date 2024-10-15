@@ -1,19 +1,12 @@
-import java.io.PrintWriter;
 import java.util.*;
 
 public class Player {
-    private final Scanner input;
-    private final PrintWriter output;
-
     private final int number; // Identifying player number
     private final List<Card> hand; // Sorted list of cards in hand
 
     private int shields;
 
-    public Player(final int num, Scanner input, PrintWriter output) {
-        this.input = input;
-        this.output = output;
-
+    public Player(final int num) {
         this.number = num;
         this.hand = new ArrayList<>();
     }
@@ -72,23 +65,13 @@ public class Player {
         // Assignment 1 Note: Can assume selection made by user is valid
 
         while (getHandSize() > 12) {
-            int cardIndex = 0; // Human-friendly 1-index for card list
 
-            output.println("You have too many cards in your hand. (" + getHandSize() + "/12)");
-            output.println("Please enter a card position and hit enter to discard it:");
+            String prompt = "You have too many cards in your hand. (" + getHandSize() + "/12)"
+                            + "\nPlease enter a card position and hit enter to discard it:";
 
-            for (final Card c : getHand()) {
-                output.println("[" + (cardIndex + 1) + "] " + c.getCardID());
-                cardIndex++;
-            }
+            int selected = Integer.parseInt(Game.cardSelection(prompt, hand));
 
-            output.print("> ");
-
-            output.flush();
-
-            int selected = Integer.parseInt(input.nextLine());
-
-            hand.remove(selected - 1);
+            hand.remove(selected - 1); // Adjust for 0-index
         }
     }
 }

@@ -31,6 +31,23 @@ public class Card implements Comparable<Card> {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Card that)) {
+            return false; // Only fellow Card classes could be equal
+        }
+
+        // Type, name, symbol, value must all be equal
+        return this.cardType == that.cardType && Objects.equals(this.cardName, that.cardName) && Objects.equals(
+                this.cardSymbol, that.cardSymbol) && this.value == that.value;
+    }
+
+    @Override
+    public String toString() {
+        // e.g. Card{B15 "Battle-axe"}
+        return "Card{" + cardType + ", " + getCardID() + ' ' + '"' + cardName + '"' + '}';
+    }
+
+    @Override
     public int compareTo(Card c) {
         // Sort based on type (ascending) first
         int ord = this.cardType.compareTo(c.cardType);
