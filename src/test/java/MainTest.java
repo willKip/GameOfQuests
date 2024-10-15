@@ -1432,4 +1432,179 @@ public class MainTest {
         assertEquals(0, loser.getShields(), "P2 stays at 0 shields");
         assertEquals(new ArrayList<>(List.of(winner)), players, "P2 removed from list for losing");
     }
+
+    @Test
+    @DisplayName("A-TEST JP-Scenario")
+    void A_TEST_JP_SCENARIO() {
+        StringWriter output = new StringWriter();
+        // noinspection TextBlockMigration
+        String inputStr = "n\n\ny\n1\n7\nquit\n2\n5\nquit\n2\n3\n4\nquit\n2\n3\nquit\n\nn\n1\n\nn\n1\n\nn\n1\n\n5\n5"
+                          + "\nquit\n\n5\n4\nquit\n\n4\n6\nquit\n\nn\n\nn\n\nn\n\n7\n6\nquit\n\n9\n4\nquit\n\n6\n6"
+                          + "\nquit\n\nn\n\nn\n\n9\n6\n5\nquit\n\n7\n5\n6\nquit\n\nn\n\nn\n\n7\n6\n6\nquit\n\n4\n4\n4"
+                          + "\n5\nquit\n\n1\n1\n1\n1\n";
+
+        Game game = new Game(new Scanner(inputStr), new PrintWriter(output));
+        game.initPlayers(); // Initialises decks and players, sets up player hands
+
+        // Players in the game; asserting not null to prevent compiler warning
+        Player p1 = game.getPlayerByID("P1");
+        Player p2 = game.getPlayerByID("P2");
+        Player p3 = game.getPlayerByID("P3");
+        Player p4 = game.getPlayerByID("P4");
+        assertNotNull(p1);
+        assertNotNull(p2);
+        assertNotNull(p3);
+        assertNotNull(p4);
+
+        ArrayList<Card> r;
+
+        // Rig P1 initial hand
+        // F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20
+        r = new ArrayList<>();
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+
+        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        r.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        p1.rigHand(r);
+
+        // Rig P2 initial hand
+        // F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30
+        r = new ArrayList<>();
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
+
+        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        r.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
+        p2.rigHand(r);
+
+        // Rig P3 initial hand
+        // F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20
+        r = new ArrayList<>();
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+
+        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        r.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        p3.rigHand(r);
+
+        // Rig P4 initial hand
+        // F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30
+        r = new ArrayList<>();
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        r.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
+
+        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        r.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        r.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
+        p4.rigHand(r);
+
+        // Rigging adventure cards for A-TEST
+        ArrayList<Card> rigAdvDeck = new ArrayList<>();
+        // Stage 1
+        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 30));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        // Stage 2
+        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 10));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        // Stage 3
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        // Stage 4
+        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 30));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+
+        game.getAdventureDeck().addToDrawPile(rigAdvDeck);
+
+        // Rig event deck with one Q4 on top
+        game.getEventDeck().addToDrawPile(1, new Card(Card.CardType.QUEST, "Quest", "Q", 4));
+
+        // P1 draws Q4 from the event deck
+        Card eventCard = game.drawEventCard();
+        int stageCount = eventCard.getValue();
+
+        // Search for a sponsor; P1 asked but declines, P2 accepts
+        Player sponsor = game.findSponsor(stageCount);
+
+        // Run a quest with given parameters
+        List<List<Card>> questStages = game.buildQuest(sponsor, stageCount);
+        // Sponsor's turn ends: other players should not see built stages
+        game.printTurnEndOf(sponsor);
+
+        // Add all but sponsor to eligible list
+        List<Player> eligible = game.getPlayersStartingCurrent();
+        eligible.remove(sponsor);
+
+        // For each stage of the quest:
+        for (int stageNum = 1; stageNum <= stageCount; stageNum++) {
+            // Prompt for participation, remove from eligible list if withdrawing
+            game.promptWithdraw(eligible);
+
+            if (eligible.isEmpty()) {
+                // No players left, end quest here
+                break;
+            } else {
+                // Run the stage for participating players
+                int stageValue = Game.cardSum(questStages.get(stageNum - 1));
+                game.runStage(eligible, stageValue, stageNum, stageCount);
+            }
+        }
+
+        // All cards used by sponsor to build quest are discarded;
+        // they draw the same number of cards + the number of stages.
+        int sponsorReward = stageCount;
+        for (final List<Card> stage : questStages) {
+            for (final Card c : stage) {
+                game.discard(c);
+                sponsorReward++;
+            }
+        }
+
+        sponsor.addToHand(game.drawAdventureCards(sponsorReward));
+
+        // Asserts
+        assertEquals(0, p1.getShields(), "P1 has no shields");
+        assertEquals("F5 F10 F15 F15 F30 H10 B15 B15 L20", p1.getHandString(), "P1 hand correct");
+
+        assertEquals(0, p3.getShields(), "P3 has no shields");
+        assertEquals("F5 F5 F15 F30 S10", p3.getHandString(), "P3 hand correct");
+
+        assertEquals(4, p4.getShields(), "P4 has 4 shields");
+        assertEquals("F15 F15 F40 L20", p4.getHandString(), "P4 hand correct");
+
+        assertEquals(12, p2.getHandSize(), "P2 has 12 cards in hand");
+    }
 }
