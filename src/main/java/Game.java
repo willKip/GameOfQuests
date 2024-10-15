@@ -438,6 +438,64 @@ public final class Game {
     }
 
     public List<Card> buildAttack(final Player player) {
-        return Collections.emptyList();
+        List<Card> attackCards = new ArrayList<>();
+
+        StringJoiner sj;
+
+        while (true) {
+            output.flush();
+
+            output.print("Attack Cards: ");
+            if (attackCards.isEmpty()) {
+                output.println("(empty)");
+            } else {
+                sj = new StringJoiner(" ");
+                for (final Card c : attackCards) {
+                    sj.add(c.getCardID());
+                }
+                output.println(sj);
+            }
+
+            output.println("Attack Value: " + cardSum(attackCards));
+
+            String userInput = cardSelection("Enter a card position to add it to the attack, or type 'quit':",
+                                             player.getHand());
+            boolean userQuits = userInput.equalsIgnoreCase("quit");
+
+            if (!userQuits) {
+                /* Card index entered: attempt to add it to attack. Only non-repeat Weapons allowed. */
+                int selectedIndex = Integer.parseInt(userInput) - 1;
+
+                Card selectedCard = player.getHand().get(selectedIndex);
+                Card.CardType selectedType = selectedCard.getCardType();
+
+                output.println();
+
+                if (selectedType != Card.CardType.WEAPON) {
+                    output.println("Invalid: Attacks can only use Weapons.\n");
+                } else if (attackCards.contains(selectedCard)) {
+                    output.println("Invalid: Cannot add a repeat Weapon card to an attack.\n");
+                } else {
+                    // No problems with card, remove from player hand and add to attack
+                    attackCards.add(player.getHand().remove(selectedIndex));
+                    Collections.sort(attackCards);
+                }
+            } else {
+                /* 'quit' entered: finalise attack. */
+                // NOTE: Discrepancy in use cases and description of the game: not clear whether attacks may be valid
+                // with no cards picked (for a value of 0). Making an assumption that no cards is a valid attack.
+                output.print("Attack Built (Value " + cardSum(attackCards) + "): ");
+
+                sj = new StringJoiner(" ");
+                for (final Card c : attackCards) {
+                    sj.add(c.getCardID());
+                }
+                output.println(sj);
+
+                output.flush();
+
+                return attackCards;
+            }
+        }
     }
 }
