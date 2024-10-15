@@ -498,4 +498,9 @@ public final class Game {
             }
         }
     }
+
+    public List<List<Card>> buildQuest(final Player sponsor, final int stageCount) {
+        // TODO
+        return Collections.emptyList();
+    }
 }

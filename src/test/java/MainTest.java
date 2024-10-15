@@ -1287,4 +1287,53 @@ public class MainTest {
 
         assertTrue(outputString.contains("Attack Built (Value 25): H10 B15"), "Final attack cards displayed");
     }
+
+    @Test
+    @DisplayName("Can construct a valid quest from several stages")
+    void RESP_12_TEST_01() {
+        String input = "1\n7\nquit\n2\n5\nquit\n2\n3\n4\nquit\n2\n3\nquit\n";
+
+        StringWriter output = new StringWriter();
+        Game game = new Game(new Scanner(input), new PrintWriter(output));
+        game.initPlayers();
+
+        Player p = game.getCurrentPlayer();
+
+        // F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30
+        ArrayList<Card> riggedHand = new ArrayList<>();
+        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
+        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        riggedHand.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
+        p.rigHand(riggedHand);
+
+        List<List<Card>> questStages = game.buildQuest(p, 4);
+
+        assertEquals(4, questStages.size(), "4 stages");
+
+        List<Card> stage1 = questStages.get(0);
+        List<Card> stage2 = questStages.get(1);
+        List<Card> stage3 = questStages.get(2);
+        List<Card> stage4 = questStages.get(3);
+
+        assertEquals(15, Game.cardSum(stage1), "Stage 1 value 15");
+        assertEquals(25, Game.cardSum(stage2), "Stage 2 value 25");
+        assertEquals(35, Game.cardSum(stage3), "Stage 3 value 35");
+        assertEquals(55, Game.cardSum(stage4), "Stage 4 value 55");
+
+        final String outputString = output.toString();
+
+        assertTrue(outputString.contains("Stage Completed: F5 H10"), "Stage 1 completed");
+        assertTrue(outputString.contains("Stage Completed: F15 S10"), "Stage 2 completed");
+        assertTrue(outputString.contains("Stage Completed: F15 D5 B15"), "Stage 3 completed");
+        assertTrue(outputString.contains("Stage Completed: F40 B15"), "Stage 4 completed");
+    }
 }
