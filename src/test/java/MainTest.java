@@ -1061,7 +1061,7 @@ public class MainTest {
         riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
         p.rigHand(riggedCards);
 
-        List<Card> stageCards = game.buildStage(p, 15);
+        List<Card> stageCards = game.buildStage(p, 13);
 
         final String outputString = output.toString();
 
@@ -1091,7 +1091,7 @@ public class MainTest {
         riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
         p.rigHand(riggedCards);
 
-        List<Card> stageCards = game.buildStage(p, 10);
+        List<Card> stageCards = game.buildStage(p, 5);
 
         final String outputString = output.toString();
 
@@ -1139,20 +1139,20 @@ public class MainTest {
 
         Player p = game.getCurrentPlayer();
 
-        // F5, S10, B15: Target 30 must be reached with all 3 cards
+        // F5, S10, B15: Target 15 must be exceeded with all 3 cards
         ArrayList<Card> riggedCards = new ArrayList<>();
         riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
         riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
         riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
         p.rigHand(riggedCards);
 
-        List<Card> stageCards = game.buildStage(p, 30);
+        List<Card> stageCards = game.buildStage(p, 15);
 
         final String outputString = output.toString();
 
         assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
                   () -> assertEquals(riggedCards, stageCards, "Chosen cards returned"));
-        assertTrue(outputString.contains("Insufficient value for this stage, need at least 30"),
+        assertTrue(outputString.contains("Insufficient value for this stage, need strictly greater than "),
                    "Indicate stage value requirement");
         assertEquals(30, Game.cardSum(stageCards), "Expected stage value returned");
         assertTrue(outputString.contains("Stage Completed: F5 S10 B15"), "Stage completed");

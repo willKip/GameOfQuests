@@ -418,8 +418,8 @@ public final class Game {
                 } else if (!foeAdded) {
                     output.println("A stage must have a Foe card");
                     output.println();
-                } else if (cardSum(stageCards) < prevStageValue) {
-                    output.println("Insufficient value for this stage, need at least " + prevStageValue);
+                } else if (cardSum(stageCards) <= prevStageValue) {
+                    output.println("Insufficient value for this stage, need strictly greater than " + prevStageValue);
                     output.println();
                 } else {
                     // Stage is valid
