@@ -500,7 +500,16 @@ public final class Game {
     }
 
     public List<List<Card>> buildQuest(final Player sponsor, final int stageCount) {
-        // TODO
-        return Collections.emptyList();
+        List<List<Card>> questStages = new ArrayList<>();
+        int prevStageValue = 0;
+        for (int stageNum = 1; stageNum <= stageCount; stageNum++) {
+            output.println("\n[Stage " + stageNum + "]");
+
+            List<Card> newStage = buildStage(sponsor, prevStageValue);
+            questStages.add(newStage);
+            prevStageValue = Game.cardSum(newStage);
+            output.flush();
+        }
+        return questStages;
     }
 }
