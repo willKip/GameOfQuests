@@ -290,6 +290,31 @@ public class MainTest {
     }
 
     @Test
+    @DisplayName("Game can rig the draws of the decks")
+    void RESP_01_TEST_06() {
+        Game game = new Game();
+        game.initDecks();
+
+        ArrayList<Card> rigAdvDeck = new ArrayList<>();
+        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 30));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        game.getAdventureDeck().addToDrawPile(rigAdvDeck);
+
+        ArrayList<Card> rigEvDeck = new ArrayList<>();
+        rigEvDeck.addFirst(new Card(Card.CardType.QUEST, "Quest", "Q", 4));
+        rigEvDeck.addFirst(new Card(Card.CardType.EVENT, "Queen's Favor", "E", 2));
+        game.getEventDeck().addToDrawPile(rigEvDeck);
+
+        // Draw order will be reversed, since decks are Last In First Out
+        List<Card> riggedAdvDraws = game.drawAdventureCards(rigAdvDeck.size());
+        assertEquals(rigAdvDeck, riggedAdvDraws.reversed());
+
+        List<Card> riggedEvDraws = new ArrayList<>(List.of(game.drawEventCard(), game.drawEventCard()));
+        assertEquals(rigEvDeck, riggedEvDraws.reversed());
+    }
+
+    @Test
     @DisplayName("Game sets up exactly 4 players")
     void RESP_02_TEST_01() {
         Game game = new Game();

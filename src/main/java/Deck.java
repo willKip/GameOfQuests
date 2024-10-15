@@ -26,6 +26,10 @@ public class Deck {
         return drawn;
     }
 
+    public void addToDrawPile(final List<Card> cards) {
+        // TODO
+    }
+
     // Adds n copies of the given card to the draw pile.
     public void addToDrawPile(final int n, final Card card) {
         drawPile.addAll(Collections.nCopies(n, card));
