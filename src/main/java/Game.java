@@ -515,6 +515,30 @@ public final class Game {
 
     // Prompt each player in the list for withdrawal, removing them from the list if they respond yes.
     public void promptWithdraw(final List<Player> eligible) {
-        // TODO
+        List<Player> withdrawing = new ArrayList<>();
+
+        for (final Player p : eligible) {
+            output.print(p.getID() + ": Would you like to withdraw from this quest? (y/n) > ");
+            output.flush();
+
+            boolean saidYes = input.nextLine().equalsIgnoreCase("y");
+
+            if (saidYes) {
+                // Player withdrawing
+                withdrawing.add(p);
+            } else {
+                // Player participating, draw 1 adventure card
+                Card drawn = drawAdventureCard();
+
+                output.println("Drew 1 card: " + drawn.getCardID());
+
+                p.addToHand(new ArrayList<>(List.of(drawn)));
+                printTurnEndOf(p);
+            }
+            output.flush();
+        }
+
+        // Remove withdrawing players from eligible list
+        eligible.removeAll(withdrawing);
     }
 }
