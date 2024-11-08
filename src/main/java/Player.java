@@ -23,15 +23,26 @@ public class Player {
         return hand;
     }
 
+    // Return an immutable view of the current hand
+    public List<Card> viewHand() {
+        return List.copyOf(hand);
+    }
+
     public void addToHand(final Collection<Card> cards) {
         hand.addAll(cards);
         Collections.sort(hand);
         trim();
     }
 
+    public void addToHand(final Card card) {
+        hand.add(card);
+        Collections.sort(hand);
+        trim();
+    }
+
     // Overwrite the player's hand with the cards in the collection given.
     // Existing cards will be wiped. If the new hand has too many cards, a trim dialogue will be triggered afterwards.
-    public void rigHand(final Collection<Card> cards) {
+    public void overwriteHand(final Collection<Card> cards) {
         hand.clear();
         addToHand(cards);
     }
@@ -61,11 +72,14 @@ public class Player {
         shields += n;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
     private void trim() {
         // Assignment 1 Note: Can assume selection made by user is valid
 
         while (getHandSize() > 12) {
-
             String prompt = "You have too many cards in your hand. (" + getHandSize() + "/12)"
                             + "\nPlease enter a card position and hit enter to discard it:";
 

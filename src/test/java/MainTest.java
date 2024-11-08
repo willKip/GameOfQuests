@@ -173,16 +173,16 @@ public class MainTest {
         // Maps for each card type, detailing the correct number of occurrences for each specific card of a type.
         // (e.g. entry("Dagger", 6) means there should be 6 Daggers in the adventure deck;
         //       entry(2, 3) means there should be 3 Q2 in the event deck.)
-        final Map<Integer, Integer> FOE_MAP = Map.ofEntries(entry(5, 8), entry(10, 7), entry(15, 8), entry(20, 7),
-                                                            entry(25, 7), entry(30, 4), entry(35, 4), entry(40, 2),
-                                                            entry(50, 2), entry(70, 1));
-        final Map<String, Integer> WEAPON_MAP = Map.ofEntries(entry("Dagger", 6), entry("Horse", 12),
-                                                              entry("Sword", 16), entry("Battle-axe", 8),
-                                                              entry("Lance", 6), entry("Excalibur", 2));
+        final Map<Integer, Integer> FOE_MAP =
+                Map.ofEntries(entry(5, 8), entry(10, 7), entry(15, 8), entry(20, 7), entry(25, 7), entry(30, 4),
+                              entry(35, 4), entry(40, 2), entry(50, 2), entry(70, 1));
+        final Map<String, Integer> WEAPON_MAP =
+                Map.ofEntries(entry("Dagger", 6), entry("Horse", 12), entry("Sword", 16), entry("Battle-axe", 8),
+                              entry("Lance", 6), entry("Excalibur", 2));
 
         final Map<Integer, Integer> QUEST_MAP = Map.ofEntries(entry(2, 3), entry(3, 4), entry(4, 3), entry(5, 2));
-        final Map<String, Integer> EVENT_MAP = Map.ofEntries(entry("Plague", 1), entry("Queen's Favor", 2),
-                                                             entry("Prosperity", 2));
+        final Map<String, Integer> EVENT_MAP =
+                Map.ofEntries(entry("Plague", 1), entry("Queen's Favor", 2), entry("Prosperity", 2));
 
         // Maps for each card type that will store the number of occurrences for each specific card of a type.
         Map<Integer, Integer> foeOccurrences = new HashMap<>();
@@ -296,14 +296,14 @@ public class MainTest {
         game.initDecks();
 
         ArrayList<Card> rigAdvDeck = new ArrayList<>();
-        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 30));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
+        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", 'F', 30));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", 'S', 10));
+        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
         game.getAdventureDeck().addToDrawPile(rigAdvDeck);
 
         ArrayList<Card> rigEvDeck = new ArrayList<>();
-        rigEvDeck.addFirst(new Card(Card.CardType.QUEST, "Quest", "Q", 4));
-        rigEvDeck.addFirst(new Card(Card.CardType.EVENT, "Queen's Favor", "E", 2));
+        rigEvDeck.addFirst(new Card(Card.CardType.QUEST, "Quest", 'Q', 4));
+        rigEvDeck.addFirst(new Card(Card.CardType.EVENT, "Queen's Favor", 'E', 2));
         game.getEventDeck().addToDrawPile(rigEvDeck);
 
         // Draw order will be reversed, since decks are Last In First Out
@@ -318,7 +318,7 @@ public class MainTest {
     @DisplayName("Game sets up exactly 4 players")
     void RESP_02_TEST_01() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
         assertEquals(4, game.getPlayerCount());
     }
 
@@ -326,7 +326,7 @@ public class MainTest {
     @DisplayName("P1 is the first player in the turn order")
     void RESP_02_TEST_02() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         Player firstPlayer = game.getCurrentPlayer();
         String firstPlayerID = firstPlayer.getID();
@@ -339,7 +339,7 @@ public class MainTest {
     @ValueSource(strings = {"P1", "P2", "P3", "P4"})
     void RESP_02_TEST_03(String startingPlayerID) {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         String nextPlayerID = "";
 
@@ -361,7 +361,7 @@ public class MainTest {
     @ValueSource(strings = {"P1", "P2", "P3", "P4"})
     void RESP_02_TEST_04(String currPlayerID) {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         Player currPlayer = game.getPlayerByID(currPlayerID);
 
@@ -388,7 +388,7 @@ public class MainTest {
     @DisplayName("Each player is set up with 12 cards")
     void RESP_02_TEST_05() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         List<Player> orderedPlayerList = game.getPlayersStartingCurrent();
         assertNotEquals(0, orderedPlayerList.size(), "Player list should not be empty");
@@ -402,26 +402,26 @@ public class MainTest {
     @DisplayName("Game can 'rig' player hands")
     void RESP_02_TEST_06() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         Player player = game.getCurrentPlayer();
 
         // Create a rigged hand, adding the cards in proper sorted order
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", 'D', 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", 'S', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", 'S', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Lance", 'L', 20));
 
-        player.rigHand(riggedCards);
+        player.overwriteHand(riggedCards);
 
         assertEquals(riggedCards, player.getHand());
     }
@@ -430,7 +430,7 @@ public class MainTest {
     @DisplayName("A player's hand can be returned as a string with correct card ordering")
     void RESP_03_TEST_01() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         Player player = game.getCurrentPlayer();
 
@@ -440,13 +440,13 @@ public class MainTest {
         //   Swords must come before Horses despite the values being the same.
         //   Ordered by value ascending otherwise.
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        player.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", 'E', 30));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", 'S', 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        player.overwriteHand(riggedCards);
 
         final String correctHandOrder = "F5 F10 S10 H10 H10 E30";
 
@@ -459,12 +459,12 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         // First player in turn order
         Player currPlayer = game.getCurrentPlayer();
 
-        game.printPlayerTurnStart();
+        game.printCurrentPlayerTurnStart();
         String outputString = output.toString();
 
         boolean initPlayerTurnDisplayed = outputString.contains(currPlayer.getID());
@@ -473,7 +473,7 @@ public class MainTest {
         currPlayer = game.getNextPlayer(currPlayer);
         game.setCurrentPlayer(currPlayer);
 
-        game.printPlayerTurnStart();
+        game.printCurrentPlayerTurnStart();
         outputString = output.toString();
 
         boolean nextPlayerTurnDisplayed = outputString.contains(currPlayer.getID());
@@ -490,32 +490,32 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player currentPlayer = game.getCurrentPlayer();
 
         // Create a rigged hand with cards added in a random order.
         ArrayList<Card> riggedCards = new ArrayList<>();
 
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 40));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", 'D', 5));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", 'S', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", 'E', 30));
 
         Collections.shuffle(riggedCards);
-        currentPlayer.rigHand(riggedCards);
+        currentPlayer.overwriteHand(riggedCards);
 
         final String correctHandOrder = "F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30";
 
-        game.printPlayerTurnStart();
+        game.printCurrentPlayerTurnStart();
 
         final String outputString = output.toString();
 
@@ -528,7 +528,7 @@ public class MainTest {
     @DisplayName("Each player is set up with 0 shields")
     void RESP_04_TEST_01() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         List<Player> orderedPlayerList = game.getPlayersStartingCurrent();
         assertNotEquals(0, orderedPlayerList.size(), "Player list should not be empty");
@@ -542,17 +542,11 @@ public class MainTest {
     @DisplayName("When no players have 7 or more shields, no players are evaluated as winners")
     void RESP_04_TEST_02() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
-        Player p1 = game.getPlayerByID("P1");
         Player p2 = game.getPlayerByID("P2");
         Player p3 = game.getPlayerByID("P3");
         Player p4 = game.getPlayerByID("P4");
-
-        assertNotNull(p1);
-        assertNotNull(p2);
-        assertNotNull(p3);
-        assertNotNull(p4);
 
         // P1 remains at 0 shields
         p2.addShields(1);
@@ -560,7 +554,6 @@ public class MainTest {
         p4.addShields(6);
 
         List<Player> winners = game.getWinners();
-        assertNotNull(winners);
         assertEquals(0, winners.size(), "Number of winners should be 0");
     }
 
@@ -569,17 +562,15 @@ public class MainTest {
     @ValueSource(strings = {"P1", "P2", "P3", "P4"})
     void RESP_04_TEST_03(String winningPlayerID) {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
         Player winningPlayer = game.getPlayerByID(winningPlayerID);
-        assertNotNull(winningPlayer, "Winning player should not be null");
 
         winningPlayer.addShields(7);
 
         List<Player> winners = game.getWinners();
 
         // Assert that there is only one winner, and it is the player that should be winning
-        assertNotNull(winners);
         assertTrue(winners.size() == 1 && Objects.equals(winners.getLast().getID(), winningPlayerID));
     }
 
@@ -587,17 +578,11 @@ public class MainTest {
     @DisplayName("When there are multiple players that have 7 or more shields, they are all evaluated as winners")
     void RESP_04_TEST_04() {
         Game game = new Game();
-        game.initPlayers();
+        game.initGame();
 
-        Player p1 = game.getPlayerByID("P1");
         Player p2 = game.getPlayerByID("P2");
         Player p3 = game.getPlayerByID("P3");
         Player p4 = game.getPlayerByID("P4");
-
-        assertNotNull(p1);
-        assertNotNull(p2);
-        assertNotNull(p3);
-        assertNotNull(p4);
 
         // P2 and P4 should win
         // P1 remains at 0 shields
@@ -606,7 +591,6 @@ public class MainTest {
         p4.addShields(50);
 
         List<Player> winners = game.getWinners();
-        assertNotNull(winners);
         assertTrue(winners.size() == 2 && winners.containsAll(Arrays.asList(p2, p4)));
     }
 
@@ -618,7 +602,7 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         ArrayList<Player> winners = new ArrayList<>();
         winners.add(game.getPlayerByID("P1"));
@@ -638,19 +622,19 @@ public class MainTest {
     void RESP_05_TEST_01() {
         // List of 13 cards (in order), 1 over the max of 12
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 8));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 9));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 11));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Lance", "L", 12));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 13));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", 'D', 8));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", 'S', 9));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 11));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Lance", 'L', 12));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Excalibur", 'E', 13));
 
         String expectedHand = "F1 F2 F3 F5 F6 F7 D8 S9 H10 B11 L12 E13"; // Foe value 4 card removed
 
@@ -658,11 +642,11 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player player = game.getCurrentPlayer();
-        player.rigHand(Collections.emptyList()); // Empty the player's existing hand
-        player.rigHand(riggedCards);
+        player.overwriteHand(Collections.emptyList()); // Empty the player's existing hand
+        player.overwriteHand(riggedCards);
 
         assertAll("Player trims 1 card", () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
                   () -> assertEquals(expectedHand, player.getHandString(), "Correct card removed"));
@@ -673,21 +657,21 @@ public class MainTest {
     void RESP_05_TEST_02() {
         // List of 15 cards (in order), 3 over the max of 12
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 12));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 13));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 14));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 11));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 12));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 13));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 14));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 15));
 
         String expectedHand = "F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 F13 F14";
 
@@ -695,11 +679,11 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player player = game.getCurrentPlayer();
-        player.rigHand(Collections.emptyList()); // Empty the player's existing hand
-        player.rigHand(riggedCards);
+        player.overwriteHand(Collections.emptyList()); // Empty the player's existing hand
+        player.overwriteHand(riggedCards);
 
         assertAll("Player trims 3 cards",
                   () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
@@ -714,12 +698,9 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
-        Player player = game.getPlayerByID(playerID);
-        assertNotNull(player);
-
-        game.printTurnEndOf(player);
+        game.printTurnEndOf(game.getPlayerByID(playerID));
 
         final String outputString = output.toString();
 
@@ -736,13 +717,13 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Card eventCard = game.drawEventCard();
         assertNotNull(eventCard);
 
         // Overwrite event card with our own Quest card
-        eventCard = new Card(Card.CardType.QUEST, "Quest", "Q", 5);
+        eventCard = new Card(Card.CardType.QUEST, "Quest", 'Q', 5);
 
         game.printEventCard(eventCard);
 
@@ -760,13 +741,13 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Card eventCard = game.drawEventCard();
         assertNotNull(eventCard);
 
         // Overwrite event card with our own Quest card
-        eventCard = new Card(Card.CardType.EVENT, eCardName, "E", 2);
+        eventCard = new Card(Card.CardType.EVENT, eCardName, 'E', 2);
 
         game.printEventCard(eventCard);
 
@@ -792,30 +773,27 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p1 = game.getPlayerByID("P1");
         Player p2 = game.getPlayerByID("P2");
         Player p3 = game.getPlayerByID("P3");
         Player p4 = game.getPlayerByID("P4");
 
-        assertNotNull(p1);
-        assertNotNull(p2);
-        assertNotNull(p3);
-        assertNotNull(p4);
-
         // P1 remains at 0 shields
         p2.addShields(1);
         p3.addShields(2);
         p4.addShields(6);
 
-        Card plagueCard = new Card(Card.CardType.EVENT, "Plague", "E", 2);
+        Card plagueCard = new Card(Card.CardType.EVENT, "Plague", 'E', 2);
+
+        game.setCurrentEvent(plagueCard);
 
         game.setCurrentPlayer(p2);
-        game.doEvent(plagueCard);
+        game.runEvent();
 
         game.setCurrentPlayer(p4);
-        game.doEvent(plagueCard);
+        game.runEvent();
 
         assertAll("Plague event triggers",
                   () -> assertEquals(0, p1.getShields(), "P1 didn't draw Plague, shields should stay at 0"),
@@ -831,31 +809,32 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player player = game.getPlayerByID("P2"); // Arbitrary player choice
         assertNotNull(player);
 
         // List of 11 cards (in order), 1 under the max of 11
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 11));
 
-        player.rigHand(riggedCards);
+        player.overwriteHand(riggedCards);
 
-        Card queenFavorCard = new Card(Card.CardType.EVENT, "Queen's Favor", "E", 2);
+        Card queenFavorCard = new Card(Card.CardType.EVENT, "Queen's Favor", 'E', 2);
 
         game.setCurrentPlayer(player);
-        game.doEvent(queenFavorCard);
+        game.setCurrentEvent(queenFavorCard);
+        game.runEvent();
 
         assertEquals(12, player.getHandSize(),
                      "Player drew 2 cards from Queen's Favour while having 11 cards in hand, trimmed to 12");
@@ -868,66 +847,62 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p1 = game.getPlayerByID("P1");
         Player p2 = game.getPlayerByID("P2");
         Player p3 = game.getPlayerByID("P3");
         Player p4 = game.getPlayerByID("P4");
 
-        assertNotNull(p1);
-        assertNotNull(p2);
-        assertNotNull(p3);
-        assertNotNull(p4);
-
         ArrayList<Card> riggedCards;
 
         // Empty P1
-        p1.rigHand(Collections.emptyList());
+        p1.overwriteHand(Collections.emptyList());
 
         // P2 gets 3 cards
         riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
-        p2.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
+        p2.overwriteHand(riggedCards);
 
         // P3 gets 11 cards
         riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
-        p3.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 11));
+        p3.overwriteHand(riggedCards);
 
         // P4 gets 12 cards
         riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 7));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 8));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 9));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 11));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 12));
-        p4.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 8));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 9));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 11));
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 12));
+        p4.overwriteHand(riggedCards);
 
         // All players get 2 cards each
-        Card prosperityCard = new Card(Card.CardType.EVENT, "Prosperity", "E", 2);
+        Card prosperityCard = new Card(Card.CardType.EVENT, "Prosperity", 'E', 2);
 
         game.setCurrentPlayer(p2);
-        game.doEvent(prosperityCard);
+        game.setCurrentEvent(prosperityCard);
+        game.runEvent();
 
         assertAll("Prosperity event triggers", () -> assertEquals(2, p1.getHandSize(), "P1 gains 2 cards from 0"),
                   () -> assertEquals(5, p2.getHandSize(), "P2 gains 2 cards from 3"),
@@ -942,12 +917,14 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
-        Player sponsor = game.findSponsor(5);
+        game.promptPlayersToSponsor(5);
+
+        Player sponsor = game.getSponsor();
 
         assertTrue(output.toString().contains("Would you like to sponsor this Quest of 5 stages?"), "Quest prompt");
-        assertNotNull(sponsor, "A sponsor should be found");
+        assertNotNull(game.getSponsor(), "A sponsor should be found");
         assertEquals("P3", sponsor.getID(), "The correct sponsor is returned");
     }
 
@@ -958,42 +935,38 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
-        Player sponsor = game.findSponsor(10);
+        game.promptPlayersToSponsor(10);
 
-        assertNull(sponsor, "A sponsor should not be found");
+        assertNull(game.getSponsor(), "A sponsor should not be found");
     }
 
     @Test
     @DisplayName("A sponsor can construct a valid quest with 1 Foe and 2 Weapons.")
     void RESP_10_TEST_01() {
-        String input = "3\n2\n1\nquit\n"; // [3] B15, [2] H19, [1] F10, quit
+        String input = "3\n2\n1\nquit\n"; // [3] B15, [2] H10, [1] F10, quit
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
-        // Hand of 3 cards to be used in the quest
         // Empty hand does not need to be handled specially because Assignment 1 specifies that we may assume players
         // will only sponsor if they can construct a full quest; they can simply type quit with their empty hand, and
         // it will be sufficient to finish construction of the whole quest.
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        p.rigHand(riggedCards);
+        p.overwriteHand(Card.stringToCards("F10 F10 H10 B15 L20"));
 
         // Make player build a valid stage; previous stage had value 30
-        List<Card> stageCards = game.buildStage(p, 30);
+        game.setQuestStages(List.of(Card.stringToCards("F10 L20")));
+        game.setSponsor(p);
+        game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        assertAll("Cards properly moved",
-                  () -> assertEquals(riggedCards, stageCards, "Chosen stage cards are returned"),
-                  () -> assertEquals(0, p.getHandSize(), "Cards used for stage removed from sponsor's hand"));
+        assertEquals(Card.stringToCards("F10 H10 B15"), game.viewQuestStages().getLast(),
+                     "Chosen stage cards are returned");
 
         assertAll("Stage cards correctly displayed",
                   () -> assertTrue(outputString.contains("Stage Cards: (empty)"), "Empty stage"),
@@ -1017,22 +990,19 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
-        // Hand with only one F25
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 25));
-        p.rigHand(riggedCards);
+        p.overwriteHand(Card.stringToCards("F20 F25"));
 
         // Make player build a valid stage; previous stage had value 20, reachable with one F25
-        List<Card> stageCards = game.buildStage(p, 20);
+        game.setSponsor(p);
+        game.setQuestStages(List.of(Card.stringToCards("F20")));
+        game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        assertAll("Cards properly moved", () -> assertEquals(riggedCards, stageCards, "Chosen F25 returned"),
-                  () -> assertEquals(0, p.getHandSize(), "F25 removed from sponsor's hand"));
         assertTrue(outputString.contains("Stage Completed: F25"), "Stage completed with F25");
     }
 
@@ -1043,26 +1013,20 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
         // F10, F20; use F20, F10 will be denied for being a second Foe card
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 20));
-        p.rigHand(riggedCards);
+        p.overwriteHand(Card.stringToCards("F5 F10 F20"));
 
-        List<Card> stageCards = game.buildStage(p, 5); // Stage value target: 5
+        game.setSponsor(p);
+        game.setQuestStages(List.of(Card.stringToCards("F5"))); // Stage value target: 5
+        game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        ArrayList<Card> listWithF10 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", "F", 10)));
-        ArrayList<Card> listWithF20 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", "F", 20)));
-
-        assertAll("Cards properly moved",
-                  () -> assertEquals(listWithF10, p.getHand(), "Player only has F10 left in hand"),
-                  () -> assertEquals(listWithF20, stageCards, "Chosen F20 returned"));
+        assertEquals(Card.stringToCards("F20"), game.viewQuestStages().getLast(), "Chosen F20 returned");
         assertTrue(outputString.contains("Cannot add more than one Foe card to a stage"),
                    "Indicate only one Foe is allowed for a stage");
         assertTrue(outputString.contains("Stage Completed: F20"), "Stage completed with F20");
@@ -1075,27 +1039,19 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
-        // F10, D5, D5
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        p.rigHand(riggedCards);
+        p.overwriteHand(Card.stringToCards("F10 D5 D5 F13"));
 
-        List<Card> stageCards = game.buildStage(p, 13);
+        game.setSponsor(p);
+        game.setQuestStages(List.of(Card.stringToCards("F13"))); // Stage value target: 13
+        game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        // riggedCards list now only has [F10, D5]
-        ArrayList<Card> listWithD5 = new ArrayList<>(List.of(riggedCards.removeLast()));
-
-        assertAll("Cards properly moved",
-                  () -> assertEquals(listWithD5, p.getHand(), "Player only has the other D5 left in hand"),
-                  () -> assertEquals(riggedCards, stageCards, "Chosen F10, D5 returned"));
+        assertEquals(Card.stringToCards("F10 D5"), game.viewQuestStages().getLast(), "Chosen F10, D5 returned");
         assertTrue(outputString.contains("Cannot add a repeat Weapon card to a stage."),
                    "Indicate Weapons must be unique");
         assertTrue(outputString.contains("Stage Completed: F10 D5"), "Stage completed with F10 and D5");
@@ -1108,20 +1064,20 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        p.rigHand(riggedCards);
+        List<Card> riggedHand = Card.stringToCards("F5 F10");
+        p.overwriteHand(riggedHand);
 
-        List<Card> stageCards = game.buildStage(p, 5);
+        game.setSponsor(p);
+        game.setQuestStages(List.of(Card.stringToCards("F5"))); // Stage value target: 5
+        game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
-                  () -> assertEquals(riggedCards, stageCards, "Chosen card returned"));
+        assertEquals(List.of(Card.newCard("F10")), game.viewQuestStages().getLast(), "Chosen card returned");
         assertTrue(outputString.contains("A stage cannot be empty"), "Indicate a stage cannot be empty");
         assertTrue(outputString.contains("Stage Completed: F10"), "Stage completed");
     }
@@ -1133,22 +1089,20 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
         // F10, B15; B15 is sufficient value-wise for the target 15, but 1 Foe card is required still
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        p.rigHand(riggedCards);
+        p.overwriteHand(Card.stringToCards("F10 B15 F15"));
 
-        List<Card> stageCards = game.buildStage(p, 15);
+        game.setSponsor(p);
+        game.setQuestStages(List.of(Card.stringToCards("F15"))); // Stage value target: 15
+        game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
-                  () -> assertEquals(riggedCards, stageCards, "Chosen cards returned"));
+        assertEquals(Card.stringToCards("F10 B15"), game.viewQuestStages().getLast(), "Chosen cards returned");
         assertTrue(outputString.contains("A stage must have a Foe card"), "Indicate a stage must have a Foe card");
         assertTrue(outputString.contains("Stage Completed: F10 B15"), "Stage completed");
     }
@@ -1160,23 +1114,22 @@ public class MainTest {
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
-        // F5, S10, B15: Target 15 must be exceeded with all 3 cards
-        ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        p.rigHand(riggedCards);
+        // Target 15 must be exceeded by using all 3 cards (exclude F15 which is there as the previous stage)
+        List<Card> riggedCards = Card.stringToCards("F5 S10 B15 F15");
+        p.overwriteHand(riggedCards);
 
-        List<Card> stageCards = game.buildStage(p, 15);
+        game.setSponsor(p);
+        game.setQuestStages(List.of(Card.stringToCards("F15"))); // Stage value target: 15
+        game.buildAndAddStage();
 
+        List<Card> stageCards = game.viewQuestStages().getLast();
         final String outputString = output.toString();
 
-        assertAll("Cards properly moved", () -> assertEquals(0, p.getHandSize(), "Player hand empty now"),
-                  () -> assertEquals(riggedCards, stageCards, "Chosen cards returned"));
+        assertEquals(Card.stringToCards("F5 S10 B15"), stageCards, "Chosen cards returned");
         assertTrue(outputString.contains("Insufficient value for this stage, need strictly greater than "),
                    "Indicate stage value requirement");
         assertEquals(30, Game.cardSum(stageCards), "Expected stage value returned");
@@ -1190,14 +1143,14 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        p.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
+        p.overwriteHand(riggedCards);
 
         // Make player build an attack, return its cards
         List<Card> attackCards = game.buildAttack(p);
@@ -1230,22 +1183,22 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        p.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        p.overwriteHand(riggedCards);
 
         // Make player build an attack, return its cards
         List<Card> attackCards = game.buildAttack(p);
 
         final String outputString = output.toString();
 
-        ArrayList<Card> listWithF10 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", "F", 10)));
-        ArrayList<Card> listWithH10 = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", "H", 10)));
+        ArrayList<Card> listWithF10 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", 'F', 10)));
+        ArrayList<Card> listWithH10 = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", 'H', 10)));
 
         assertAll("Cards properly moved", () -> assertEquals(listWithH10, attackCards, "H10 chosen and returned"),
                   () -> assertEquals(listWithF10, p.getHand(), "F10 remains in hand"));
@@ -1272,24 +1225,24 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
 
         ArrayList<Card> riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        p.rigHand(riggedCards);
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Horse", 'H', 10));
+        riggedCards.add(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15));
+        p.overwriteHand(riggedCards);
 
         List<Card> attackCards = game.buildAttack(p); // Make player build an attack, return its cards
 
         final String outputString = output.toString();
 
-        ArrayList<Card> expectedAttack = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", "H", 10),
-                                                                 new Card(Card.CardType.WEAPON, "Battle-axe", "B",
+        ArrayList<Card> expectedAttack = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", 'H', 10),
+                                                                 new Card(Card.CardType.WEAPON, "Battle-axe", 'B',
                                                                           15)));
-        ArrayList<Card> expectedHand = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", "H", 10)));
+        ArrayList<Card> expectedHand = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", 'H', 10)));
 
         assertAll("Cards properly moved",
                   () -> assertEquals(expectedAttack, attackCards, "H10 B15 chosen and returned"),
@@ -1320,34 +1273,23 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         Player p = game.getCurrentPlayer();
+        game.setSponsor(p);
 
-        // F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30
-        ArrayList<Card> riggedHand = new ArrayList<>();
-        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        riggedHand.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        riggedHand.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
-        p.rigHand(riggedHand);
+        p.overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
 
-        List<List<Card>> questStages = game.buildQuest(p, 4);
+        for (int stageNum = 1; stageNum <= 4; stageNum++) {
+            game.buildAndAddStage();
+        }
 
-        assertEquals(4, questStages.size(), "4 stages");
+        assertEquals(4, game.viewQuestStages().size(), "4 stages");
 
-        List<Card> stage1 = questStages.get(0);
-        List<Card> stage2 = questStages.get(1);
-        List<Card> stage3 = questStages.get(2);
-        List<Card> stage4 = questStages.get(3);
+        List<Card> stage1 = game.viewQuestStages().get(0);
+        List<Card> stage2 = game.viewQuestStages().get(1);
+        List<Card> stage3 = game.viewQuestStages().get(2);
+        List<Card> stage4 = game.viewQuestStages().get(3);
 
         assertEquals(15, Game.cardSum(stage1), "Stage 1 value 15");
         assertEquals(25, Game.cardSum(stage2), "Stage 2 value 25");
@@ -1369,26 +1311,22 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
-        Player p1 = game.getPlayerByID("P1");
-        Player p2 = game.getPlayerByID("P2");
+        Player p1 = game.getPlayerByID("P1"), p2 = game.getPlayerByID("P2");
 
-        assertNotNull(p1);
-        assertNotNull(p2);
+        game.setEligible(Arrays.asList(p1, p2));
 
-        List<Player> players = new ArrayList<>();
-        players.add(p1);
-        players.add(p2);
-
-        game.promptWithdraw(players);
+        for (final Player p : game.viewEligible()) {
+            game.promptWithdraw(p);
+        }
 
         final String outputString = output.toString();
 
         assertTrue(outputString.contains("P1: Would you like to withdraw from this quest?"), "P1 withdrawing");
         assertTrue(outputString.contains("P2: Would you like to withdraw from this quest?"), "P2 withdrawing");
 
-        assertEquals(new ArrayList<>(List.of(p1)), players, "P2 removed from list");
+        assertEquals(List.of(p1), game.viewEligible(), "P2 removed from list");
         assertEquals(12, p1.getHandSize(), "P1 hand size trimmed to 12");
     }
 
@@ -1399,7 +1337,7 @@ public class MainTest {
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
-        game.initPlayers();
+        game.initGame();
 
         // Will use excalibur and win, 30 > 20
         Player winner = game.getPlayerByID("P1");
@@ -1407,195 +1345,63 @@ public class MainTest {
         // Will use dagger and lose, 5 < 20
         Player loser = game.getPlayerByID("P2");
 
-        assertNotNull(winner);
-        assertNotNull(loser);
+        winner.overwriteHand(Card.stringToCards("E30"));
+        loser.overwriteHand(Card.stringToCards("D5"));
 
-        winner.rigHand(new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30))));
-        loser.rigHand(new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Dagger", "D", 5))));
+        game.setEligible(Arrays.asList(winner, loser));
 
-        List<Player> players = new ArrayList<>();
-        players.add(winner);
-        players.add(loser);
-
-        int stageValue = 20;
-        int stageCount = 4;
-
-        // Stage value 1; final stage of 4 stage quest.
-        game.runStage(players, stageValue, stageCount, stageCount);
+        // Stage value 20; final stage of 4 stage quest.
+        game.setQuestStages(Arrays.asList(Card.stringToCards("F1"), Card.stringToCards("F2"), Card.stringToCards("F3"),
+                                          Card.stringToCards("F20")));
+        game.setStageNum(3); // Will increment to 4 when new stage runs
+        game.runStage();
 
         final String outputString = output.toString();
 
         assertTrue(outputString.contains("P1: Build an attack for stage 4"), "P1 attack building");
         assertTrue(outputString.contains("P2: Build an attack for stage 4"), "P2 attack building");
 
-        assertEquals(stageCount, winner.getShields(), "P1 gets [stage count] shields from winning");
+        assertEquals(4, winner.getShields(), "P1 gets [stage count] shields from winning");
         assertEquals(0, loser.getShields(), "P2 stays at 0 shields");
-        assertEquals(new ArrayList<>(List.of(winner)), players, "P2 removed from list for losing");
+        assertTrue(game.viewEligible().contains(winner), "P1 remains eligible since they won");
+        assertFalse(game.viewEligible().contains(loser), "P2 removed from list for losing");
     }
 
+    @SuppressWarnings("ExtractMethodRecommender")
     @Test
     @DisplayName("A-TEST JP-Scenario")
     void A_TEST_JP_SCENARIO() {
-        StringWriter output = new StringWriter();
         // noinspection TextBlockMigration
         String inputStr = "n\n\ny\n1\n7\nquit\n2\n5\nquit\n2\n3\n4\nquit\n2\n3\nquit\n\nn\n1\n\nn\n1\n\nn\n1\n\n5\n5"
                           + "\nquit\n\n5\n4\nquit\n\n4\n6\nquit\n\nn\n\nn\n\nn\n\n7\n6\nquit\n\n9\n4\nquit\n\n6\n6"
                           + "\nquit\n\nn\n\nn\n\n9\n6\n5\nquit\n\n7\n5\n6\nquit\n\nn\n\nn\n\n7\n6\n6\nquit\n\n4\n4\n4"
-                          + "\n5\nquit\n\n1\n1\n1\n1\n";
+                          + "\n5\nquit\n\n1\n1\n1\n1\n\n";
 
-        Game game = new Game(new Scanner(inputStr), new PrintWriter(output));
-        game.initPlayers(); // Initialises decks and players, sets up player hands
+        Game game = new Game(new Scanner(inputStr), new PrintWriter(new StringWriter()));
+        game.initGame(); // Initialises decks and players, sets up player hands
 
-        // Players in the game; asserting not null to prevent compiler warning
-        Player p1 = game.getPlayerByID("P1");
-        Player p2 = game.getPlayerByID("P2");
-        Player p3 = game.getPlayerByID("P3");
-        Player p4 = game.getPlayerByID("P4");
-        assertNotNull(p1);
-        assertNotNull(p2);
-        assertNotNull(p3);
-        assertNotNull(p4);
+        Player p1 = game.getPlayerByID("P1"), p2 = game.getPlayerByID("P2"), p3 = game.getPlayerByID("P3"), p4 =
+                game.getPlayerByID("P4");
 
-        ArrayList<Card> r;
+        // Rig initial hands of each player
+        p1.overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20"));
+        p2.overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+        p3.overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+        p4.overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
 
-        // Rig P1 initial hand
-        // F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20
-        r = new ArrayList<>();
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-
-        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        r.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
-        p1.rigHand(r);
-
-        // Rig P2 initial hand
-        // F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30
-        r = new ArrayList<>();
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
-
-        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        r.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
-        p2.rigHand(r);
-
-        // Rig P3 initial hand
-        // F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20
-        r = new ArrayList<>();
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-
-        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        r.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
-        p3.rigHand(r);
-
-        // Rig P4 initial hand
-        // F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30
-        r = new ArrayList<>();
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 5));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 15));
-        r.add(new Card(Card.CardType.FOE, "Foe", "F", 40));
-
-        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        r.add(new Card(Card.CardType.WEAPON, "Dagger", "D", 5));
-        r.add(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Horse", "H", 10));
-        r.add(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        r.add(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
-        r.add(new Card(Card.CardType.WEAPON, "Excalibur", "E", 30));
-        p4.rigHand(r);
-
-        // Rigging adventure cards for A-TEST
+        // Rig adventure deck; cards added first should be drawn last
         ArrayList<Card> rigAdvDeck = new ArrayList<>();
-        // Stage 1
-        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 30));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        // Stage 2
-        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 10));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
-        // Stage 3
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Battle-axe", "B", 15));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Sword", "S", 10));
-        // Stage 4
-        rigAdvDeck.addFirst(new Card(Card.CardType.FOE, "Foe", "F", 30));
-        rigAdvDeck.addFirst(new Card(Card.CardType.WEAPON, "Lance", "L", 20));
+        rigAdvDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));  // Stage 1
+        rigAdvDeck.addAll(Card.stringToCards("F10 Lance Lance"));       // Stage 2
+        rigAdvDeck.addAll(Card.stringToCards("Battle-axe Sword"));      // Stage 3
+        rigAdvDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
+        game.getAdventureDeck().addToDrawPile(rigAdvDeck.reversed());
 
-        game.getAdventureDeck().addToDrawPile(rigAdvDeck);
+        game.getEventDeck().addToDrawPile(Card.newCard("Q4")); // Rig event deck with one Q4 on top
 
-        // Rig event deck with one Q4 on top
-        game.getEventDeck().addToDrawPile(1, new Card(Card.CardType.QUEST, "Quest", "Q", 4));
+        game.runTurn(); // Do one turn
 
-        // P1 draws Q4 from the event deck
-        Card eventCard = game.drawEventCard();
-        int stageCount = eventCard.getValue();
-
-        // Search for a sponsor; P1 asked but declines, P2 accepts
-        Player sponsor = game.findSponsor(stageCount);
-
-        // Run a quest with given parameters
-        List<List<Card>> questStages = game.buildQuest(sponsor, stageCount);
-        // Sponsor's turn ends: other players should not see built stages
-        game.printTurnEndOf(sponsor);
-
-        // Add all but sponsor to eligible list
-        List<Player> eligible = game.getPlayersStartingCurrent();
-        eligible.remove(sponsor);
-
-        // For each stage of the quest:
-        for (int stageNum = 1; stageNum <= stageCount; stageNum++) {
-            // Prompt for participation, remove from eligible list if withdrawing
-            game.promptWithdraw(eligible);
-
-            if (eligible.isEmpty()) {
-                // No players left, end quest here
-                break;
-            } else {
-                // Run the stage for participating players
-                int stageValue = Game.cardSum(questStages.get(stageNum - 1));
-                game.runStage(eligible, stageValue, stageNum, stageCount);
-            }
-        }
-
-        // All cards used by sponsor to build quest are discarded;
-        // they draw the same number of cards + the number of stages.
-        int sponsorReward = stageCount;
-        for (final List<Card> stage : questStages) {
-            for (final Card c : stage) {
-                game.discard(c);
-                sponsorReward++;
-            }
-        }
-
-        sponsor.addToHand(game.drawAdventureCards(sponsorReward));
-
-        // Asserts
+        /* Asserts */
         assertEquals(0, p1.getShields(), "P1 has no shields");
         assertEquals("F5 F10 F15 F15 F30 H10 B15 B15 L20", p1.getHandString(), "P1 hand correct");
 

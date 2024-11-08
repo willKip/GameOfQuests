@@ -26,18 +26,23 @@ public class Deck {
         return drawn;
     }
 
-    public void addToDrawPile(final List<Card> cards) {
-        drawPile.addAll(cards);
+    // Adds the given card to the draw pile.
+    public void addToDrawPile(final Card card) {
+        addToDrawPile(card, 1);
     }
 
     // Adds n copies of the given card to the draw pile.
-    public void addToDrawPile(final int n, final Card card) {
+    public void addToDrawPile(final Card card, final int n) {
         drawPile.addAll(Collections.nCopies(n, card));
     }
 
     public void addToDiscardPile(final Card c) {
         discardPile.addLast(c);
         refresh();
+    }
+
+    public void addToDrawPile(final List<Card> cards) {
+        drawPile.addAll(cards);
     }
 
     // Returns the total number of cards in the deck and its discard pile.
