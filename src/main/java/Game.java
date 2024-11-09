@@ -205,6 +205,12 @@ public final class Game {
         return effectiveHand;
     }
 
+    public int cardsInQuest() {
+        List<Card> usedCards = new ArrayList<>();
+        questStages.forEach(usedCards::addAll);
+        return usedCards.size();
+    }
+
     public int questLength() {
         return currentEvent.getValue();
     }
