@@ -2,7 +2,7 @@ Feature: A2 Tests
   # Scenario 1
   Scenario: A1_scenario
     Given a new game
-    And a deck rigged for scenario 1
+    And rigged decks and hands for scenario 1
     When P1 draws a quest of 4 stages
     Then P1 refuses to sponsor
     And P2 agrees to sponsor
@@ -56,20 +56,98 @@ Feature: A2 Tests
     And P3 has 5 cards
     And P4 has 4 cards
 
-#  # Scenario 2
-#  Scenario: 2winner_game_2winner_quest
-#    Given a new game
-#    And a rigged deck for scenario 1
-#    # add
-#    Then P2 has 7 shields
-#    And P4 has 7 shields
-#    And P2 won the game
-#    And P4 won the game
+  # Scenario 2
+  Scenario: 2winner_game_2winner_quest
+    Given a new game
+    And rigged decks and hands for scenario 2
+    When P1 draws a quest of 4 stages
+    Then P1 agrees to sponsor
+    And P1 is the sponsor
+    And P1 builds stage 1 with [F5]
+    And P1 builds stage 2 with [F5 D5]
+    And P1 builds stage 3 with [F15]
+    And P1 builds stage 4 with [F15 S10]
+    And stage 1 of the quest begins
+    And P2 decides to participate in the stage, drawing Horse and trimming Horse
+    And P3 decides to participate in the stage, drawing Sword and trimming Sword
+    And P4 decides to participate in the stage, drawing Battle-axe and trimming Battle-axe
+    And P2 attacks with [Dagger]
+    And P3 attacks with []
+    And P4 attacks with [Dagger]
+    And P2 wins the stage
+    And P3 loses the stage
+    And P4 wins the stage
+    And stage 2 of the quest begins
+    And P2 decides to participate in the stage, drawing Horse
+    And P4 decides to participate in the stage, drawing Lance
+    And P2 attacks with [Horse]
+    And P4 attacks with [Lance]
+    And P2 wins the stage
+    And P4 wins the stage
+    And stage 3 of the quest begins
+    And P2 decides to participate in the stage, drawing Lance
+    And P4 decides to participate in the stage, drawing Sword
+    And P2 attacks with [Lance Battle-axe]
+    And P4 attacks with [Battle-axe Sword Lance]
+    And P2 wins the stage
+    And P4 wins the stage
+    And stage 4 of the quest begins
+    And P2 decides to participate in the stage, drawing F5
+    And P4 decides to participate in the stage, drawing Lance
+    And P2 attacks with [Horse Lance Battle-axe]
+    And P4 attacks with [Dagger Sword Lance Excalibur]
+    And P2 wins the stage
+    And P4 wins the stage
+    And the quest is finished
+    And the sponsor updates their hand, drawing [F5 F10 F15 F20 F40 F70 D5 S10 H10 L20] and trimming [F10 F15 F20 F40]
+    And P1 has 0 shields
+    And P2 has 4 shields
+    And P3 has 0 shields
+    And P4 has 4 shields
+    When P2 draws a quest of 3 stages
+    Then P2 refuses to sponsor
+    And P3 agrees to sponsor
+    And P3 is the sponsor
+    And P3 builds stage 1 with [F5]
+    And P3 builds stage 2 with [F5 D5]
+    And P3 builds stage 3 with [F15]
+    And stage 1 of the quest begins
+    And P1 withdraws from the stage
+    And P2 decides to participate in the stage, drawing Dagger
+    And P4 decides to participate in the stage, drawing Horse
+    And P2 attacks with [Dagger]
+    And P4 attacks with [Horse]
+    And P2 wins the stage
+    And P4 wins the stage
+    And stage 2 of the quest begins
+    And P2 decides to participate in the stage, drawing Sword
+    And P4 decides to participate in the stage, drawing Lance
+    And P2 attacks with [Sword]
+    And P4 attacks with [Lance]
+    And P2 wins the stage
+    And P4 wins the stage
+    And stage 3 of the quest begins
+    And P2 decides to participate in the stage, drawing Battle-axe
+    And P4 decides to participate in the stage, drawing Excalibur
+    And P2 attacks with [Battle-axe]
+    And P4 attacks with [Excalibur]
+    And P2 wins the stage
+    And P4 wins the stage
+    And the quest is finished
+    And the sponsor updates their hand, drawing [F5 F40 F70 D5 D5 S10 H10] and trimming [F5 D5 F70]
+    And P1 has 0 shields
+    And P2 has 7 shields
+    And P3 has 0 shields
+    And P4 has 7 shields
+    And P1 did not win the game
+    And P2 won the game
+    And P3 did not win the game
+    And P4 won the game
 
   # Scenario 3
   Scenario: 1winner_game_with_events
     Given a new game
-    And a deck rigged for scenario 3
+    And rigged decks and hands for scenario 3
     When P1 draws a quest of 4 stages
     Then P1 agrees to sponsor
     And P1 is the sponsor
@@ -191,7 +269,7 @@ Feature: A2 Tests
   # Scenario 4
   Scenario: 0_winner_quest
     Given a new game
-    And a deck rigged for scenario 4
+    And rigged decks and hands for scenario 4
     When P1 draws a quest of 2 stages
     Then P1 agrees to sponsor
     And P1 is the sponsor

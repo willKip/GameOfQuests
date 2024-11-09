@@ -6,8 +6,6 @@ public final class Game {
     private static PrintWriter output = new PrintWriter(OutputStream.nullOutputStream());
     private static Scanner input = new Scanner("");
 
-    private static boolean echoInput = false;
-
     private final Deck adventureDeck;
     private final Deck eventDeck;
     private final List<Player> playerList; // Ordered list of players, representing turn order as well
@@ -39,8 +37,6 @@ public final class Game {
         if (output != null) {
             Game.output = output;
         }
-
-        echoInput = false;
 
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
@@ -128,18 +124,8 @@ public final class Game {
         return getInputNextLine();
     }
 
-    // If echoInput is set, print the received input to the output as well when retrieving it.
     private static String getInputNextLine() {
-        String nextLine = input.nextLine();
-        if (echoInput) {
-            output.println(nextLine);
-            output.flush();
-        }
-        return nextLine;
-    }
-
-    public void enableInputEcho() {
-        echoInput = true;
+        return input.nextLine();
     }
 
     private void initTurnVars() {

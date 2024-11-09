@@ -4,7 +4,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import java.io.PrintWriter;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -38,13 +37,11 @@ public class GameSteps {
 
     @Given("a new game")
     public void new_game() {
-        // TODO: debug, remove
-        game = new Game(new PrintWriter(System.out));
+        game = new Game();
         game.initGame();
-        game.enableInputEcho();
     }
 
-    @Given("a deck rigged for scenario {int}")
+    @Given("rigged decks and hands for scenario {int}")
     public void rig_deck_for_scenario(int scenario) throws IllegalArgumentException {
         ArrayList<Card> rigDeck;
         switch (scenario) {
@@ -73,6 +70,39 @@ public class GameSteps {
                 game.getEventDeck().addToDrawPile(new Card("Q4"));
                 break;
             case 2: // 2winner_game_2winner_quest
+                // Rig initial hands of each player
+                game.getPlayerByID("P1")
+                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+                game.getPlayerByID("P2")
+                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 B15 H10 H10 B15 B15 L20"));
+                game.getPlayerByID("P3")
+                    .overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+                game.getPlayerByID("P4")
+                    .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
+
+                /* Rig adventure deck */
+                rigDeck = new ArrayList<>();
+                // Quest 1
+                rigDeck.addAll(Card.stringToCards("Horse Sword Battle-axe"));   // Stage 1
+                rigDeck.addAll(Card.stringToCards("Horse Lance"));              // Stage 2
+                rigDeck.addAll(Card.stringToCards("Lance Sword"));              // Stage 3
+                rigDeck.addAll(Card.stringToCards("F5 Lance"));                 // Stage 4
+
+                // 10 Sponsor reward cards
+                rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 S10 H10 L20"));
+
+                // Quest 2
+                rigDeck.addAll(Card.stringToCards("Dagger Horse"));         // Stage 1
+                rigDeck.addAll(Card.stringToCards("Sword Lance"));          // Stage 2
+                rigDeck.addAll(Card.stringToCards("Battle-axe Excalibur")); // Stage 3
+                // 7 Sponsor reward cards
+                rigDeck.addAll(Card.stringToCards("F5 F40 F70 D5 D5 S10 H10"));
+
+                game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
+
+                /* Rig event deck */
+                rigDeck = new ArrayList<>(Card.stringToCards("Q4 Q3"));
+                game.getEventDeck().addToDrawPile(rigDeck.reversed());
                 break;
             case 3: // 1winner_game_with_events
                 // Rig initial hands of each player
@@ -174,7 +204,7 @@ public class GameSteps {
     }
 
     @Then("{player} builds stage {int} with {cardList}")
-    public void p_builds_stage_with(Player p, int stage, List<Card> stageCards) {
+    public void player_builds_stage_with(Player p, int stage, List<Card> stageCards) {
         assertEquals("Player should be the sponsor to build stages", p, game.getSponsor());
         assertEquals("Stage number should be correct", game.viewQuestStages().size() + 1, stage);
 
@@ -187,6 +217,13 @@ public class GameSteps {
         game.startNewStage();
 
         assertEquals("Correct stage number", game.getStageNum(), stage);
+    }
+
+    @Then("{player} withdraws from the stage")
+    public void player_participates_draw(Player p) {
+        game.addInput("y\n"); // Agree to withdraw
+        game.promptWithdraw(p);
+        assertFalse("Player should be removed from eligible list after withdrawing", game.viewEligible().contains(p));
     }
 
     @Then("{player} decides to participate in the stage, drawing {card}")
@@ -269,8 +306,9 @@ public class GameSteps {
         Collections.sort(expectedHand);
 
         // Trim cards if sponsor rewards would make their hand exceed the max size.
-        game.addInput(Game.buildDiscardString(expectedHand, toTrim));
+        game.addInput(Game.buildDiscardString(expectedHand, toTrim) + "\n");
         game.updateSponsorCardsAfterQuest();
+        game.endTurn();
 
         // Verify sponsor hand is correct
         for (final Card c : toTrim) {
