@@ -69,7 +69,7 @@ public class CustomTest {
                   () -> assertEquals(new Card(Card.CardType.WEAPON, "Excalibur", 'E', 30), new Card("Excalibur")));
 
         assertAll("Events by Alias",
-                  () -> assertEquals(new Card(Card.CardType.EVENT, "Plague", 'E', 1), new Card("Plague")),
+                  () -> assertEquals(new Card(Card.CardType.EVENT, "Plague", 'E', 2), new Card("Plague")),
                   () -> assertEquals(new Card(Card.CardType.EVENT, "Queen's Favor", 'E', 2), new Card("Queen's Favor")),
                   () -> assertEquals(new Card(Card.CardType.EVENT, "Prosperity", 'E', 2), new Card("Prosperity")));
     }

@@ -777,11 +777,13 @@ public class MainTest {
         Card plagueCard = new Card(Card.CardType.EVENT, "Plague", 'E', 2);
 
         game.setCurrentEvent(plagueCard);
-
         game.setCurrentPlayer(p2);
+        game.addInput("\n");
         game.runEvent();
 
+        game.setCurrentEvent(plagueCard);
         game.setCurrentPlayer(p4);
+        game.addInput("\n");
         game.runEvent();
 
         assertAll("Plague event triggers",
@@ -794,7 +796,7 @@ public class MainTest {
     @Test
     @DisplayName("Event: Queen's Favor will make the drawing player draw 2 cards, possibly trimming")
     void RESP_08_TEST_02() {
-        String input = "1\n"; // Trim one card after drawing 2 to reach 13 cards in hand
+        String input = "1\n\n"; // Trim one card after drawing 2 to reach 13 cards in hand
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
@@ -832,7 +834,8 @@ public class MainTest {
     @Test
     @DisplayName("Event: Prosperity will make every player draw 2 cards, possibly trimming")
     void RESP_08_TEST_03() {
-        String input = "\n1\n\n1\n1\n\n\n"; // P2 next, P3 trim 1, P3 next, P4 trim 1, P4 trim 1, P4 next, P1 next
+        // P2 next, P3 trim 1, P3 next, P4 trim 1, P4 trim 1, P4 next, P1 next, end turn
+        String input = "\n1\n\n1\n1\n\n\n\n";
         StringWriter output = new StringWriter();
 
         Game game = new Game(new Scanner(input), new PrintWriter(output));
@@ -843,54 +846,21 @@ public class MainTest {
         Player p3 = game.getPlayerByID("P3");
         Player p4 = game.getPlayerByID("P4");
 
-        ArrayList<Card> riggedCards;
-
         // Empty P1
         p1.overwriteHand(Collections.emptyList());
 
         // P2 gets 3 cards
-        riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
-        p2.overwriteHand(riggedCards);
+        p2.overwriteHand(Card.stringToCards("F1 F2 F3"));
 
         // P3 gets 11 cards
-        riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 8));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 9));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 11));
-        p3.overwriteHand(riggedCards);
+        p3.overwriteHand(Card.stringToCards("F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11"));
 
         // P4 gets 12 cards
-        riggedCards = new ArrayList<>();
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 1));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 2));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 3));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 4));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 5));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 6));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 7));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 8));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 9));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 10));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 11));
-        riggedCards.add(new Card(Card.CardType.FOE, "Foe", 'F', 12));
-        p4.overwriteHand(riggedCards);
+        p4.overwriteHand(Card.stringToCards("F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12"));
 
         // All players get 2 cards each
-        Card prosperityCard = new Card(Card.CardType.EVENT, "Prosperity", 'E', 2);
-
         game.setCurrentPlayer(p2);
-        game.setCurrentEvent(prosperityCard);
+        game.setCurrentEvent(new Card("Prosperity"));
         game.runEvent();
 
         assertAll("Prosperity event triggers", () -> assertEquals(2, p1.getHandSize(), "P1 gains 2 cards from 0"),

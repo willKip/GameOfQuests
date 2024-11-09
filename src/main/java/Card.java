@@ -115,7 +115,7 @@ public class Card implements Comparable<Card> {
     private static Integer getValue(final String s) {
         final Map<String, Integer> NAME_TO_VALUE =
                 Map.ofEntries(entry("Dagger", 5), entry("Sword", 10), entry("Horse", 10), entry("Battle-axe", 15),
-                              entry("Lance", 20), entry("Excalibur", 30), entry("Plague", 1), entry("Queen's Favor", 2),
+                              entry("Lance", 20), entry("Excalibur", 30), entry("Plague", 2), entry("Queen's Favor", 2),
                               entry("Prosperity", 2));
         return NAME_TO_VALUE.get(s);
     }
@@ -150,8 +150,8 @@ public class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        // e.g. Card{B15 "Battle-axe"}
-        return "Card{" + cardType + ", " + getCardID() + ' ' + '"' + cardName + '"' + '}';
+        // e.g. B15 "Battle-axe"
+        return getCardID() + ' ' + '"' + cardName + '"';
     }
 
     @Override

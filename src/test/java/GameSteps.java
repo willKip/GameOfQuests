@@ -1,18 +1,22 @@
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
 @SuppressWarnings("CucumberJavaStepDefClassInDefaultPackage")
 public class GameSteps {
     private Game game;
+
+    @ParameterType("Plague|Queen's Favor|Prosperity")
+    public Card eventCard(String name) {
+        return new Card(name);
+    }
 
     // Interpret a word as a player ID (e.g. P1, P2)
     @ParameterType("P[0-9]+") // Match on "P" followed by any length of digits, until a whitespace is encountered
@@ -42,7 +46,7 @@ public class GameSteps {
 
     @Given("a deck rigged for scenario {int}")
     public void rig_deck_for_scenario(int scenario) throws IllegalArgumentException {
-        ArrayList<Card> rigAdvDeck;
+        ArrayList<Card> rigDeck;
         switch (scenario) {
             case 1: // A1_scenario
                 // Rig initial hands of each player
@@ -56,14 +60,14 @@ public class GameSteps {
                     .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
 
                 // Rig adventure deck; cards added first should be drawn last
-                rigAdvDeck = new ArrayList<>();
-                rigAdvDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));  // Stage 1
-                rigAdvDeck.addAll(Card.stringToCards("F10 Lance Lance"));       // Stage 2
-                rigAdvDeck.addAll(Card.stringToCards("Battle-axe Sword"));      // Stage 3
-                rigAdvDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
+                rigDeck = new ArrayList<>();
+                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));  // Stage 1
+                rigDeck.addAll(Card.stringToCards("F10 Lance Lance"));       // Stage 2
+                rigDeck.addAll(Card.stringToCards("Battle-axe Sword"));      // Stage 3
+                rigDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
                 // 13 Sponsor reward cards
-                rigAdvDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
-                game.getAdventureDeck().addToDrawPile(rigAdvDeck.reversed());
+                rigDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
+                game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
                 // Rig event deck with one Q4 on top
                 game.getEventDeck().addToDrawPile(new Card("Q4"));
@@ -71,19 +75,66 @@ public class GameSteps {
             case 2: // 2winner_game_2winner_quest
                 break;
             case 3: // 1winner_game_with_events
+                // Rig initial hands of each player
+                game.getPlayerByID("P1")
+                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+                game.getPlayerByID("P2")
+                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 B15 H10 H10 B15 B15 L20"));
+                game.getPlayerByID("P3")
+                    .overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+                game.getPlayerByID("P4")
+                    .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
+
+                /* Rig adventure deck */
+                rigDeck = new ArrayList<>();
+                // Quest 1
+                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));   // Stage 1
+                rigDeck.addAll(Card.stringToCards("F10 Lance Lance"));        // Stage 2
+                rigDeck.addAll(Card.stringToCards("Lance Battle-axe Sword")); // Stage 3
+                rigDeck.addAll(Card.stringToCards("F5 F30 Lance"));           // Stage 4
+
+                // 12 Sponsor reward cards
+                rigDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10"));
+
+                // 8 Prosperity triggered cards
+                rigDeck.addAll(Card.stringToCards("F70 Dagger"));           // P1
+                rigDeck.addAll(Card.stringToCards("Lance Excalibur"));      // P2
+                rigDeck.addAll(Card.stringToCards("Battle-axe Lance"));     // P3
+                rigDeck.addAll(Card.stringToCards("Sword Horse"));          // P4
+
+                // 2 Queen's Favor triggered cards for P4
+                rigDeck.addAll(Card.stringToCards("Sword Lance"));
+
+                // Quest 2
+                rigDeck.addAll(Card.stringToCards("D5 D5 D5"));  // Stage 1
+                rigDeck.addAll(Card.stringToCards("S10 H10"));   // Stage 2
+                rigDeck.addAll(Card.stringToCards("B15 B15"));   // Stage 3
+                // 7 Sponsor reward cards
+                rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 D5 H10 L20"));
+
+                game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
+
+                /* Rig event deck */
+                rigDeck = new ArrayList<>(Card.stringToCards("Q4 Plague Prosperity"));
+                rigDeck.add(new Card("Queen's Favor")); // Space in name necessitates separate addition
+                rigDeck.add(new Card("Q3"));
+
+                game.getEventDeck().addToDrawPile(rigDeck.reversed());
                 break;
             case 4: // 0_winner_quest
                 // Rig initial hands of each player. P1 will sponsor; other players all lose in the first round
+                // Other players will start with empty hands and use the single cards they draw from deciding to
+                // participate in the first round.
                 game.getPlayerByID("P1").overwriteHand(Card.stringToCards("F15 Battle-axe F40 Sword Lance Horse"));
                 game.getPlayerByID("P2").overwriteHand(Card.stringToCards(""));
                 game.getPlayerByID("P3").overwriteHand(Card.stringToCards(""));
                 game.getPlayerByID("P4").overwriteHand(Card.stringToCards(""));
 
                 // Rig adventure deck; cards added first should be drawn last
-                rigAdvDeck = new ArrayList<>();
-                rigAdvDeck.addAll(Card.stringToCards("Sword Battle-axe Lance"));  // Stage 1, player participation
-                rigAdvDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 D5"));  // Sponsor rewards
-                game.getAdventureDeck().addToDrawPile(rigAdvDeck.reversed());
+                rigDeck = new ArrayList<>();
+                rigDeck.addAll(Card.stringToCards("Sword Battle-axe Lance"));  // Stage 1, player participation
+                rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 D5"));  // Sponsor rewards
+                game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
                 // Rig event deck with one Q2 on top
                 game.getEventDeck().addToDrawPile(new Card("Q2"));
@@ -97,7 +148,15 @@ public class GameSteps {
     public void player_draws_a_quest_of_n_stages(Player p, int stages) {
         game.setCurrentPlayer(p);
         game.setCurrentEvent(game.drawEventCard());
-        assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', stages), game.getCurrentEventCard());
+        assertEquals("Correct quest card drawn", new Card(Card.CardType.QUEST, "Quest", 'Q', stages),
+                     game.getCurrentEventCard());
+    }
+
+    @When("{player} draws the event {eventCard}")
+    public void player_draws_e_card(Player p, Card eventCard) {
+        game.setCurrentPlayer(p);
+        game.setCurrentEvent(game.drawEventCard());
+        assertEquals("Correct event (E) card drawn", eventCard, game.getCurrentEventCard());
     }
 
     @Then("{player} refuses to sponsor")
@@ -168,12 +227,12 @@ public class GameSteps {
         assertEquals("Cards discarded after attack", initialHand, p.getHand());
     }
 
-    @Then("{player} won the stage")
+    @Then("{player} wins the stage")
     public void player_stage_assert_won(Player p) {
         assertTrue("Player should still be eligible", game.viewEligible().contains(p));
     }
 
-    @Then("{player} lost the stage")
+    @Then("{player} loses the stage")
     public void player_stage_assert_lost(Player p) {
         assertFalse("Player should not be eligible anymore", game.viewEligible().contains(p));
     }
@@ -225,9 +284,9 @@ public class GameSteps {
         assertTrue(game.getWinners().contains(p));
     }
 
-    @Then("No one has won the game")
-    public void nobody_won_yet() {
-        assertTrue(game.getWinners().isEmpty());
+    @Then("{player} did not win the game")
+    public void player_is_not_winner(Player p) {
+        assertFalse(game.getWinners().contains(p));
     }
 
     @Then("the sponsor's hand is {string}")
@@ -243,5 +302,43 @@ public class GameSteps {
     @Then("{player} is the sponsor")
     public void player_is_sponsor(Player p) {
         assertEquals(p, game.getSponsor());
+    }
+
+    @Then("the event runs")
+    public void the_event_runs() {
+        int turnTransitions = 0; // For card draws, input needs to account for turn transitions
+
+        switch (game.getCurrentEventCard().getName()) {
+            case "Queen's Favor" -> turnTransitions++;
+            case "Prosperity" -> turnTransitions += game.getPlayerCount();
+        }
+
+        game.addInput("\n".repeat(turnTransitions) + "\n");
+        game.runEvent();
+    }
+
+    @Then("the event runs, causing some players to trim their hands:")
+    public void the_event_runs_trimming(DataTable table) {
+        List<Map<String, String>> rows = table.asMaps(String.class, String.class);
+
+        // For players with cards to trim defined, build input strings for trimming
+        Map<Player, String> playerTrimMap = new HashMap<>();
+        for (Map<String, String> columns : rows) {
+            Player p = game.getPlayerByID(columns.get("player"));
+            List<Card> toTrim = Card.stringToCards(columns.get("trimming"));
+            playerTrimMap.put(p, Game.buildDiscardString(p.viewHand(), toTrim));
+        }
+
+        StringBuilder inputs = new StringBuilder();
+        for (final Player p : game.getPlayersStartingCurrent()) {
+            String trimStr = playerTrimMap.get(p);
+            if (trimStr != null) {
+                inputs.append(trimStr); // Trim cards if relevant
+            }
+            inputs.append("\n"); // Turn end
+        }
+
+        game.addInput(inputs + "\n"); // End turn after every event resolved
+        game.runEvent();
     }
 }

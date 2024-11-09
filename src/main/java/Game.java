@@ -472,9 +472,11 @@ public final class Game {
                     printTurnEndOf(p);
                 }
                 break;
+            default:
+                throw new RuntimeException("undefined event card '" + currentEvent.getName() + "'!");
         }
-
         output.flush();
+        endTurn();
     }
 
     // Prompt a player to sponsor a quest of given length.
@@ -771,6 +773,7 @@ public final class Game {
         }
 
         updateSponsorCardsAfterQuest();
+        endTurn();
     }
 
     // Run a turn for the current player, and hand off the turn to the next player.
@@ -783,8 +786,10 @@ public final class Game {
             case QUEST -> runQuest();
             default -> throw new RuntimeException("'" + currentEvent + "' is not Event or Quest type!");
         }
-        discard(currentEvent); // Discard event card afterwards
+    }
 
+    public void endTurn() {
+        discard(currentEvent); // Discard event card afterwards
         initTurnVars(); // Clear variables for a new turn
         printTurnEndOf(getCurrentPlayer()); // Indicate end of current player (card drawer)'s turn
         setCurrentPlayer(getNextPlayer(getCurrentPlayer())); // Switch turn to next player
