@@ -1,11 +1,12 @@
+import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -13,18 +14,32 @@ import static org.junit.Assert.*;
 public class GameSteps {
     private Game game;
 
-    // Helper method to be called for step definitions that require a certain player to be in action
-    private void setPlayer(int playerNum) {
-        game.setCurrentPlayer("P" + playerNum);
+    // Interpret a word as a player ID (e.g. P1, P2)
+    @ParameterType("P[0-9]+") // Match on "P" followed by any length of digits, until a whitespace is encountered
+    public Player player(String id) {
+        return game.getPlayerByID(id);
+    }
+
+    // Interpret a word as a card ID or name (e.g. F5, Horse)
+    @ParameterType("([^\\s]+)") // Match until next whitespace encountered
+    public Card card(String id) {
+        return new Card(id);
+    }
+
+    // Interpret space-separated card IDs or names between square brackets (e.g. [F5, Horse])
+    @ParameterType("\\[(.*?)\\]") // Match on the text between square brackets
+    public List<Card> cardList(String ids) {
+        return Card.stringToCards(ids);
     }
 
     @Given("a new game")
     public void new_game() {
-        game = new Game();
+        game = new Game(new PrintWriter(System.out));
         game.initGame();
+        game.enableInputEcho();
     }
 
-    @Given("a rigged deck for scenario {int}")
+    @Given("a deck rigged for scenario {int}")
     public void a_rigged_deck_for_scenario(int scenario) throws IllegalArgumentException {
         switch (scenario) {
             case 1: // A1_scenario
@@ -44,10 +59,12 @@ public class GameSteps {
                 rigAdvDeck.addAll(Card.stringToCards("F10 Lance Lance"));       // Stage 2
                 rigAdvDeck.addAll(Card.stringToCards("Battle-axe Sword"));      // Stage 3
                 rigAdvDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
+                // 13 Sponsor reward cards
+                rigAdvDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
                 game.getAdventureDeck().addToDrawPile(rigAdvDeck.reversed());
 
                 // Rig event deck with one Q4 on top
-                game.getEventDeck().addToDrawPile(Card.newCard("Q4"));
+                game.getEventDeck().addToDrawPile(new Card("Q4"));
                 break;
             case 2: // 2winner_game_2winner_quest
                 break;
@@ -60,173 +77,150 @@ public class GameSteps {
         }
     }
 
-    @When("P{int} draws a quest of {int} stages")
-    public void player_draws_a_quest_of_n_stages(int playerNum, int stages) {
-        this.setPlayer(playerNum);
-        Card drawnCard = game.drawEventCard();
-        assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', stages), drawnCard);
-        game.setCurrentEvent(drawnCard);
+    @When("{player} draws a quest of {int} stages")
+    public void player_draws_a_quest_of_n_stages(Player p, int stages) {
+        game.setCurrentPlayer(p);
+        game.setCurrentEvent(game.drawEventCard());
+        assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', stages), game.getCurrentEventCard());
     }
 
-    @Then("P{int} refuses to sponsor")
-    public void player_refuses_to_sponsor(int playerNum) {
-        Player p = game.getPlayerByNumber(playerNum);
-
-        game.overrideInput("n\n\n"); // Decline, end turn
-        assertFalse(game.promptToSponsor(p, game.getCurrentEvent().getValue()));
+    @Then("{player} refuses to sponsor")
+    public void player_sponsor_refuses(Player p) {
+        game.addInput("n\n\n"); // Decline, end turn
+        game.promptToSponsor(p);
+        assertNotEquals(p, game.getSponsor());
     }
 
-    @Then("P{int} decides to sponsor")
-    public void player_decides_to_sponsor(int playerNum) {
-        Player p = game.getPlayerByNumber(playerNum);
-
-        game.overrideInput("y\n"); // Accept; no turn end happens
-        assertTrue(game.promptToSponsor(p, game.getCurrentEvent().getValue()));
-
+    @Then("{player} agrees to sponsor")
+    public void player_sponsor_agrees(Player p) {
+        game.addInput("y\n"); // Accept
+        game.promptToSponsor(p);
         assertEquals(p, game.getSponsor());
     }
 
-    @Then("P{int} builds stage {int} with {string}")
-    public void p_builds_stage_with(int playerNum, int stage, String cardString) {
-        Player p = game.getPlayerByNumber(playerNum);
-        assertEquals(p, game.getSponsor());
+    @Then("{player} builds stage {int} with {cardList}")
+    public void p_builds_stage_with(Player p, int stage, List<Card> stageCards) {
+        assertEquals("Correct player should be the sponsor", p, game.getSponsor());
+        assertEquals("Stage number should be correct", game.viewQuestStages().size() + 1, stage);
 
-        assertTrue("Should not build more stages than the current quest allows",
-                   game.viewQuestStages().size() < game.getCurrentEvent().getValue());
-        assertEquals("Stage number should be valid", game.viewQuestStages().size() + 1, stage);
-
-        // Get the sponsor's hand minus the cards already used to build stages in the quest
-        List<Card> handForStage = new ArrayList<>(p.viewHand());
-        for (final Card used : game.viewCardsOfQuest()) {
-            handForStage.remove(used);
-        }
-
-        game.overrideInput(Game.buildDiscardInput(Card.stringToCards(cardString), handForStage));
+        game.addInput(Game.buildDiscardString(game.viewEffectiveSponsorHand(), stageCards) + "quit\n");
         game.buildAndAddStage();
     }
 
-    @Then("P{int} decides to participate in the stage, drawing {string}")
-    public void player_participates_draw(int playerNum, String drawingCards) {
-        player_participates_draw_and_discard(playerNum, drawingCards, "");
+    @Then("stage {int} of the quest begins")
+    public void stage_n_of_the_quest_begins(int stage) {
+        game.startNewStage();
+
+        assertEquals("Correct stage number", game.getStageNum(), stage);
     }
 
-    @Then("P{int} decides to participate in the stage, drawing {string} and discarding {string}")
-    public void player_participates_draw_and_discard(int playerNum, String drawingCardID, String discardingCardID) {
-        Player p = game.getPlayerByNumber(playerNum);
+    @Then("{player} decides to participate in the stage, drawing {card}")
+    public void player_participates_draw(Player p, Card drawn) {
+        player_participates_draw_and_discard(p, drawn, null); // Discarding nothing because no trim needed
+    }
 
-        Card drawing = Card.newCard(drawingCardID);
-        Card discarding = Objects.equals(discardingCardID, "") ? null : Card.newCard(discardingCardID);
+    @Then("{player} decides to participate in the stage, drawing {card} and trimming {card}")
+    public void player_participates_draw_and_discard(Player p, Card drawn, Card toDiscard) {
+        List<Card> expectedHand = new ArrayList<>(p.viewHand()); // Expected hand to test against
+        expectedHand.add(drawn);        // Add card that should be drawn
+        Collections.sort(expectedHand); // Sort hand
 
-        // Expected hand to test against
-        List<Card> expectedHand = new ArrayList<>(p.getHand());
-
-        // Add expected drawn card
-        expectedHand.add(drawing);
-        Collections.sort(expectedHand);
-
-        String discardStr = discarding == null ? "" : Game.buildDiscardInput(List.of(discarding), expectedHand);
-
-        // Agree to participate (refuse to withdraw), discard card from new over-capacity hand, end turn
-        String inputStr = "n\n" + discardStr + "\n";
-
-        game.overrideInput(inputStr);
+        // Agree to participate (by refusing to withdraw), discard card from new over-capacity hand, end turn
+        game.addInput("n\n" + Game.buildDiscardString(expectedHand, toDiscard) + "\n");
         game.promptWithdraw(p);
 
-        if (discarding != null) {
-            // Remove expected discarded card
-            expectedHand.remove(discarding);
-            Collections.sort(expectedHand);
+        // Verify player discards the card they should
+        if (toDiscard != null) {
+            expectedHand.remove(toDiscard);
         }
 
         assertEquals("Hand modified as expected after participation draw", expectedHand, p.getHand());
     }
 
-    @Then("stage {int} of the quest begins")
-    public void stage_n_of_the_quest_begins(int stage) {
-        game.setStageNum(game.getStageNum() + 1);
-        assertTrue(game.eligibleRemaining());
-        assertEquals(game.getStageNum(), stage);
-    }
-
-    @Then("P{int} attacks with {string}")
-    public void player_builds_an_attack_with(int playerNum, String cardIDs) {
-        Player p = game.getPlayerByNumber(playerNum);
-
-        List<Card> attackCards = Card.stringToCards(cardIDs);
+    @Then("{player} attacks with {cardList}")
+    public void player_builds_an_attack_with(Player p, List<Card> attackCards) {
         List<Card> initialHand = new ArrayList<>(p.viewHand());
 
-        // Pick cards for attack + end turn
-        String inputStr = Game.buildDiscardInput(attackCards, initialHand) + "\n";
-
-        game.overrideInput(inputStr);
+        // Pick cards for attack, end turn
+        game.addInput(Game.buildDiscardString(initialHand, attackCards) + "quit\n" + "\n");
         game.doAttack(p);
 
+        // Verify cards used in attack are removed correctly
         for (final Card c : attackCards) {
             initialHand.remove(c);
         }
-
         assertEquals("Cards discarded after attack", initialHand, p.getHand());
     }
 
-    @Then("P{int} {word} the stage")
-    public void player_stage_assert_won_or_lost(int playerNum, String result) {
-        Player p = game.getPlayerByNumber(playerNum);
-        boolean playerStillEligible = game.viewEligible().contains(p);
-
-        switch (result) {
-            case "won" -> assertTrue(playerStillEligible);
-            case "lost" -> assertFalse(playerStillEligible);
-            default -> throw new IllegalArgumentException("'" + result + "' is not a valid result word!");
-        }
+    @Then("{player} won the stage")
+    public void player_stage_assert_won(Player p) {
+        assertTrue(game.viewEligible().contains(p));
     }
 
-    @Then("P{int} has {int} shields")
-    public void player_has_n_shields(int playerNum, int shields) {
-        assertEquals(shields, game.getPlayerByNumber(playerNum).getShields());
+    @Then("{player} lost the stage")
+    public void player_stage_assert_lost(Player p) {
+        assertFalse(game.viewEligible().contains(p));
     }
 
-    @Then("P{int} has {int} cards")
-    public void player_has_n_cards(int playerNum, int cards) {
-        assertEquals(cards, game.getPlayerByNumber(playerNum).getHandSize());
+    @Then("{player} has {int} shields")
+    public void player_has_n_shields(Player p, int shields) {
+        assertEquals(shields, p.getShields());
     }
 
-    @Then("the quest is finished, sponsor draws cards")
-    public void quest_finished_sponsor_updates_hand() {
-        quest_finished_sponsor_updates_hand_with_discard("");
+    @Then("{player} has {int} cards")
+    public void player_has_n_cards(Player p, int cards) {
+        assertEquals(cards, p.getHandSize());
     }
 
-    @Then("the quest is finished, sponsor draws cards, discarding {string}")
-    public void quest_finished_sponsor_updates_hand_with_discard(String discardIDs) {
+    @Then("the quest is finished")
+    public void quest_finished_assert() {
+        assertEquals("Stage number should be equal to total number of stages", game.questLength(), game.getStageNum());
+    }
+
+    @Then("the sponsor updates their hand, drawing {cardList} and trimming {cardList}")
+    public void quest_finished_sponsor_updates_hand_with_discard(List<Card> toDraw, List<Card> toDiscard) {
         Player sponsor = game.getSponsor();
 
         // Sponsor will discard all cards used to build the quest and draw as many, and additionally draw
-        // cards equal to the number of stages in the quest, trimming to the max hand size of 12 if necessary.
-        int sponsorHandSizeExpected = Math.min(12, sponsor.viewHand().size() + game.getCurrentEvent().getValue());
+        // cards equal to the number of stages in the quest.
+        assertEquals("Must draw correct amount of cards in step definition",
+                     sponsor.getHandSize() - game.viewEffectiveSponsorHand().size() + game.questLength(),
+                     toDraw.size());
+        assertEquals("Must discard correct amount of cards in step definition",
+                     Math.max(0, (sponsor.getHandSize() + game.questLength()) - 12), toDiscard.size());
 
-        if (!discardIDs.isEmpty()) {
-            Game.buildDiscardInput(Card.stringToCards(discardIDs), sponsor.viewHand());
+        List<Card> expectedHand = new ArrayList<>(game.viewEffectiveSponsorHand());
+        expectedHand.addAll(toDraw);
+        Collections.sort(expectedHand);
+
+        // Trim cards if sponsor rewards would make their hand exceed the max size.
+        game.addInput(Game.buildDiscardString(expectedHand, toDiscard));
+        game.updateSponsorCardsAfterQuest();
+
+        // Verify sponsor hand is correct
+        for (final Card c : toDiscard) {
+            expectedHand.remove(c);
         }
-
-        assertEquals("sponsor hand size updated correctly", sponsorHandSizeExpected, sponsor.viewHand().size());
+        assertEquals("Sponsor hand is updated correctly after quest ends", expectedHand, sponsor.getHand());
     }
 
-    @Then("P{int} won the game")
-    public void player_is_winner(int playerNum) {
-        assertTrue(game.getWinners().contains(game.getPlayerByNumber(playerNum)));
+    @Then("{player} won the game")
+    public void player_is_winner(Player p) {
+        assertTrue(game.getWinners().contains(p));
     }
 
     @Then("the sponsor's hand is {string}")
     public void sponsor_hand_is(String cardIDs) {
-        player_hand_is(game.getSponsor().getNumber(), cardIDs);
+        player_hand_is(game.getSponsor(), cardIDs);
     }
 
-    @Then("P{int}'s hand is {string}")
-    public void player_hand_is(int playerNum, String cardIDs) {
-        assertEquals(Card.stringToCards(cardIDs), game.getPlayerByNumber(playerNum).viewHand());
+    @Then("{player}'s hand is {string}")
+    public void player_hand_is(Player p, String cardIDs) {
+        assertEquals(Card.stringToCards(cardIDs), p.viewHand());
     }
 
-    @Then("P{int} is the sponsor")
-    public void player_is_sponsor(int playerNum) {
-        assertEquals(game.getPlayerByNumber(playerNum), game.getSponsor());
+    @Then("{player} is the sponsor")
+    public void player_is_sponsor(Player p) {
+        assertEquals(p, game.getSponsor());
     }
 }

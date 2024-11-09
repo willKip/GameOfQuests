@@ -11,6 +11,15 @@ public class Player {
         this.hand = new ArrayList<>();
     }
 
+    // From the given list of players, return a comma-separated list of their IDs as a string.
+    public static String playersToString(final List<Player> players) {
+        StringJoiner sj = new StringJoiner(", ");
+        for (final Player p : players) {
+            sj.add(p.toString());
+        }
+        return sj.toString();
+    }
+
     public String getID() {
         return "P" + number;
     }
@@ -72,10 +81,6 @@ public class Player {
         shields += n;
     }
 
-    public int getNumber() {
-        return number;
-    }
-
     private void trim() {
         // Assignment 1 Note: Can assume selection made by user is valid
 
@@ -87,5 +92,10 @@ public class Player {
 
             hand.remove(selected - 1); // Adjust for 0-index
         }
+    }
+
+    @Override
+    public String toString() {
+        return getID(); // Print ID; e.g. "P2", "P30"
     }
 }

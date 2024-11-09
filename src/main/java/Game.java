@@ -3,8 +3,10 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public final class Game {
-    private static PrintWriter output = null;
-    private static Scanner input = null;
+    private static PrintWriter output = new PrintWriter(OutputStream.nullOutputStream());
+    private static Scanner input = new Scanner("");
+
+    private static boolean echoInput = false;
 
     private final Deck adventureDeck;
     private final Deck eventDeck;
@@ -19,18 +21,26 @@ public final class Game {
     private List<Player> eligible;
 
     public Game() {
-        // If no output is needed, initialise a PrintWriter that discards all bytes.
-        this(new PrintWriter(OutputStream.nullOutputStream()));
+        this(null, null);
     }
 
     public Game(PrintWriter output) {
-        // If no input is needed, 'input' an empty string (do no input).
-        this(new Scanner(""), output);
+        this(null, output);
+    }
+
+    public Game(Scanner input) {
+        this(input, null);
     }
 
     public Game(Scanner input, PrintWriter output) {
-        Game.input = input;
-        Game.output = output;
+        if (input != null) {
+            Game.input = input;
+        }
+        if (output != null) {
+            Game.output = output;
+        }
+
+        echoInput = false;
 
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
@@ -44,9 +54,16 @@ public final class Game {
         this.stageNum = 0;
     }
 
+    static String buildDiscardString(final List<Card> cardSource, final Card toDiscard) {
+        if (toDiscard == null) {
+            return "";
+        }
+        return buildDiscardString(cardSource, List.of(toDiscard));
+    }
+
     // Return the string input sequence required to pick and remove cards from a list, in order.
-    static String buildDiscardInput(final List<Card> toDiscard, final List<Card> cardSource) throws RuntimeException {
-        if (toDiscard.isEmpty() || cardSource.isEmpty()) {
+    static String buildDiscardString(final List<Card> cardSource, final List<Card> toDiscard) throws RuntimeException {
+        if (toDiscard == null || toDiscard.isEmpty() || cardSource.isEmpty()) {
             return "";
         }
 
@@ -74,12 +91,22 @@ public final class Game {
 
             if (!found) {
                 throw new RuntimeException(
-                        "Card '" + target + "' could not be found in hand '" + Card.cardsToString(cardSourceCopy, " ")
+                        "Card '" + target + "' could not be found in hand '" + Card.cardsToString(cardSourceCopy)
                         + "'!");
             }
         }
 
-        return String.join("\n", indices) + "\nquit\n";
+        return String.join("\n", indices) + "\n";
+    }
+
+    static int cardSum(final List<Card> cards) {
+        int total = 0;
+
+        for (final Card c : cards) {
+            total += c.getValue();
+        }
+
+        return total;
     }
 
     // Displays a prompt to select cards from a 1-indexed list; returns the user input.
@@ -98,17 +125,21 @@ public final class Game {
         }
         output.print("> ");
         output.flush();
-        return input.nextLine();
+        return getInputNextLine();
     }
 
-    static int cardSum(final List<Card> cards) {
-        int total = 0;
-
-        for (final Card c : cards) {
-            total += c.getValue();
+    // If echoInput is set, print the received input to the output as well when retrieving it.
+    private static String getInputNextLine() {
+        String nextLine = input.nextLine();
+        if (echoInput) {
+            output.println(nextLine);
+            output.flush();
         }
+        return nextLine;
+    }
 
-        return total;
+    public void enableInputEcho() {
+        echoInput = true;
     }
 
     private void initTurnVars() {
@@ -132,26 +163,9 @@ public final class Game {
         return !eligible.isEmpty();
     }
 
-    public void printEligible() {
-        StringJoiner sj = new StringJoiner(", ");
-        output.print("Eligible players: ");
-        for (final Player p : eligible) {
-            sj.add(p.getID());
-        }
-        output.println(sj);
-        output.flush();
-    }
-
     // Returns an unmodifiable view of the current list of quest stages.
     public List<List<Card>> viewQuestStages() {
         return List.copyOf(questStages);
-    }
-
-    // Returns an unmodifiable list of all the cards used to build the stages of the quest so far, in order.
-    public List<Card> viewCardsOfQuest() {
-        List<Card> usedCards = new ArrayList<>();
-        questStages.forEach(usedCards::addAll);
-        return usedCards;
     }
 
     public int getStageNum() {
@@ -174,7 +188,28 @@ public final class Game {
         this.sponsor = p;
     }
 
-    public Card getCurrentEvent() {
+    // The sponsor does not discard the cards used in the quest until the quest is finished.
+    // This returns the sponsor's hand without the cards used in the quest so far.
+    public List<Card> viewEffectiveSponsorHand() {
+        // Flattened, ordered list of cards used in the quest so far
+        List<Card> usedCards = new ArrayList<>();
+        questStages.forEach(usedCards::addAll);
+
+        List<Card> effectiveHand = new ArrayList<>(sponsor.viewHand());
+        for (final Card used : usedCards) {
+            if (!effectiveHand.remove(used)) {
+                throw new RuntimeException(
+                        "A card used in a previous stage was not found anymore in the sponsor hand!");
+            }
+        }
+        return effectiveHand;
+    }
+
+    public int questLength() {
+        return currentEvent.getValue();
+    }
+
+    public Card getCurrentEventCard() {
         return currentEvent;
     }
 
@@ -183,7 +218,7 @@ public final class Game {
     }
 
     // Overwrites existing input with the given string.
-    public void overrideInput(final String string) {
+    public void addInput(final String string) {
         input = new Scanner(string);
     }
 
@@ -199,35 +234,35 @@ public final class Game {
         eventDeck.clearDeck();
 
         // Foe
-        adventureDeck.addToDrawPile(Card.newCard("F5"), 8);
-        adventureDeck.addToDrawPile(Card.newCard("F10"), 7);
-        adventureDeck.addToDrawPile(Card.newCard("F15"), 8);
-        adventureDeck.addToDrawPile(Card.newCard("F20"), 7);
-        adventureDeck.addToDrawPile(Card.newCard("F25"), 7);
-        adventureDeck.addToDrawPile(Card.newCard("F30"), 4);
-        adventureDeck.addToDrawPile(Card.newCard("F35"), 4);
-        adventureDeck.addToDrawPile(Card.newCard("F40"), 2);
-        adventureDeck.addToDrawPile(Card.newCard("F50"), 2);
-        adventureDeck.addToDrawPile(Card.newCard("F70"), 1);
+        adventureDeck.addToDrawPile(new Card("F5"), 8);
+        adventureDeck.addToDrawPile(new Card("F10"), 7);
+        adventureDeck.addToDrawPile(new Card("F15"), 8);
+        adventureDeck.addToDrawPile(new Card("F20"), 7);
+        adventureDeck.addToDrawPile(new Card("F25"), 7);
+        adventureDeck.addToDrawPile(new Card("F30"), 4);
+        adventureDeck.addToDrawPile(new Card("F35"), 4);
+        adventureDeck.addToDrawPile(new Card("F40"), 2);
+        adventureDeck.addToDrawPile(new Card("F50"), 2);
+        adventureDeck.addToDrawPile(new Card("F70"), 1);
 
         // Weapon
-        adventureDeck.addToDrawPile(Card.newCard("D5"), 6);
-        adventureDeck.addToDrawPile(Card.newCard("S10"), 16);
-        adventureDeck.addToDrawPile(Card.newCard("H10"), 12);
-        adventureDeck.addToDrawPile(Card.newCard("B15"), 8);
-        adventureDeck.addToDrawPile(Card.newCard("L20"), 6);
-        adventureDeck.addToDrawPile(Card.newCard("E30"), 2);
+        adventureDeck.addToDrawPile(new Card("D5"), 6);
+        adventureDeck.addToDrawPile(new Card("S10"), 16);
+        adventureDeck.addToDrawPile(new Card("H10"), 12);
+        adventureDeck.addToDrawPile(new Card("B15"), 8);
+        adventureDeck.addToDrawPile(new Card("L20"), 6);
+        adventureDeck.addToDrawPile(new Card("E30"), 2);
 
         // Quest
-        eventDeck.addToDrawPile(Card.newCard("Q2"), 3);
-        eventDeck.addToDrawPile(Card.newCard("Q3"), 4);
-        eventDeck.addToDrawPile(Card.newCard("Q4"), 3);
-        eventDeck.addToDrawPile(Card.newCard("Q5"), 2);
+        eventDeck.addToDrawPile(new Card("Q2"), 3);
+        eventDeck.addToDrawPile(new Card("Q3"), 4);
+        eventDeck.addToDrawPile(new Card("Q4"), 3);
+        eventDeck.addToDrawPile(new Card("Q5"), 2);
 
         // Event
-        eventDeck.addToDrawPile(Card.newCard("Plague"), 1);
-        eventDeck.addToDrawPile(Card.newCard("Queen's Favor"), 2);
-        eventDeck.addToDrawPile(Card.newCard("Prosperity"), 2);
+        eventDeck.addToDrawPile(new Card("Plague"), 1);
+        eventDeck.addToDrawPile(new Card("Queen's Favor"), 2);
+        eventDeck.addToDrawPile(new Card("Prosperity"), 2);
 
         adventureDeck.shuffleDeck();
         eventDeck.shuffleDeck();
@@ -298,11 +333,6 @@ public final class Game {
         }
     }
 
-    // Return the player matching the given number (e.g. 1 for ID "P1")
-    public Player getPlayerByNumber(final int n) {
-        return getPlayerByID("P" + n);
-    }
-
     // Return the player matching the given ID string in the format e.g. "P1", "P2"...
     public Player getPlayerByID(final String id) {
         for (final Player p : playerList) {
@@ -322,11 +352,6 @@ public final class Game {
     // Set the current player to the supplied player.
     public void setCurrentPlayer(final Player p) {
         currPlayerIndex = playerList.indexOf(p);
-    }
-
-    // Set the current player to the supplied player based on ID.
-    public void setCurrentPlayer(final String id) {
-        setCurrentPlayer(getPlayerByID(id));
     }
 
     // Return the player who will play a turn after the current player
@@ -370,51 +395,43 @@ public final class Game {
     }
 
     // Print that the game has ended, and list the players given as the winners.
-    public void printGameEnd(final List<Player> players) {
-        StringJoiner sj = new StringJoiner(", ");
-
-        for (final Player p : players) {
-            sj.add(p.getID());
-        }
-
-        // Comma-separated list of winning players from the supplied list.
-        String winnersString = sj.toString();
-
-        output.println();
-        output.println("The game has concluded!");
-        output.println("Winner(s): " + winnersString);
-
+    public void printGameEnd(final List<Player> winners) {
+        output.println("\nThe game has concluded!" + "\nWinner(s): " + Player.playersToString(winners));
         output.flush();
     }
 
     public void printTurnEndOf(final Player player) {
-        output.println("The turn of " + player.getID() + " has ended!");
-        output.print("Press <return> to continue... > ");
+        output.print("The turn of " + player.getID() + " has ended!" + "\nPress <return> to continue... > ");
         output.flush();
 
-        input.nextLine();
+        getInputNextLine();
 
         // Flush display with several newlines
-        output.print("\n".repeat(50));
+        output.print("\n".repeat(20));
         output.flush();
     }
 
-    public void printEventCard(final Card ec) {
-        if (ec.getCardType() == Card.CardType.QUEST) {
+    public void printCurrentEventCard() {
+        if (currentEvent == null) {
+            throw new RuntimeException("There is no current event card to print!");
+        }
+
+        if (currentEvent.getCardType() == Card.CardType.QUEST) {
             output.println("Drawing an Event card...");
-            output.println("A Quest of " + ec.getValue() + " stages!");
-        } else if (ec.getCardType() == Card.CardType.EVENT) {
+            output.println("A Quest of " + questLength() + " stages!");
+        } else if (currentEvent.getCardType() == Card.CardType.EVENT) {
             output.println("Drawing an Event card...");
 
-            String eventDesc = "";
+            String eventDesc;
 
-            switch (ec.getName()) {
+            switch (currentEvent.getName()) {
                 case "Plague" -> eventDesc = "Current player loses 2 Shields";
                 case "Queen's Favor" -> eventDesc = "Current player draws 2 Adventure cards";
                 case "Prosperity" -> eventDesc = "All players draw 2 Adventure cards";
+                default -> throw new RuntimeException("Undefined event card '" + currentEvent.getName() + "'!");
             }
 
-            output.println("Event: " + ec.getName() + " - " + eventDesc);
+            output.println("Event: " + currentEvent.getName() + " - " + eventDesc);
         }
 
         output.flush();
@@ -423,20 +440,19 @@ public final class Game {
     // Applies the given E card event's effects to the appropriate targets.
     public void runEvent() {
         Player currPlayer = getCurrentPlayer();
-        final int eventValue = currentEvent.getValue();
 
         switch (currentEvent.getName()) {
             case "Plague":
                 // Remove current player's shields
-                currPlayer.removeShields(eventValue);
+                currPlayer.removeShields(questLength());
                 output.println("Your shield count is now " + currPlayer.getShields() + ".");
                 break;
             case "Queen's Favor":
             case "Prosperity":
                 for (final Player p : getPlayersStartingCurrent()) {
-                    List<Card> cards = drawAdventureCards(eventValue);
+                    List<Card> cards = drawAdventureCards(questLength());
 
-                    output.println(p.getID() + ": you drew " + Card.cardsToString(cards, ", ") + ".");
+                    output.println(p.getID() + ": you drew " + Card.cardsToString(cards) + ".");
                     p.addToHand(cards);
                     output.println("Hand: " + p.getHandString());
                     output.flush();
@@ -456,33 +472,32 @@ public final class Game {
     }
 
     // Prompt a player to sponsor a quest of given length.
-    // If they agree, make them the sponsor and return true;
-    // otherwise, return false.
-    public boolean promptToSponsor(final Player player, final int questLength) {
-        output.print(player.getID() + ": Would you like to sponsor this Quest of " + questLength + " stages? (y/n) > ");
+    public void promptToSponsor(final Player p) {
+        if (sponsor != null) {
+            throw new RuntimeException("Tried to find a sponsor while there already was one!");
+        }
+
+        output.print(p.getID() + ": Would you like to sponsor this Quest of " + questLength() + " stages? (y/n) > ");
         output.flush();
 
-        boolean answer = input.nextLine().equalsIgnoreCase("y");
+        boolean agreed = getInputNextLine().equalsIgnoreCase("y");
 
-        if (answer) {
-            sponsor = player;
-            eligible.remove(player);
-            return true;
+        if (agreed) {
+            sponsor = p;
+            eligible.remove(p);
         } else {
-            printTurnEndOf(player);
-            return false;
+            printTurnEndOf(p);
         }
     }
 
     // Helper method to prompt each player in turn to sponsor a quest of given length.
-    // Return true if a sponsor was found; false if no one agreed to sponsor.
-    public boolean promptPlayersToSponsor(final int questLength) {
+    public void promptPlayersToSponsor() {
         for (final Player p : getPlayersStartingCurrent()) {
-            if (promptToSponsor(p, questLength)) {
-                return true;
+            promptToSponsor(p);
+            if (sponsor != null) {
+                return; // Sponsor was found
             }
         }
-        return false;
     }
 
     // Make the current sponsor build a quest with the cards in their hand.
@@ -490,9 +505,15 @@ public final class Game {
     public void buildAndAddStage() {
         if (sponsor == null) {
             throw new RuntimeException("No sponsor exists to build a quest!");
+        } else if (currentEvent == null) {
+            throw new RuntimeException("Tried to build a stage with no active quest!");
+        } else if (questStages.size() == questLength()) {
+            throw new RuntimeException(
+                    "Tried to build another stage when all " + questLength() + " stage(s) were built!");
         }
 
         final int stageNum = questStages.size() + 1;
+
         final int prevStageValue = questStages.isEmpty() ? 0 : cardSum(questStages.getLast());
 
         output.println("\n[Stage " + stageNum + "]");
@@ -501,13 +522,7 @@ public final class Game {
 
         // Remove cards that were picked for previous stages (but not truly removed from the sponsor hand until the
         // quest ends)
-        List<Card> sponsorHandCopy = new ArrayList<>(sponsor.viewHand());
-        for (final Card used : viewCardsOfQuest()) {
-            if (!sponsorHandCopy.remove(used)) {
-                throw new RuntimeException(
-                        "A card used in a previous stage was not found anymore in the sponsor hand!");
-            }
-        }
+        List<Card> effectiveSponsorHand = viewEffectiveSponsorHand();
 
         boolean foeAdded = false;
 
@@ -518,20 +533,37 @@ public final class Game {
             if (stageCards.isEmpty()) {
                 output.println("(empty)");
             } else {
-                output.println(Card.cardsToString(stageCards, " "));
+                output.println(Card.cardsToString(stageCards));
             }
 
             output.println("Stage Value: " + cardSum(stageCards));
 
-            String userInput =
-                    cardSelection("Enter a card position to add it to the stage, or type 'quit':", sponsorHandCopy);
+            String userInput = cardSelection("Enter a card position to add it to the stage, or type 'quit':",
+                                             effectiveSponsorHand);
             boolean userQuits = userInput.equalsIgnoreCase("quit");
 
-            if (!userQuits) {
+            if (userQuits) {
+                /* 'quit' entered: attempt to finalise stage. Exactly 1 Foe, 0 or more non-repeat weapons. */
+
+                if (stageCards.isEmpty()) {
+                    output.println("A stage cannot be empty\n");
+                } else if (!foeAdded) {
+                    output.println("A stage must have a Foe card\n");
+                } else if (cardSum(stageCards) <= prevStageValue) {
+                    output.println(
+                            "Insufficient value for this stage, need strictly greater than " + prevStageValue + "\n");
+                } else {
+                    // Stage is valid
+                    output.println("Stage Completed: " + Card.cardsToString(stageCards));
+                    output.flush();
+                    questStages.addLast(stageCards);
+                    break;
+                }
+            } else {
                 /* Card index entered: attempt to add it to stage. Max 1 Foe, no repeat Weapons. */
 
                 int selectedIndex = Integer.parseInt(userInput) - 1;
-                Card selectedCard = sponsorHandCopy.get(selectedIndex);
+                Card selectedCard = effectiveSponsorHand.get(selectedIndex);
                 Card.CardType selectedType = selectedCard.getCardType();
 
                 output.println();
@@ -553,25 +585,8 @@ public final class Game {
                 }
 
                 // No problems with card, add to stage
-                stageCards.add(sponsorHandCopy.remove(selectedIndex));
+                stageCards.add(effectiveSponsorHand.remove(selectedIndex));
                 Collections.sort(stageCards);
-            } else {
-                /* 'quit' entered: attempt to finalise stage. Exactly 1 Foe, 0 or more non-repeat weapons. */
-
-                if (stageCards.isEmpty()) {
-                    output.println("A stage cannot be empty\n");
-                } else if (!foeAdded) {
-                    output.println("A stage must have a Foe card\n");
-                } else if (cardSum(stageCards) <= prevStageValue) {
-                    output.println(
-                            "Insufficient value for this stage, need strictly greater than " + prevStageValue + "\n");
-                } else {
-                    // Stage is valid
-                    output.println("Stage Completed: " + Card.cardsToString(stageCards, " "));
-                    output.flush();
-                    questStages.addLast(stageCards);
-                    break;
-                }
             }
         }
     }
@@ -586,7 +601,7 @@ public final class Game {
             if (attackCards.isEmpty()) {
                 output.println("(empty)");
             } else {
-                output.println(Card.cardsToString(attackCards, " "));
+                output.println(Card.cardsToString(attackCards));
             }
 
             output.println("Attack Value: " + cardSum(attackCards));
@@ -616,7 +631,7 @@ public final class Game {
             } else {
                 /* 'quit' entered: finalise attack. */
                 output.print("Attack Built (Value " + cardSum(attackCards) + "): ");
-                output.println(Card.cardsToString(attackCards, " "));
+                output.println(Card.cardsToString(attackCards));
                 output.flush();
                 return attackCards;
             }
@@ -625,7 +640,6 @@ public final class Game {
 
     public void doAttack(final Player p) {
         final int stageValue = Game.cardSum(questStages.get(stageNum - 1));
-        final int stageCount = questStages.size();
 
         output.println(p.getID() + ": Build an attack for stage " + stageNum);
         output.flush();
@@ -637,10 +651,10 @@ public final class Game {
         if (wonRound) {
             // Player wins, remain eligible.
             output.println(p.getID() + ": You have won the stage.");
-            if (stageNum == stageCount) {
+            if (stageNum == questLength()) {
                 // If last stage, get shield rewards as well
-                p.addShields(stageCount);
-                output.println("You have won the quest! You also get " + stageCount + " shields. You now have "
+                p.addShields(questLength());
+                output.println("You have won the quest! You also get " + questLength() + " shields. You now have "
                                + p.getShields() + " shields.");
             }
         } else {
@@ -659,12 +673,30 @@ public final class Game {
         }
     }
 
-    public void runStage() {
-        stageNum++; // Increment stage number at start of stage; initialised to 0
+    // Increment stage number and print stage information.
+    public void startNewStage() {
+        stageNum++; // Increment stage number at start of stage; it is initialised to 0 when a quest starts
+        output.println("[Stage " + stageNum + "]" + "\nEligible players: " + Player.playersToString(eligible));
+        output.flush();
+    }
 
-        // Each player sets up a valid attack
+    public void runStage() {
+        if (!eligibleRemaining()) {
+            throw new RuntimeException("Cannot run a stage when there are no eligible players left!");
+        }
+
+        startNewStage();
+
+        // Prompt each player for participation
         for (final Player p : viewEligible()) {
-            doAttack(p);
+            promptWithdraw(p);
+        }
+
+        // If there are eligible players, make them set up and execute valid attacks for the stage.
+        if (eligibleRemaining()) {
+            for (final Player p : viewEligible()) {
+                doAttack(p);
+            }
         }
     }
 
@@ -691,8 +723,10 @@ public final class Game {
 
     public void updateSponsorCardsAfterQuest() {
         // All cards used by sponsor to build quest are discarded;
-        // they draw the same number of cards + the number of stages.
-        int sponsorReward = questStages.size();
+        // they draw [the same amount of cards + the number of stages].
+        int sponsorReward = questLength();
+
+        // Iterate through each card used in the quest and discard it, incrementing the sponsor reward per card
         for (final List<Card> stage : viewQuestStages()) {
             for (final Card c : stage) {
                 sponsor.getHand().remove(c);
@@ -707,38 +741,27 @@ public final class Game {
     }
 
     public void runQuest() {
-        int stageCount = currentEvent.getValue();
+        promptPlayersToSponsor(); // Prompt each player, starting from current, to sponsor.
 
-        // Prompt each player, starting from current, to sponsor.
-        if (!promptPlayersToSponsor(stageCount)) {
+        if (sponsor == null) {
             // No sponsor found, no quest
             output.println("No sponsor was found.");
             output.flush();
             return;
         }
 
-        // Build a quest by prompting player
-        for (int i = 0; i < stageCount; i++) {
+        // Build a quest by prompting the sponsor for cards
+        for (int i = 0; i < questLength(); i++) {
             buildAndAddStage();
         }
         printTurnEndOf(sponsor); // Sponsor's turn ends: other players should not see built stages
 
         // For each stage of the quest:
-        for (int i = 0; i < stageCount; i++) {
-            // Print stage number
-            output.println("[Stage " + stageNum + "]");
-            printEligible(); // Print eligible players
-
-            // Prompt each player for participation
-            for (final Player p : viewEligible()) {
-                promptWithdraw(p);
-            }
-
-            if (eligibleRemaining()) {
-                runStage(); // Run the stage for participating players
-            } else {
+        for (int i = 0; i < questLength(); i++) {
+            if (!eligibleRemaining()) {
                 break; // No players left, end quest here
             }
+            runStage(); // Run the stage for participating players
         }
 
         updateSponsorCardsAfterQuest();
@@ -747,10 +770,8 @@ public final class Game {
     // Run a turn for the current player, and hand off the turn to the next player.
     public void runTurn() {
         printCurrentPlayerTurnStart();     // Indicate start of player turn
-        setCurrentEvent(drawEventCard());  // Current player draws from the Event deck
-        printEventCard(currentEvent); // Print event card effects
-
-        /* Resolve event card */
+        setCurrentEvent(drawEventCard());  // Current player draws a new current event from the Event deck
+        printCurrentEventCard();           // Print event card effects
         switch (currentEvent.getCardType()) {
             case EVENT -> runEvent();
             case QUEST -> runQuest();
@@ -760,21 +781,15 @@ public final class Game {
 
         initTurnVars(); // Clear variables for a new turn
         printTurnEndOf(getCurrentPlayer()); // Indicate end of current player (card drawer)'s turn
+        setCurrentPlayer(getNextPlayer(getCurrentPlayer())); // Switch turn to next player
     }
 
     // Given an initialised game, run turns until winners are found.
     public void turnLoop() {
-        while (true) {
+        do {
             runTurn();
-            List<Player> winners = getWinners(); // Check if winners have resulted
-            if (winners.isEmpty()) {
-                // No winners; Switch turn to next player in turn order
-                setCurrentPlayer(getNextPlayer(getCurrentPlayer()));
-            } else {
-                // Declare game end, list winners, end game
-                printGameEnd(winners);
-                System.exit(0);
-            }
-        }
+        } while (getWinners().isEmpty());
+
+        printGameEnd(getWinners()); // Declare game end, list winners
     }
 }

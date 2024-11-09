@@ -2,49 +2,50 @@ Feature: A2 Tests
   # Scenario 1
   Scenario: A1_scenario
     Given a new game
-    And a rigged deck for scenario 1
+    And a deck rigged for scenario 1
     When P1 draws a quest of 4 stages
     Then P1 refuses to sponsor
-    And P2 decides to sponsor
-    And P2 builds stage 1 with "F5 Horse"
-    And P2 builds stage 2 with "F15 Sword"
-    And P2 builds stage 3 with "F15 Dagger Battle-axe"
-    And P2 builds stage 4 with "F40 Battle-axe"
+    And P2 agrees to sponsor
+    And P2 builds stage 1 with [F5 Horse]
+    And P2 builds stage 2 with [F15 Sword]
+    And P2 builds stage 3 with [F15 Dagger Battle-axe]
+    And P2 builds stage 4 with [F40 Battle-axe]
     Then stage 1 of the quest begins
-    And P1 decides to participate in the stage, drawing "F30" and discarding "F5"
-    And P3 decides to participate in the stage, drawing "Sword" and discarding "F5"
-    And P4 decides to participate in the stage, drawing "Battle-axe" and discarding "F5"
-    And P1 attacks with "Dagger Sword"
-    And P3 attacks with "Sword Dagger"
-    And P4 attacks with "Dagger Horse"
+    And P1 decides to participate in the stage, drawing F30 and trimming F5
+    And P3 decides to participate in the stage, drawing Sword and trimming F5
+    And P4 decides to participate in the stage, drawing Battle-axe and trimming F5
+    And P1 attacks with [Dagger Sword]
+    And P3 attacks with [Sword Dagger]
+    And P4 attacks with [Dagger Horse]
     And P1 won the stage
     And P3 won the stage
     And P4 won the stage
     Then stage 2 of the quest begins
-    And P1 decides to participate in the stage, drawing "F10"
-    And P3 decides to participate in the stage, drawing "Lance"
-    And P4 decides to participate in the stage, drawing "Lance"
-    And P1 attacks with "Horse Sword"
-    And P3 attacks with "Battle-axe Sword"
-    And P4 attacks with "Horse Battle-axe"
+    And P1 decides to participate in the stage, drawing F10
+    And P3 decides to participate in the stage, drawing Lance
+    And P4 decides to participate in the stage, drawing Lance
+    And P1 attacks with [Horse Sword]
+    And P3 attacks with [Battle-axe Sword]
+    And P4 attacks with [Horse Battle-axe]
     And P1 lost the stage
     And P3 won the stage
     And P4 won the stage
     Then stage 3 of the quest begins
-    And P3 decides to participate in the stage, drawing "Battle-axe"
-    And P4 decides to participate in the stage, drawing "Sword"
-    And P3 attacks with "Lance Horse Sword"
-    And P4 attacks with "Battle-axe Sword Lance"
+    And P3 decides to participate in the stage, drawing Battle-axe
+    And P4 decides to participate in the stage, drawing Sword
+    And P3 attacks with [Lance Horse Sword]
+    And P4 attacks with [Battle-axe Sword Lance]
     And P3 won the stage
     And P4 won the stage
     Then stage 4 of the quest begins
-    And P3 decides to participate in the stage, drawing "F30"
-    And P4 decides to participate in the stage, drawing "Lance"
-    And P3 attacks with "Battle-axe Horse Lance"
-    And P4 attacks with "Dagger Sword Lance Excalibur"
+    And P3 decides to participate in the stage, drawing F30
+    And P4 decides to participate in the stage, drawing Lance
+    And P3 attacks with [Battle-axe Horse Lance]
+    And P4 attacks with [Dagger Sword Lance Excalibur]
     And P3 lost the stage
     And P4 won the stage
-    Then the quest is finished, sponsor draws cards, discarding "F5"
+    Then the quest is finished
+    And the sponsor updates their hand, drawing [F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20] and trimming [F5 F5 F10 F70]
     And P1 has 0 shields
     And P1 has 9 cards
     And P2 has 0 shields

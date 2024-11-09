@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Map.entry;
 
@@ -20,7 +19,7 @@ public class Card implements Comparable<Card> {
     }
 
     // Construct and return a card based on the ID given (e.g. Q2, S10), OR pre-defined alias (e.g. "Sword" for S10)
-    public static Card newCard(final String s) throws IllegalArgumentException {
+    public Card(final String s) throws IllegalArgumentException {
         if (s.length() < 2) {
             throw new IllegalArgumentException("Card ID string '" + s + "' is too short!");
         }
@@ -75,12 +74,15 @@ public class Card implements Comparable<Card> {
             }
         }
 
-        return new Card(type, name, symbol, value);
+        this.cardType = type;
+        this.cardName = name;
+        this.cardSymbol = symbol;
+        this.value = value;
     }
 
-    // From the given list of cards, return an ordered string of their cardIDs separated by the given separator.
-    public static String cardsToString(final List<Card> cards, final String separator) {
-        StringJoiner sj = new StringJoiner(separator);
+    // From the given list of cards, return a space-separated list of their IDs as a string.
+    public static String cardsToString(final List<Card> cards) {
+        StringJoiner sj = new StringJoiner(" ");
         for (final Card c : cards) {
             sj.add(c.getCardID());
         }
@@ -93,9 +95,13 @@ public class Card implements Comparable<Card> {
             return Collections.emptyList();
         }
 
-        List<String> cardIDs = Arrays.asList(s.split(" "));
+        List<Card> cardObjects = new ArrayList<>();
 
-        return cardIDs.stream().map(Card::newCard).collect(Collectors.toList());
+        for (String id : s.split(" ")) {
+            cardObjects.add(new Card(id));
+        }
+
+        return cardObjects;
     }
 
     private static String weaponSymbolToName(final char c) {

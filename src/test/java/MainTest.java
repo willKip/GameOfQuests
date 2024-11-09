@@ -706,8 +706,8 @@ public class MainTest {
 
         assertAll("Player " + playerID + "'s turn ends",
                   () -> assertTrue(outputString.contains(playerID), "Indicates correct player's end of turn"),
-                  () -> assertTrue(outputString.contains("Press <return> to continue... > " + "\n".repeat(30)),
-                                   "Indicates to press <return> to clear the display, followed by at least 30 "
+                  () -> assertTrue(outputString.contains("Press <return> to continue... > " + "\n".repeat(20)),
+                                   "Indicates to press <return> to clear the display, followed by at least 20 "
                                    + "newlines to achieve this"));
     }
 
@@ -719,13 +719,8 @@ public class MainTest {
         Game game = new Game(new PrintWriter(output));
         game.initGame();
 
-        Card eventCard = game.drawEventCard();
-        assertNotNull(eventCard);
-
-        // Overwrite event card with our own Quest card
-        eventCard = new Card(Card.CardType.QUEST, "Quest", 'Q', 5);
-
-        game.printEventCard(eventCard);
+        game.setCurrentEvent(new Card("Q5"));
+        game.printCurrentEventCard();
 
         final String outputString = output.toString();
 
@@ -739,19 +734,13 @@ public class MainTest {
     @ValueSource(strings = {"Plague", "Queen's Favor", "Prosperity"})
     void RESP_07_TEST_02(String eCardName) {
         StringWriter output = new StringWriter();
-
         Game game = new Game(new PrintWriter(output));
         game.initGame();
 
-        Card eventCard = game.drawEventCard();
-        assertNotNull(eventCard);
+        game.setCurrentEvent(new Card(eCardName));
+        game.printCurrentEventCard();
 
-        // Overwrite event card with our own Quest card
-        eventCard = new Card(Card.CardType.EVENT, eCardName, 'E', 2);
-
-        game.printEventCard(eventCard);
-
-        String eventDesc = "";
+        String eventDesc = null;
         switch (eCardName) {
             case "Plague" -> eventDesc = "Current player loses 2 Shields";
             case "Queen's Favor" -> eventDesc = "Current player draws 2 Adventure cards";
@@ -919,7 +908,8 @@ public class MainTest {
         Game game = new Game(new Scanner(input), new PrintWriter(output));
         game.initGame();
 
-        game.promptPlayersToSponsor(5);
+        game.setCurrentEvent(new Card("Q5"));
+        game.promptPlayersToSponsor();
 
         Player sponsor = game.getSponsor();
 
@@ -937,7 +927,8 @@ public class MainTest {
         Game game = new Game(new Scanner(input), new PrintWriter(output));
         game.initGame();
 
-        game.promptPlayersToSponsor(10);
+        game.setCurrentEvent(new Card("Q10"));
+        game.promptPlayersToSponsor();
 
         assertNull(game.getSponsor(), "A sponsor should not be found");
     }
@@ -961,6 +952,7 @@ public class MainTest {
         // Make player build a valid stage; previous stage had value 30
         game.setQuestStages(List.of(Card.stringToCards("F10 L20")));
         game.setSponsor(p);
+        game.setCurrentEvent(new Card("Q2"));
         game.buildAndAddStage();
 
         final String outputString = output.toString();
@@ -999,6 +991,7 @@ public class MainTest {
         // Make player build a valid stage; previous stage had value 20, reachable with one F25
         game.setSponsor(p);
         game.setQuestStages(List.of(Card.stringToCards("F20")));
+        game.setCurrentEvent(new Card("Q2"));
         game.buildAndAddStage();
 
         final String outputString = output.toString();
@@ -1022,6 +1015,7 @@ public class MainTest {
 
         game.setSponsor(p);
         game.setQuestStages(List.of(Card.stringToCards("F5"))); // Stage value target: 5
+        game.setCurrentEvent(new Card("Q2"));
         game.buildAndAddStage();
 
         final String outputString = output.toString();
@@ -1047,6 +1041,7 @@ public class MainTest {
 
         game.setSponsor(p);
         game.setQuestStages(List.of(Card.stringToCards("F13"))); // Stage value target: 13
+        game.setCurrentEvent(new Card("Q2"));
         game.buildAndAddStage();
 
         final String outputString = output.toString();
@@ -1073,11 +1068,12 @@ public class MainTest {
 
         game.setSponsor(p);
         game.setQuestStages(List.of(Card.stringToCards("F5"))); // Stage value target: 5
+        game.setCurrentEvent(new Card("Q2"));
         game.buildAndAddStage();
 
         final String outputString = output.toString();
 
-        assertEquals(List.of(Card.newCard("F10")), game.viewQuestStages().getLast(), "Chosen card returned");
+        assertEquals(List.of(new Card("F10")), game.viewQuestStages().getLast(), "Chosen card returned");
         assertTrue(outputString.contains("A stage cannot be empty"), "Indicate a stage cannot be empty");
         assertTrue(outputString.contains("Stage Completed: F10"), "Stage completed");
     }
@@ -1098,6 +1094,7 @@ public class MainTest {
 
         game.setSponsor(p);
         game.setQuestStages(List.of(Card.stringToCards("F15"))); // Stage value target: 15
+        game.setCurrentEvent(new Card("Q2"));
         game.buildAndAddStage();
 
         final String outputString = output.toString();
@@ -1123,6 +1120,7 @@ public class MainTest {
         p.overwriteHand(riggedCards);
 
         game.setSponsor(p);
+        game.setCurrentEvent(new Card("Q2"));
         game.setQuestStages(List.of(Card.stringToCards("F15"))); // Stage value target: 15
         game.buildAndAddStage();
 
@@ -1279,8 +1277,9 @@ public class MainTest {
         game.setSponsor(p);
 
         p.overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+        game.setCurrentEvent(new Card("Q4"));
 
-        for (int stageNum = 1; stageNum <= 4; stageNum++) {
+        for (int i = 0; i < 4; i++) {
             game.buildAndAddStage();
         }
 
@@ -1333,11 +1332,12 @@ public class MainTest {
     @Test
     @DisplayName("Can run a stage for players")
     void RESP_14_TEST_01() {
-        String input = "1\nquit\n\n1\nquit\n\n";
+        String input = "n\n\nn\n\n2\nquit\n\n2\nquit\n\n";
 
         StringWriter output = new StringWriter();
         Game game = new Game(new Scanner(input), new PrintWriter(output));
         game.initGame();
+        game.getAdventureDeck().addToDrawPile(Card.stringToCards("F5 F5"));
 
         // Will use excalibur and win, 30 > 20
         Player winner = game.getPlayerByID("P1");
@@ -1353,6 +1353,7 @@ public class MainTest {
         // Stage value 20; final stage of 4 stage quest.
         game.setQuestStages(Arrays.asList(Card.stringToCards("F1"), Card.stringToCards("F2"), Card.stringToCards("F3"),
                                           Card.stringToCards("F20")));
+        game.setCurrentEvent(new Card("Q4"));
         game.setStageNum(3); // Will increment to 4 when new stage runs
         game.runStage();
 
@@ -1377,7 +1378,7 @@ public class MainTest {
                           + "\nquit\n\nn\n\nn\n\n9\n6\n5\nquit\n\n7\n5\n6\nquit\n\nn\n\nn\n\n7\n6\n6\nquit\n\n4\n4\n4"
                           + "\n5\nquit\n\n1\n1\n1\n1\n\n";
 
-        Game game = new Game(new Scanner(inputStr), new PrintWriter(new StringWriter()));
+        Game game = new Game(new Scanner(inputStr));
         game.initGame(); // Initialises decks and players, sets up player hands
 
         Player p1 = game.getPlayerByID("P1"), p2 = game.getPlayerByID("P2"), p3 = game.getPlayerByID("P3"), p4 =
@@ -1397,7 +1398,7 @@ public class MainTest {
         rigAdvDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
         game.getAdventureDeck().addToDrawPile(rigAdvDeck.reversed());
 
-        game.getEventDeck().addToDrawPile(Card.newCard("Q4")); // Rig event deck with one Q4 on top
+        game.getEventDeck().addToDrawPile(new Card("Q4")); // Rig event deck with one Q4 on top
 
         game.runTurn(); // Do one turn
 
