@@ -3,6 +3,8 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public final class Game {
+    public static final int FLUSH_LINES = 50;
+
     private static PrintWriter output = new PrintWriter(OutputStream.nullOutputStream());
     private static Scanner input = new Scanner("");
 
@@ -399,7 +401,7 @@ public final class Game {
         getInputNextLine();
 
         // Flush display with several newlines
-        output.print("\n".repeat(20));
+        output.print("\n".repeat(FLUSH_LINES));
         output.flush();
     }
 

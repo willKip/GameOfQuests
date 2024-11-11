@@ -17,7 +17,7 @@ public class GameSteps {
         return new Card(name);
     }
 
-    // Interpret a word as a player ID (e.g. P1, P2)
+    // Interpret a word as a player ID (e.g. P1, P20)
     @ParameterType("P[0-9]+") // Match on "P" followed by any length of digits, until a whitespace is encountered
     public Player player(String id) {
         return game.getPlayerByID(id);
@@ -29,7 +29,7 @@ public class GameSteps {
         return new Card(id);
     }
 
-    // Interpret space-separated card IDs or names between square brackets (e.g. [F5, Horse])
+    // Interpret space-separated card IDs (or names) between square brackets (e.g. [F5 Horse]) as cards
     @ParameterType("\\[(.*?)\\]") // Match on the text between square brackets
     public List<Card> cardList(String ids) {
         return Card.stringToCards(ids);
@@ -38,9 +38,10 @@ public class GameSteps {
     @Given("a new game")
     public void new_game() {
         game = new Game();
-        game.initGame();
+        game.initGame(); // Set up a new game with a standard deck and random hands per player.
     }
 
+    // Rigging happens after game is set up normally.
     @Given("rigged decks and hands for scenario {int}")
     public void rig_deck_for_scenario(int scenario) throws IllegalArgumentException {
         ArrayList<Card> rigDeck;
@@ -66,7 +67,7 @@ public class GameSteps {
                 rigDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
                 game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
-                // Rig event deck with one Q4 on top
+                // Rig event deck
                 game.getEventDeck().addToDrawPile(new Card("Q4"));
                 break;
             case 2: // 2winner_game_2winner_quest
@@ -87,7 +88,6 @@ public class GameSteps {
                 rigDeck.addAll(Card.stringToCards("Horse Lance"));              // Stage 2
                 rigDeck.addAll(Card.stringToCards("Lance Sword"));              // Stage 3
                 rigDeck.addAll(Card.stringToCards("F5 Lance"));                 // Stage 4
-
                 // 10 Sponsor reward cards
                 rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 S10 H10 L20"));
 
@@ -220,19 +220,19 @@ public class GameSteps {
     }
 
     @Then("{player} withdraws from the stage")
-    public void player_participates_draw(Player p) {
+    public void player_stage_withdraw(Player p) {
         game.addInput("y\n"); // Agree to withdraw
         game.promptWithdraw(p);
         assertFalse("Player should be removed from eligible list after withdrawing", game.viewEligible().contains(p));
     }
 
     @Then("{player} decides to participate in the stage, drawing {card}")
-    public void player_participates_draw(Player p, Card drawn) {
-        player_participates_draw_and_discard(p, drawn, null); // Discarding nothing because no trim needed
+    public void player_stage_participate(Player p, Card drawn) {
+        player_stage_participate_discard(p, drawn, null); // Discarding nothing because no trim needed
     }
 
     @Then("{player} decides to participate in the stage, drawing {card} and trimming {card}")
-    public void player_participates_draw_and_discard(Player p, Card drawn, Card toDiscard) {
+    public void player_stage_participate_discard(Player p, Card drawn, Card toDiscard) {
         List<Card> expectedHand = new ArrayList<>(p.viewHand()); // Expected hand to test against
         expectedHand.add(drawn);        // Add card that should be drawn
         Collections.sort(expectedHand); // Sort hand
@@ -245,7 +245,6 @@ public class GameSteps {
         if (toDiscard != null) {
             expectedHand.remove(toDiscard);
         }
-
         assertEquals("Hand modified as expected after participation draw", expectedHand, p.getHand());
     }
 
@@ -257,7 +256,7 @@ public class GameSteps {
         game.addInput(Game.buildDiscardString(initialHand, attackCards) + "quit\n" + "\n");
         game.doAttack(p);
 
-        // Verify cards used in attack are removed correctly
+        // Verify cards used in attack are removed
         for (final Card c : attackCards) {
             initialHand.remove(c);
         }
@@ -364,6 +363,7 @@ public class GameSteps {
         for (Map<String, String> columns : rows) {
             Player p = game.getPlayerByID(columns.get("player"));
             List<Card> toTrim = Card.stringToCards(columns.get("trimming"));
+
             playerTrimMap.put(p, Game.buildDiscardString(p.viewHand(), toTrim));
         }
 
@@ -373,10 +373,10 @@ public class GameSteps {
             if (trimStr != null) {
                 inputs.append(trimStr); // Trim cards if relevant
             }
-            inputs.append("\n"); // Turn end
+            inputs.append("\n"); // End turn
         }
 
-        game.addInput(inputs + "\n"); // End turn after every event resolved
+        game.addInput(inputs + "\n"); // End card drawer's turn after every event resolved
         game.runEvent();
     }
 }

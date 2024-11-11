@@ -706,9 +706,10 @@ public class MainTest {
 
         assertAll("Player " + playerID + "'s turn ends",
                   () -> assertTrue(outputString.contains(playerID), "Indicates correct player's end of turn"),
-                  () -> assertTrue(outputString.contains("Press <return> to continue... > " + "\n".repeat(20)),
-                                   "Indicates to press <return> to clear the display, followed by at least 20 "
-                                   + "newlines to achieve this"));
+                  () -> assertTrue(
+                          outputString.contains("Press <return> to continue... > " + "\n".repeat(Game.FLUSH_LINES)),
+                          "Indicates to press <return> to clear the display, followed by the defined number "
+                          + "of newlines to achieve this"));
     }
 
     @Test

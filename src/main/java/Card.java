@@ -89,7 +89,8 @@ public class Card implements Comparable<Card> {
         return sj.toString();
     }
 
-    // Turn a space-separated string of card IDs into a list of cards. Returns an empty list if empty string is given.
+    // Turn a space-separated string of card IDs (or names) into a list of cards.
+    // Returns an empty list if empty string is given.
     public static List<Card> stringToCards(final String s) {
         if (Objects.equals(s, "")) {
             return Collections.emptyList();
