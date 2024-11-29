@@ -5,13 +5,15 @@
 
 ## File Locations
 
-- **Feature file** - [src/test/resources/**A2_Tests.feature**](src/test/resources/A2_Tests.feature)
-- **Step definitions** - [src/test/java/**GameSteps.java**](src/test/java/GameSteps.java)
+- **Feature file** - [src/test/resources/**A2_Tests.feature**](backend/a2-game/src/test/resources/A2_Tests.feature)
+- **Step definitions** - [src/test/java/**GameSteps.java**](backend/a2-game/src/test/java/GameSteps.java)
 
 ## How to run the game
 
 - **To run the Cucumber tests in one shot** - In IntelliJ, open
-  [src/test/java/**RunCucumberTest.java**](src/test/java/RunCucumberTest.java) and click the `Run Test` button next to
+  [src/test/java/**RunCucumberTest.java**](backend/a2-game/src/test/java/RunCucumberTest.java) and click the `Run Test`
+  button next to
   the class.
-- **To play the game manually** - In IntelliJ, open [src/main/java/**Main.java**](src/main/java/Main.java) and click the
+- **To play the game manually** - In IntelliJ, open [src/main/java/**Main.java
+  **](backend/a2-game/src/main/java/Main.java) and click the
   `Run Main.main()` button next to the class.
