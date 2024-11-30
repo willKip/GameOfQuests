@@ -1,3 +1,5 @@
+package com.a3;
+
 import java.io.PrintWriter;
 import java.util.Scanner;
 

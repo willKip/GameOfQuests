@@ -1,3 +1,5 @@
+package com.a3;
+
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
@@ -8,7 +10,6 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-@SuppressWarnings("CucumberJavaStepDefClassInDefaultPackage")
 public class GameSteps {
     private Game game;
 
