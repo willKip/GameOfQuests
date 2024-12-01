@@ -1,0 +1,20 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #242428;
+    color: #ffffff;
+    align-items: center;
+    display: flex;
+    margin: 1em;
+}
+
+#outputText {
+    background-color: black;
+    font-size: 20px;
+    font-family: Courier New, monospace;
+    justify-content: left;
+    overflow-y: auto;
+    width: 90%;
+    height: 500px;
+    margin: 5em;
+    padding: 10px;
+}

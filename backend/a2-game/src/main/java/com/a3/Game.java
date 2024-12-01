@@ -5,10 +5,11 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public final class Game {
-    public static final int FLUSH_LINES = 50;
+    public static final int FLUSH_LINES = 1;
 
     private static PrintWriter output = new PrintWriter(OutputStream.nullOutputStream());
     private static Scanner input = new Scanner("");
+    private static boolean echoInput = false;
 
     private final Deck adventureDeck;
     private final Deck eventDeck;
@@ -41,6 +42,8 @@ public final class Game {
         if (output != null) {
             Game.output = output;
         }
+
+        echoInput = false;
 
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
@@ -129,7 +132,12 @@ public final class Game {
     }
 
     private static String getInputNextLine() {
-        return input.nextLine();
+        String nextLine = input.nextLine();
+        if (echoInput) {
+            output.println(nextLine);
+            output.flush();
+        }
+        return nextLine;
     }
 
     private void initTurnVars() {
@@ -138,6 +146,10 @@ public final class Game {
         questStages = new ArrayList<>();
         eligible = new ArrayList<>(playerList);
         stageNum = 0;
+    }
+
+    public void enableInputEcho() {
+        echoInput = true;
     }
 
     // Returns an unmodifiable view of the current eligible player list.
