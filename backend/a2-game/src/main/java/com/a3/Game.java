@@ -716,7 +716,7 @@ public final class Game {
         output.print(p.getID() + ": Would you like to withdraw from this quest? (y/n) > ");
         output.flush();
 
-        if (input.nextLine().equalsIgnoreCase("y")) {
+        if (getInputNextLine().equalsIgnoreCase("y")) {
             // Player withdrawing
             eligible.remove(p);
         } else {
