@@ -14,10 +14,10 @@ public class Card implements Comparable<Card> {
         if (!Character.isUpperCase(cardSymbol)) {
             throw new RuntimeException("Invalid card symbol '" + cardSymbol + "'!");
         }
-        this.cardType = cardType;
-        this.cardName = cardName;
+        this.cardType   = cardType;
+        this.cardName   = cardName;
         this.cardSymbol = cardSymbol;
-        this.value = value;
+        this.value      = value;
     }
 
     // Construct and return a card based on the ID given (e.g. Q2, S10), OR pre-defined alias (e.g. "Sword" for S10)
@@ -37,7 +37,7 @@ public class Card implements Comparable<Card> {
         if (value != null) {
             // String is a valid card alias
             if (s.matches("Plague|Queen's Favor|Prosperity")) {
-                type = CardType.EVENT;
+                type   = CardType.EVENT;
                 symbol = 'E';
             } else {
                 type = CardType.WEAPON;
@@ -76,10 +76,10 @@ public class Card implements Comparable<Card> {
             }
         }
 
-        this.cardType = type;
-        this.cardName = name;
+        this.cardType   = type;
+        this.cardName   = name;
         this.cardSymbol = symbol;
-        this.value = value;
+        this.value      = value;
     }
 
     // From the given list of cards, return a space-separated list of their IDs as a string.
@@ -108,18 +108,28 @@ public class Card implements Comparable<Card> {
     }
 
     private static String weaponSymbolToName(final char c) {
-        final Map<Character, String> SYMBOL_TO_NAME =
-                Map.ofEntries(entry('D', "Dagger"), entry('S', "Sword"), entry('H', "Horse"), entry('B', "Battle-axe"),
-                              entry('L', "Lance"), entry('E', "Excalibur"), entry('F', "Foe"), entry('Q', "Quest"));
+        final Map<Character, String> SYMBOL_TO_NAME = Map.ofEntries(entry('D', "Dagger"),
+                                                                    entry('S', "Sword"),
+                                                                    entry('H', "Horse"),
+                                                                    entry('B', "Battle-axe"),
+                                                                    entry('L', "Lance"),
+                                                                    entry('E', "Excalibur"),
+                                                                    entry('F', "Foe"),
+                                                                    entry('Q', "Quest"));
         return SYMBOL_TO_NAME.get(c);
     }
 
     // Retrieve value of Weapon or Event card.
     private static Integer getValue(final String s) {
-        final Map<String, Integer> NAME_TO_VALUE =
-                Map.ofEntries(entry("Dagger", 5), entry("Sword", 10), entry("Horse", 10), entry("Battle-axe", 15),
-                              entry("Lance", 20), entry("Excalibur", 30), entry("Plague", 2), entry("Queen's Favor", 2),
-                              entry("Prosperity", 2));
+        final Map<String, Integer> NAME_TO_VALUE = Map.ofEntries(entry("Dagger", 5),
+                                                                 entry("Sword", 10),
+                                                                 entry("Horse", 10),
+                                                                 entry("Battle-axe", 15),
+                                                                 entry("Lance", 20),
+                                                                 entry("Excalibur", 30),
+                                                                 entry("Plague", 2),
+                                                                 entry("Queen's Favor", 2),
+                                                                 entry("Prosperity", 2));
         return NAME_TO_VALUE.get(s);
     }
 
@@ -147,8 +157,8 @@ public class Card implements Comparable<Card> {
         }
 
         // Type, name, symbol, value must all be equal
-        return this.cardType == that.cardType && Objects.equals(this.cardName, that.cardName) && Objects.equals(
-                this.cardSymbol, that.cardSymbol) && this.value == that.value;
+        return this.cardType == that.cardType && Objects.equals(this.cardName, that.cardName)
+               && Objects.equals(this.cardSymbol, that.cardSymbol) && this.value == that.value;
     }
 
     @Override

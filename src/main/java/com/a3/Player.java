@@ -10,7 +10,7 @@ public class Player {
 
     public Player(final int num) {
         this.number = num;
-        this.hand = new ArrayList<>();
+        this.hand   = new ArrayList<>();
     }
 
     // From the given list of players, return a comma-separated list of their IDs as a string.

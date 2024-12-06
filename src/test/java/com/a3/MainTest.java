@@ -23,7 +23,8 @@ public class MainTest {
         int eventDeckSize = game.getEventDeck().totalSize();
 
         // Adventure deck should have 100x cards, Event deck should have 17x cards.
-        assertAll("Deck size", () -> assertEquals(100, adventureDeckSize, "Adventure deck size"),
+        assertAll("Deck size",
+                  () -> assertEquals(100, adventureDeckSize, "Adventure deck size"),
                   () -> assertEquals(17, eventDeckSize, "Event deck size"));
     }
 
@@ -59,9 +60,11 @@ public class MainTest {
             assertTrue(ADVENTURE_DECK_CARD_TYPES.contains(drawnAdventureCardType),
                        "Drawn Adventure card is a valid type (Foe/Weapon)");
         }
-        assertEquals(DRAWN_DECK_SIZE_ADVENTURE, adventureDeck.totalSize(),
+        assertEquals(DRAWN_DECK_SIZE_ADVENTURE,
+                     adventureDeck.totalSize(),
                      "Drawn Adventure cards are removed from Adventure deck");
-        assertEquals(INIT_DECK_SIZE_EVENT, eventDeck.totalSize(),
+        assertEquals(INIT_DECK_SIZE_EVENT,
+                     eventDeck.totalSize(),
                      "Event deck is not affected by draws from the Adventure deck");
 
         // Draw Event Cards and ensure only the Event deck is affected
@@ -72,7 +75,8 @@ public class MainTest {
             assertTrue(EVENT_DECK_CARD_TYPES.contains(drawnEvent.getCardType()),
                        "Drawn Event card is a valid type (Quest/Event)");
         }
-        assertEquals(DRAWN_DECK_SIZE_ADVENTURE, adventureDeck.totalSize(),
+        assertEquals(DRAWN_DECK_SIZE_ADVENTURE,
+                     adventureDeck.totalSize(),
                      "Adventure deck is not affected by draws from the Event deck");
         assertEquals(DRAWN_DECK_SIZE_EVENT, eventDeck.totalSize(), "Drawn Event cards are removed from Event deck");
     }
@@ -105,17 +109,21 @@ public class MainTest {
         for (Card c : drawnAdventureCards) {
             game.discard(c);
         }
-        assertEquals(CARDS_TO_DRAW, adventureDeck.discardPileSize(),
+        assertEquals(CARDS_TO_DRAW,
+                     adventureDeck.discardPileSize(),
                      "Discard pile of Adventure deck updated after Adventure cards discarded");
-        assertEquals(0, eventDeck.discardPileSize(),
+        assertEquals(0,
+                     eventDeck.discardPileSize(),
                      "Discard pile of Event deck unaffected after Adventure cards discarded");
 
         for (Card c : drawnEventCards) {
             game.discard(c);
         }
-        assertEquals(CARDS_TO_DRAW, adventureDeck.discardPileSize(),
+        assertEquals(CARDS_TO_DRAW,
+                     adventureDeck.discardPileSize(),
                      "Discard pile of Adventure deck unaffected after Event cards discarded");
-        assertEquals(CARDS_TO_DRAW, eventDeck.discardPileSize(),
+        assertEquals(CARDS_TO_DRAW,
+                     eventDeck.discardPileSize(),
                      "Discard pile of Event deck updated after Event cards discarded");
     }
 
@@ -139,14 +147,16 @@ public class MainTest {
         }
 
         assertEquals(1, adventureDeck.drawPileSize(), "One card remaining in Adventure deck draw pile");
-        assertEquals(INIT_DRAWPILE_SIZE_ADVENTURE - 1, adventureDeck.discardPileSize(),
+        assertEquals(INIT_DRAWPILE_SIZE_ADVENTURE - 1,
+                     adventureDeck.discardPileSize(),
                      "All but one card in Adventure deck discard pile");
 
         // Trigger refresh by drawing last card from deck (note that this card is separate from the deck when it
         // refreshes; it is not included when the discard pile is shuffled back into the draw pile.)
         lastCard = game.drawAdventureCard();
         assertEquals(0, adventureDeck.discardPileSize(), "Discard pile empty after refresh");
-        assertEquals(INIT_DRAWPILE_SIZE_ADVENTURE - 1, adventureDeck.drawPileSize(),
+        assertEquals(INIT_DRAWPILE_SIZE_ADVENTURE - 1,
+                     adventureDeck.drawPileSize(),
                      "All but the one drawn card are in Adventure deck draw pile after refresh");
 
         /* Edge case: Deck not attempting to refresh if out of cards, refreshing as soon as discard pile gains a card */
@@ -162,7 +172,8 @@ public class MainTest {
         // Discard the last drawn Event card, triggering a refresh from it.
         game.discard(lastCard);
         assertEquals(0, eventDeck.discardPileSize(), "Event deck discard pile is empty after refresh");
-        assertEquals(1, eventDeck.drawPileSize(),
+        assertEquals(1,
+                     eventDeck.drawPileSize(),
                      "Event deck draw pile received the single card in discard pile after refresh");
     }
 
@@ -175,16 +186,27 @@ public class MainTest {
         // Maps for each card type, detailing the correct number of occurrences for each specific card of a type.
         // (e.g. entry("Dagger", 6) means there should be 6 Daggers in the adventure deck;
         //       entry(2, 3) means there should be 3 Q2 in the event deck.)
-        final Map<Integer, Integer> FOE_MAP =
-                Map.ofEntries(entry(5, 8), entry(10, 7), entry(15, 8), entry(20, 7), entry(25, 7), entry(30, 4),
-                              entry(35, 4), entry(40, 2), entry(50, 2), entry(70, 1));
-        final Map<String, Integer> WEAPON_MAP =
-                Map.ofEntries(entry("Dagger", 6), entry("Horse", 12), entry("Sword", 16), entry("Battle-axe", 8),
-                              entry("Lance", 6), entry("Excalibur", 2));
+        final Map<Integer, Integer> FOE_MAP = Map.ofEntries(entry(5, 8),
+                                                            entry(10, 7),
+                                                            entry(15, 8),
+                                                            entry(20, 7),
+                                                            entry(25, 7),
+                                                            entry(30, 4),
+                                                            entry(35, 4),
+                                                            entry(40, 2),
+                                                            entry(50, 2),
+                                                            entry(70, 1));
+        final Map<String, Integer> WEAPON_MAP = Map.ofEntries(entry("Dagger", 6),
+                                                              entry("Horse", 12),
+                                                              entry("Sword", 16),
+                                                              entry("Battle-axe", 8),
+                                                              entry("Lance", 6),
+                                                              entry("Excalibur", 2));
 
         final Map<Integer, Integer> QUEST_MAP = Map.ofEntries(entry(2, 3), entry(3, 4), entry(4, 3), entry(5, 2));
-        final Map<String, Integer> EVENT_MAP =
-                Map.ofEntries(entry("Plague", 1), entry("Queen's Favor", 2), entry("Prosperity", 2));
+        final Map<String, Integer> EVENT_MAP = Map.ofEntries(entry("Plague", 1),
+                                                             entry("Queen's Favor", 2),
+                                                             entry("Prosperity", 2));
 
         // Maps for each card type that will store the number of occurrences for each specific card of a type.
         Map<Integer, Integer> foeOccurrences = new HashMap<>();
@@ -370,7 +392,8 @@ public class MainTest {
         game.setCurrentPlayer(currPlayer);
 
         List<Player> orderedPlayerList = game.getPlayersStartingCurrent();
-        assertEquals(orderedPlayerList.size(), game.getPlayerCount(),
+        assertEquals(orderedPlayerList.size(),
+                     game.getPlayerCount(),
                      "Ordered Player list should include all players in the game, once each");
         assertNotEquals(0, orderedPlayerList.size(), "Player list should not be empty");
 
@@ -381,7 +404,8 @@ public class MainTest {
 
             Player trueNextPlayer = game.getNextPlayer(thisPlayerInList);
 
-            assertEquals(trueNextPlayer.getID(), nextPlayerInList.getID(),
+            assertEquals(trueNextPlayer.getID(),
+                         nextPlayerInList.getID(),
                          trueNextPlayer.getID() + "Player after " + thisPlayerInList.getID());
         }
     }
@@ -614,7 +638,8 @@ public class MainTest {
 
         final String outputString = output.toString();
 
-        assertAll("Victory output", () -> assertTrue(outputString.contains("Winner"), "Has 'Winner' string"),
+        assertAll("Victory output",
+                  () -> assertTrue(outputString.contains("Winner"), "Has 'Winner' string"),
                   () -> assertTrue(outputString.contains("P1"), "Has all winners"),
                   () -> assertTrue(outputString.contains("P3"), "Has all winners"));
     }
@@ -650,7 +675,8 @@ public class MainTest {
         player.overwriteHand(Collections.emptyList()); // Empty the player's existing hand
         player.overwriteHand(riggedCards);
 
-        assertAll("Player trims 1 card", () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
+        assertAll("Player trims 1 card",
+                  () -> assertEquals(12, player.getHandSize(), "Player hand size trimmed to 12"),
                   () -> assertEquals(expectedHand, player.getHandString(), "Correct card removed"));
     }
 
@@ -708,10 +734,10 @@ public class MainTest {
 
         assertAll("Player " + playerID + "'s turn ends",
                   () -> assertTrue(outputString.contains(playerID), "Indicates correct player's end of turn"),
-                  () -> assertTrue(
-                          outputString.contains("Press <return> to continue... > " + "\n".repeat(Game.FLUSH_LINES)),
-                          "Indicates to press <return> to clear the display, followed by the defined number "
-                          + "of newlines to achieve this"));
+                  () -> assertTrue(outputString.contains(
+                                           "Press <return> to continue... > " + "\n".repeat(Game.FLUSH_LINES)),
+                                   "Indicates to press <return> to clear the display, followed by the defined number "
+                                   + "of newlines to achieve this"));
     }
 
     @Test
@@ -830,7 +856,8 @@ public class MainTest {
         game.setCurrentEvent(queenFavorCard);
         game.runEvent();
 
-        assertEquals(12, player.getHandSize(),
+        assertEquals(12,
+                     player.getHandSize(),
                      "Player drew 2 cards from Queen's Favour while having 11 cards in hand, trimmed to 12");
     }
 
@@ -866,7 +893,8 @@ public class MainTest {
         game.setCurrentEvent(new Card("Prosperity"));
         game.runEvent();
 
-        assertAll("Prosperity event triggers", () -> assertEquals(2, p1.getHandSize(), "P1 gains 2 cards from 0"),
+        assertAll("Prosperity event triggers",
+                  () -> assertEquals(2, p1.getHandSize(), "P1 gains 2 cards from 0"),
                   () -> assertEquals(5, p2.getHandSize(), "P2 gains 2 cards from 3"),
                   () -> assertEquals(12, p3.getHandSize(), "P3 gains 2 cards from 11, trims 1"),
                   () -> assertEquals(12, p4.getHandSize(), "P4 gains 2 cards from 12, trims 2"));
@@ -930,7 +958,8 @@ public class MainTest {
 
         final String outputString = output.toString();
 
-        assertEquals(Card.stringToCards("F10 H10 B15"), game.viewQuestStages().getLast(),
+        assertEquals(Card.stringToCards("F10 H10 B15"),
+                     game.viewQuestStages().getLast(),
                      "Chosen stage cards are returned");
 
         assertAll("Stage cards correctly displayed",
@@ -1171,7 +1200,8 @@ public class MainTest {
         ArrayList<Card> listWithF10 = new ArrayList<>(List.of(new Card(Card.CardType.FOE, "Foe", 'F', 10)));
         ArrayList<Card> listWithH10 = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", 'H', 10)));
 
-        assertAll("Cards properly moved", () -> assertEquals(listWithH10, attackCards, "H10 chosen and returned"),
+        assertAll("Cards properly moved",
+                  () -> assertEquals(listWithH10, attackCards, "H10 chosen and returned"),
                   () -> assertEquals(listWithF10, p.getHand(), "F10 remains in hand"));
 
         assertEquals(10, Game.cardSum(attackCards), "Correct value in returned attack card");
@@ -1211,7 +1241,9 @@ public class MainTest {
         final String outputString = output.toString();
 
         ArrayList<Card> expectedAttack = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", 'H', 10),
-                                                                 new Card(Card.CardType.WEAPON, "Battle-axe", 'B',
+                                                                 new Card(Card.CardType.WEAPON,
+                                                                          "Battle-axe",
+                                                                          'B',
                                                                           15)));
         ArrayList<Card> expectedHand = new ArrayList<>(List.of(new Card(Card.CardType.WEAPON, "Horse", 'H', 10)));
 
@@ -1324,7 +1356,9 @@ public class MainTest {
         game.setEligible(Arrays.asList(winner, loser));
 
         // Stage value 20; final stage of 4 stage quest.
-        game.setQuestStages(Arrays.asList(Card.stringToCards("F1"), Card.stringToCards("F2"), Card.stringToCards("F3"),
+        game.setQuestStages(Arrays.asList(Card.stringToCards("F1"),
+                                          Card.stringToCards("F2"),
+                                          Card.stringToCards("F3"),
                                           Card.stringToCards("F20")));
         game.setCurrentEvent(new Card("Q4"));
         game.setStageNum(3); // Will increment to 4 when new stage runs

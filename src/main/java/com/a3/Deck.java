@@ -11,7 +11,7 @@ public class Deck {
     private final List<Card> discardPile;
 
     public Deck() {
-        this.drawPile = new ArrayList<>();
+        this.drawPile    = new ArrayList<>();
         this.discardPile = new ArrayList<>();
     }
 

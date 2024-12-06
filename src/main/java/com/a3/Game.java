@@ -45,20 +45,20 @@ public final class Game {
             Game.output = output;
         }
 
-        echoInput = false;
-        currCardSelectMenu = new ArrayList<>();
+        echoInput               = false;
+        currCardSelectMenu      = new ArrayList<>();
         selectionMenuRedirected = false;
 
-        this.adventureDeck = new Deck();
-        this.eventDeck = new Deck();
-        this.playerList = new ArrayList<>();
+        this.adventureDeck   = new Deck();
+        this.eventDeck       = new Deck();
+        this.playerList      = new ArrayList<>();
         this.currPlayerIndex = 0; // Game starts with the first player in the list
 
         this.currentEvent = null;
-        this.sponsor = null;
-        this.questStages = new ArrayList<>();
-        this.eligible = new ArrayList<>();
-        this.stageNum = 0;
+        this.sponsor      = null;
+        this.questStages  = new ArrayList<>();
+        this.eligible     = new ArrayList<>();
+        this.stageNum     = 0;
     }
 
     static String buildDiscardString(final List<Card> cardSource, final Card toDiscard) {
@@ -162,10 +162,10 @@ public final class Game {
 
     private void initTurnVars() {
         currentEvent = null;
-        sponsor = null;
-        questStages = new ArrayList<>();
-        eligible = new ArrayList<>(playerList);
-        stageNum = 0;
+        sponsor      = null;
+        questStages  = new ArrayList<>();
+        eligible     = new ArrayList<>(playerList);
+        stageNum     = 0;
     }
 
     public void enableInputEcho() {
@@ -225,7 +225,7 @@ public final class Game {
         for (final Card used : usedCards) {
             if (!effectiveHand.remove(used)) {
                 throw new RuntimeException(
-                        "A card used in a previous stage was not found anymore in the sponsor hand!");
+                        "A card used in a previous stage was not found anymore in the sponsor " + "hand!");
             }
         }
         return effectiveHand;
@@ -640,8 +640,8 @@ public final class Game {
 
             output.println("Attack Value: " + cardSum(attackCards));
 
-            String userInput =
-                    cardSelection("Enter a card position to add it to the attack, or type 'quit':", player.getHand());
+            String userInput = cardSelection("Enter a card position to add it to the attack, or type 'quit':",
+                                             player.getHand());
             boolean userQuits = userInput.equalsIgnoreCase("quit");
 
             if (!userQuits) {

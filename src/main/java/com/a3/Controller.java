@@ -32,7 +32,8 @@ public class Controller {
     }
 
     @PostMapping("/start")
-    public Map<String, Object> start(@RequestParam(value = "scenario", defaultValue = "0") String scenarioId) throws InterruptedException {
+    public Map<String, Object> start(@RequestParam(value = "scenario", defaultValue = "0") String scenarioId) throws
+                                                                                                              InterruptedException {
         executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             try {
@@ -46,7 +47,9 @@ public class Controller {
     }
 
     @PostMapping("/submit")
-    public Map<String, Object> submit(@RequestParam(value = "submittedText", defaultValue = "") String submittedText) throws IOException, InterruptedException {
+    public Map<String, Object> submit(
+            @RequestParam(value = "submittedText", defaultValue = "") String submittedText) throws IOException,
+                                                                                                   InterruptedException {
         writeToStream.write((submittedText + "\n").getBytes());
         writeToStream.flush();
         return getGameState();
@@ -79,8 +82,8 @@ public class Controller {
 
     private void initIO() throws IOException {
         readFromStream = new PipedInputStream();
-        writeToStream = new PipedOutputStream(readFromStream);
-        outputBuffer = new StringWriter();
+        writeToStream  = new PipedOutputStream(readFromStream);
+        outputBuffer   = new StringWriter();
     }
 
     private void newGame(int scenarioId) throws IOException {
@@ -121,12 +124,12 @@ public class Controller {
                 break;
             case 2: // 2winner_game_2winner_quest
                 // Rig initial hands of each player
-                game.getPlayerByID("P1").overwriteHand(
-                        Card.stringToCards("F5 F5 F10 F10 F15 F15 Dagger Horse Horse Battle-axe Battle-axe Lance"));
+                game.getPlayerByID("P1").overwriteHand(Card.stringToCards(
+                        "F5 F5 F10 F10 F15 F15 Dagger Horse Horse Battle-axe Battle-axe Lance"));
                 game.getPlayerByID("P2").overwriteHand(Card.stringToCards(
                         "F40 F50 Horse Horse Sword Sword Sword Battle-axe Battle-axe Lance Lance Excalibur"));
-                game.getPlayerByID("P3").overwriteHand(
-                        Card.stringToCards("F5 F5 F5 F5 Dagger Dagger Dagger Horse Horse Horse Horse Horse"));
+                game.getPlayerByID("P3").overwriteHand(Card.stringToCards(
+                        "F5 F5 F5 F5 Dagger Dagger Dagger Horse Horse Horse Horse Horse"));
                 game.getPlayerByID("P4").overwriteHand(Card.stringToCards(
                         "F50 F70 Horse Horse Sword Sword Sword Battle-axe Battle-axe Lance Lance Excalibur"));
 
@@ -155,8 +158,8 @@ public class Controller {
                 break;
             case 3: // 1winner_game_with_events
                 // Rig initial hands of each player
-                game.getPlayerByID("P1")
-                    .overwriteHand(Card.stringToCards("F5 F5 F10 F10 F15 F15 F20 F20 Dagger Dagger Dagger Dagger"));
+                game.getPlayerByID("P1").overwriteHand(Card.stringToCards(
+                        "F5 F5 F10 F10 F15 F15 F20 F20 Dagger Dagger Dagger Dagger"));
                 game.getPlayerByID("P2").overwriteHand(Card.stringToCards(
                         "F25 F30 Horse Horse Sword Sword Sword Battle-axe Battle-axe Lance Lance Excalibur"));
                 game.getPlayerByID("P3").overwriteHand(Card.stringToCards(
@@ -204,12 +207,12 @@ public class Controller {
                 // Rig initial hands of each player
                 game.getPlayerByID("P1").overwriteHand(Card.stringToCards(
                         "F50 F70 Dagger Dagger Horse Horse Sword Sword Battle-axe Battle-axe Lance Lance"));
-                game.getPlayerByID("P2")
-                    .overwriteHand(Card.stringToCards("F5 F5 F10 F15 F15 F20 F20 F25 F30 F30 F40 Excalibur"));
-                game.getPlayerByID("P3")
-                    .overwriteHand(Card.stringToCards("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 Lance"));
-                game.getPlayerByID("P4")
-                    .overwriteHand(Card.stringToCards("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 Excalibur"));
+                game.getPlayerByID("P2").overwriteHand(Card.stringToCards(
+                        "F5 F5 F10 F15 F15 F20 F20 F25 F30 F30 F40 Excalibur"));
+                game.getPlayerByID("P3").overwriteHand(Card.stringToCards(
+                        "F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 Lance"));
+                game.getPlayerByID("P4").overwriteHand(Card.stringToCards(
+                        "F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 Excalibur"));
 
                 // Rig adventure deck; cards added first should be drawn last
                 rigDeck = new ArrayList<>();

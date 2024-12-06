@@ -46,16 +46,19 @@ public class CustomTest {
 
     @Test
     void card_by_id_creates_correctly() {
-        assertAll("Foes", () -> assertEquals(new Card(Card.CardType.FOE, "Foe", 'F', 5), new Card("F5")),
+        assertAll("Foes",
+                  () -> assertEquals(new Card(Card.CardType.FOE, "Foe", 'F', 5), new Card("F5")),
                   () -> assertEquals(new Card(Card.CardType.FOE, "Foe", 'F', 10), new Card("F10")),
                   () -> assertEquals(new Card(Card.CardType.FOE, "Foe", 'F', 70), new Card("F70")));
 
-        assertAll("Quests", () -> assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', 2), new Card("Q2")),
+        assertAll("Quests",
+                  () -> assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', 2), new Card("Q2")),
                   () -> assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', 3), new Card("Q3")),
                   () -> assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', 4), new Card("Q4")),
                   () -> assertEquals(new Card(Card.CardType.QUEST, "Quest", 'Q', 5), new Card("Q5")));
 
-        assertAll("Weapons by ID", () -> assertEquals(new Card(Card.CardType.WEAPON, "Dagger", 'D', 5), new Card("D5")),
+        assertAll("Weapons by ID",
+                  () -> assertEquals(new Card(Card.CardType.WEAPON, "Dagger", 'D', 5), new Card("D5")),
                   () -> assertEquals(new Card(Card.CardType.WEAPON, "Horse", 'H', 10), new Card("H10")),
                   () -> assertEquals(new Card(Card.CardType.WEAPON, "Sword", 'S', 10), new Card("S10")),
                   () -> assertEquals(new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15), new Card("B15")),
@@ -78,17 +81,18 @@ public class CustomTest {
 
     @Test
     void string_to_cards() {
-        List<Card> cards =
-                Arrays.asList(new Card(Card.CardType.FOE, "Foe", 'F', 5), new Card(Card.CardType.FOE, "Foe", 'F', 5),
-                              new Card(Card.CardType.FOE, "Foe", 'F', 15), new Card(Card.CardType.FOE, "Foe", 'F', 15),
-                              new Card(Card.CardType.WEAPON, "Dagger", 'D', 5),
-                              new Card(Card.CardType.WEAPON, "Sword", 'S', 10),
-                              new Card(Card.CardType.WEAPON, "Sword", 'S', 10),
-                              new Card(Card.CardType.WEAPON, "Horse", 'H', 10),
-                              new Card(Card.CardType.WEAPON, "Horse", 'H', 10),
-                              new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15),
-                              new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15),
-                              new Card(Card.CardType.WEAPON, "Lance", 'L', 20));
+        List<Card> cards = Arrays.asList(new Card(Card.CardType.FOE, "Foe", 'F', 5),
+                                         new Card(Card.CardType.FOE, "Foe", 'F', 5),
+                                         new Card(Card.CardType.FOE, "Foe", 'F', 15),
+                                         new Card(Card.CardType.FOE, "Foe", 'F', 15),
+                                         new Card(Card.CardType.WEAPON, "Dagger", 'D', 5),
+                                         new Card(Card.CardType.WEAPON, "Sword", 'S', 10),
+                                         new Card(Card.CardType.WEAPON, "Sword", 'S', 10),
+                                         new Card(Card.CardType.WEAPON, "Horse", 'H', 10),
+                                         new Card(Card.CardType.WEAPON, "Horse", 'H', 10),
+                                         new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15),
+                                         new Card(Card.CardType.WEAPON, "Battle-axe", 'B', 15),
+                                         new Card(Card.CardType.WEAPON, "Lance", 'L', 20));
 
         assertEquals(cards, Card.stringToCards("F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20"));
 

@@ -179,7 +179,8 @@ public class GameSteps {
     public void player_draws_a_quest_of_n_stages(Player p, int stages) {
         game.setCurrentPlayer(p);
         game.setCurrentEvent(game.drawEventCard());
-        assertEquals("Correct quest card drawn", new Card(Card.CardType.QUEST, "Quest", 'Q', stages),
+        assertEquals("Correct quest card drawn",
+                     new Card(Card.CardType.QUEST, "Quest", 'Q', stages),
                      game.getCurrentEventCard());
     }
 
@@ -296,10 +297,12 @@ public class GameSteps {
 
         // Sponsor will discard all cards used to build the quest and draw as many, and additionally draw
         // cards equal to the number of stages in the quest.
-        assertEquals("Must draw correct amount of cards in step definition", game.cardsInQuest() + game.questLength(),
+        assertEquals("Must draw correct amount of cards in step definition",
+                     game.cardsInQuest() + game.questLength(),
                      toDraw.size());
         assertEquals("Must trim correct amount of cards in step definition",
-                     Math.max(0, (sponsor.getHandSize() + game.questLength()) - 12), toTrim.size());
+                     Math.max(0, (sponsor.getHandSize() + game.questLength()) - 12),
+                     toTrim.size());
 
         List<Card> expectedHand = new ArrayList<>(game.viewEffectiveSponsorHand());
         expectedHand.addAll(toDraw);
