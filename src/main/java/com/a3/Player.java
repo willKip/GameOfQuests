@@ -88,9 +88,15 @@ public class Player {
             String prompt = "You have too many cards in your hand. (" + getHandSize() + "/12)"
                             + "\nPlease enter a card position and hit enter to discard it:";
 
-            int selected = Integer.parseInt(Game.cardSelection(prompt, hand));
+            String userInput = Game.cardSelection(prompt, hand);
 
-            hand.remove(selected - 1); // Adjust for 0-index
+            boolean isInteger = !userInput.isBlank() && userInput.chars().allMatch(Character::isDigit);
+            if (isInteger) {
+                int selected = Integer.parseInt(userInput) - 1; // Adjust for 0-index
+                if (selected >= 0 && selected < getHandSize()) {
+                    hand.remove(selected);
+                }
+            }
         }
     }
 

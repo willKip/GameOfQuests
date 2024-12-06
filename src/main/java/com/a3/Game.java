@@ -147,7 +147,7 @@ public final class Game {
         String nextLine = input.nextLine();
         if (echoInput) {
             if (nextLine.isEmpty()) {
-                output.println("<return>");
+                output.println("(<return> key pressed)");
             } else {
                 output.println(nextLine);
             }
@@ -511,16 +511,23 @@ public final class Game {
             throw new RuntimeException("Tried to find a sponsor while there already was one!");
         }
 
-        output.print(p.getID() + ": Would you like to sponsor this Quest of " + questLength() + " stages? (y/n) > ");
-        output.flush();
+        while (true) {
+            output.print(
+                    p.getID() + ": Would you like to sponsor this Quest of " + questLength() + " stages? (y/n) > ");
+            output.flush();
 
-        boolean agreed = getInputNextLine().equalsIgnoreCase("y");
-
-        if (agreed) {
-            sponsor = p;
-            eligible.remove(p);
-        } else {
-            printTurnEndOf(p);
+            switch (getInputNextLine().toLowerCase()) {
+                case "y" -> {
+                    sponsor = p;
+                    eligible.remove(p);
+                    return;
+                }
+                case "n" -> {
+                    printTurnEndOf(p);
+                    return;
+                }
+                default -> output.println("Invalid input. Please input only 'y' or 'n'.");
+            }
         }
     }
 
@@ -574,53 +581,64 @@ public final class Game {
 
             String userInput = cardSelection("Enter a card position to add it to the stage, or type 'quit':",
                                              effectiveSponsorHand);
-            boolean userQuits = userInput.equalsIgnoreCase("quit");
 
-            if (userQuits) {
-                /* 'quit' entered: attempt to finalise stage. Exactly 1 Foe, 0 or more non-repeat weapons. */
+            boolean isInteger = !userInput.isBlank() && userInput.chars().allMatch(Character::isDigit);
 
-                if (stageCards.isEmpty()) {
-                    output.println("A stage cannot be empty\n");
-                } else if (!foeAdded) {
-                    output.println("A stage must have a Foe card\n");
-                } else if (cardSum(stageCards) <= prevStageValue) {
-                    output.println(
-                            "Insufficient value for this stage, need strictly greater than " + prevStageValue + "\n");
-                } else {
-                    // Stage is valid
-                    output.println("Stage Completed: " + Card.cardsToString(stageCards));
-                    output.flush();
-                    questStages.addLast(stageCards);
-                    break;
-                }
-            } else {
+            if (isInteger) {
                 /* Card index entered: attempt to add it to stage. Max 1 Foe, no repeat Weapons. */
-
                 int selectedIndex = Integer.parseInt(userInput) - 1;
-                Card selectedCard = effectiveSponsorHand.get(selectedIndex);
-                Card.CardType selectedType = selectedCard.getCardType();
 
-                output.println();
+                if (selectedIndex < 0 || selectedIndex >= effectiveSponsorHand.size()) {
+                    output.println("Invalid index.");
+                    output.println();
+                } else {
+                    Card selectedCard = effectiveSponsorHand.get(selectedIndex);
+                    Card.CardType selectedType = selectedCard.getCardType();
 
-                if (selectedType == Card.CardType.FOE) {
-                    // If adding a Foe, save that a Foe was added; if there is already a Foe in the stage, indicate so
-                    if (foeAdded) {
-                        output.println("Invalid: Cannot add more than one Foe card to a stage.");
+                    output.println();
+
+                    if (selectedType == Card.CardType.FOE) {
+                        // If adding a Foe, save that a Foe was added; if there is already a Foe in the stage,
+                        // indicate so
+                        if (foeAdded) {
+                            output.println("Invalid card: Cannot add more than one Foe card to a stage.");
+                            output.println();
+                            continue;
+                        } else {
+                            foeAdded = true;
+                        }
+                    } else if (selectedType == Card.CardType.WEAPON && stageCards.contains(selectedCard)) {
+                        // If adding a weapon, indicate repeats
+                        output.println("Invalid: Cannot add a repeat Weapon card to a stage.");
                         output.println();
                         continue;
-                    } else {
-                        foeAdded = true;
                     }
-                } else if (selectedType == Card.CardType.WEAPON && stageCards.contains(selectedCard)) {
-                    // If adding a weapon, indicate repeats
-                    output.println("Invalid: Cannot add a repeat Weapon card to a stage.");
-                    output.println();
-                    continue;
-                }
 
-                // No problems with card, add to stage
-                stageCards.add(effectiveSponsorHand.remove(selectedIndex));
-                Collections.sort(stageCards);
+                    // No problems with card, add to stage
+                    stageCards.add(effectiveSponsorHand.remove(selectedIndex));
+                    Collections.sort(stageCards);
+                }
+            } else {
+                if (userInput.equalsIgnoreCase("quit") || userInput.equalsIgnoreCase("q")) {
+                    /* 'quit' entered: attempt to finalise stage. Exactly 1 Foe, 0 or more non-repeat weapons. */
+                    if (stageCards.isEmpty()) {
+                        output.println("A stage cannot be empty\n");
+                    } else if (!foeAdded) {
+                        output.println("A stage must have a Foe card\n");
+                    } else if (cardSum(stageCards) <= prevStageValue) {
+                        output.println("Insufficient value for this stage, need strictly greater than " + prevStageValue
+                                       + "\n");
+                    } else {
+                        // Stage is valid
+                        output.println("Stage Completed: " + Card.cardsToString(stageCards));
+                        output.flush();
+                        questStages.addLast(stageCards);
+                        break;
+                    }
+                } else {
+                    output.println("Invalid input. Please type a valid card index or 'quit' (or 'q').");
+                    output.println();
+                }
             }
         }
     }
@@ -642,32 +660,43 @@ public final class Game {
 
             String userInput = cardSelection("Enter a card position to add it to the attack, or type 'quit':",
                                              player.getHand());
-            boolean userQuits = userInput.equalsIgnoreCase("quit");
 
-            if (!userQuits) {
+            boolean isInteger = !userInput.isBlank() && userInput.chars().allMatch(Character::isDigit);
+
+            if (isInteger) {
                 /* Card index entered: attempt to add it to attack. Only non-repeat Weapons allowed. */
                 int selectedIndex = Integer.parseInt(userInput) - 1;
 
-                Card selectedCard = player.getHand().get(selectedIndex);
-                Card.CardType selectedType = selectedCard.getCardType();
-
-                output.println();
-
-                if (selectedType != Card.CardType.WEAPON) {
-                    output.println("Invalid: Attacks can only use Weapons.\n");
-                } else if (attackCards.contains(selectedCard)) {
-                    output.println("Invalid: Cannot add a repeat Weapon card to an attack.\n");
+                if (selectedIndex < 0 || selectedIndex >= player.getHand().size()) {
+                    output.println("Invalid index.");
+                    output.println();
                 } else {
-                    // No problems with card, remove from player hand and add to attack
-                    attackCards.add(player.getHand().remove(selectedIndex));
-                    Collections.sort(attackCards);
+                    Card selectedCard = player.getHand().get(selectedIndex);
+                    Card.CardType selectedType = selectedCard.getCardType();
+
+                    output.println();
+
+                    if (selectedType != Card.CardType.WEAPON) {
+                        output.println("Invalid: Attacks can only use Weapons.\n");
+                    } else if (attackCards.contains(selectedCard)) {
+                        output.println("Invalid: Cannot add a repeat Weapon card to an attack.\n");
+                    } else {
+                        // No problems with card, remove from player hand and add to attack
+                        attackCards.add(player.getHand().remove(selectedIndex));
+                        Collections.sort(attackCards);
+                    }
                 }
             } else {
-                /* 'quit' entered: finalise attack. */
-                output.print("Attack Built (Value " + cardSum(attackCards) + "): ");
-                output.println(Card.cardsToString(attackCards));
-                output.flush();
-                return attackCards;
+                if (userInput.equalsIgnoreCase("quit") || userInput.equalsIgnoreCase("q")) {
+                    /* 'quit' entered: finalise attack. */
+                    output.print("Attack Built (Value " + cardSum(attackCards) + "): ");
+                    output.println(Card.cardsToString(attackCards));
+                    output.flush();
+                    return attackCards;
+                } else {
+                    output.println("Invalid input. Please type a valid card index or 'quit' (or 'q').");
+                    output.println();
+                }
             }
         }
     }
@@ -737,21 +766,29 @@ public final class Game {
     // Prompt player to join quest. Removes from eligible player list if refused, draws card (and ends their turn to
     // flush screen) if they agree
     public void promptWithdraw(final Player p) {
-        output.print(p.getID() + ": Would you like to withdraw from this quest? (y/n) > ");
-        output.flush();
-
-        if (getInputNextLine().equalsIgnoreCase("y")) {
-            // Player withdrawing
-            eligible.remove(p);
-        } else {
-            // Player participating, draw 1 adventure card
-            Card drawn = drawAdventureCard();
-
-            output.println("Drew 1 card: " + drawn.getCardID());
+        while (true) {
+            output.print(p.getID() + ": Would you like to withdraw from this quest? (y/n) > ");
             output.flush();
 
-            p.addToHand(drawn);
-            printTurnEndOf(p);
+            switch (getInputNextLine().toLowerCase()) {
+                case "y" -> {
+                    // Player withdrawing
+                    eligible.remove(p);
+                    return;
+                }
+                case "n" -> {
+                    // Player participating, draw 1 adventure card
+                    Card drawn = drawAdventureCard();
+
+                    output.println("Drew 1 card: " + drawn.getCardID());
+                    output.flush();
+
+                    p.addToHand(drawn);
+                    printTurnEndOf(p);
+                    return;
+                }
+                default -> output.println("Invalid input. Please input only 'y' or 'n'.");
+            }
         }
     }
 
