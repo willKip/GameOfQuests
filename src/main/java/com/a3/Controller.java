@@ -32,8 +32,8 @@ public class Controller {
     }
 
     @PostMapping("/start")
-    public Map<String, Object> start(@RequestParam(value = "scenario", defaultValue = "0") String scenarioId) throws
-                                                                                                              InterruptedException {
+    public Map<String, Object> start(
+            @RequestParam(value = "scenario", defaultValue = "0") String scenarioId) throws InterruptedException {
         executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             try {
@@ -47,9 +47,8 @@ public class Controller {
     }
 
     @PostMapping("/submit")
-    public Map<String, Object> submit(
-            @RequestParam(value = "submittedText", defaultValue = "") String submittedText) throws IOException,
-                                                                                                   InterruptedException {
+    public Map<String, Object> submit(@RequestParam(value = "submittedText", defaultValue = "")
+                                      String submittedText) throws IOException, InterruptedException {
         writeToStream.write((submittedText + "\n").getBytes());
         writeToStream.flush();
         return getGameState();
