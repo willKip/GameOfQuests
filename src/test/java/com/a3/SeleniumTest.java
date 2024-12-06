@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SeleniumTest {
     /* TEST CONSTANTS */
     // General delay after each action
-    private static final int COMMAND_DELAY_MS = 200;
+    private static final int COMMAND_DELAY_MS = 700;
     // Delay after tests, to allow time for confirming results.
     private static final int AFTER_TEST_DELAY_MS = 3000;
     // How long to keep the test window open after all tests have ended. Negative value will close it immediately.
