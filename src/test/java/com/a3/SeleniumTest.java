@@ -22,9 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SeleniumTest {
     /* TEST CONSTANTS */
     // General delay after each action
-    private static final int COMMAND_DELAY_MS = 800;
+    private static final int COMMAND_DELAY_MS = 200;
+    // Delay after tests, to allow time for confirming results.
+    private static final int AFTER_TEST_DELAY_MS = 3000;
     // How long to keep the test window open after all tests have ended. Negative value will close it immediately.
-    private static final int PERSIST_WINDOW_MS = 10000;
+    private static final int PERSIST_WINDOW_MS = 7000;
 
     private WebDriver driver;
     private WebElement outputConsole;
@@ -54,6 +56,11 @@ public class SeleniumTest {
         sendButton    = driver.findElement(By.id("inputSubmitButton"));
 
         assertEquals("A Game of Quests", driver.getTitle(), "Correct window is opened");
+    }
+
+    @AfterEach
+    void delayAfterTest() throws InterruptedException {
+        sleep(AFTER_TEST_DELAY_MS);
     }
 
     @AfterAll
@@ -475,7 +482,7 @@ public class SeleniumTest {
         textArea.sendKeys(text);
         sleep(COMMAND_DELAY_MS);
         sendButton.click();
-        sleep(Math.max(300, COMMAND_DELAY_MS)); // At least 200ms needed for backend to update
+        sleep(Math.max(300, COMMAND_DELAY_MS)); // Maintain generous minimum of 300ms delay for backend to update
     }
 
     private void clickScenarioButton(int scenarioNum) throws InterruptedException {
