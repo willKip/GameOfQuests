@@ -6,10 +6,12 @@ import java.util.*;
 
 public final class Game {
     public static final int FLUSH_LINES = 1;
+    private static List<String> currCardSelectMenu = new ArrayList<>();
 
     private static PrintWriter output = new PrintWriter(OutputStream.nullOutputStream());
     private static Scanner input = new Scanner("");
     private static boolean echoInput = false;
+    private static boolean selectionMenuRedirected = false;
 
     private final Deck adventureDeck;
     private final Deck eventDeck;
@@ -44,6 +46,8 @@ public final class Game {
         }
 
         echoInput = false;
+        currCardSelectMenu = new ArrayList<>();
+        selectionMenuRedirected = false;
 
         this.adventureDeck = new Deck();
         this.eventDeck = new Deck();
@@ -115,6 +119,7 @@ public final class Game {
     // Displays a prompt to select cards from a 1-indexed list; returns the user input.
     // Note: Must -1 from user index selection since the displayed is 1-index, not the card list's true 0-index
     static String cardSelection(final String prompt, final List<Card> cards) {
+        currCardSelectMenu.clear();
         output.println(prompt);
 
         if (cards.isEmpty()) {
@@ -122,22 +127,37 @@ public final class Game {
         } else {
             int i = 0;
             for (final Card c : cards) {
-                output.println("[" + (i + 1) + "] " + c.getCardID());
+                currCardSelectMenu.add(c.getCardID());
+                if (!Game.selectionMenuRedirected) {
+                    output.println((i + 1) + " - " + c.getCardID());
+                }
                 i++;
             }
         }
         output.print("> ");
         output.flush();
-        return getInputNextLine();
+
+        String nextLine = getInputNextLine();
+        currCardSelectMenu.clear();
+        return nextLine;
     }
 
     private static String getInputNextLine() {
+        output.flush();
         String nextLine = input.nextLine();
         if (echoInput) {
-            output.println(nextLine);
+            if (nextLine.isEmpty()) {
+                output.println("<return>");
+            } else {
+                output.println(nextLine);
+            }
             output.flush();
         }
         return nextLine;
+    }
+
+    public List<String> getCurrentCardsInSelectMenu() {
+        return Game.currCardSelectMenu;
     }
 
     private void initTurnVars() {
@@ -150,6 +170,10 @@ public final class Game {
 
     public void enableInputEcho() {
         echoInput = true;
+    }
+
+    public void setSelectionMenuRedirected() {
+        selectionMenuRedirected = true;
     }
 
     // Returns an unmodifiable view of the current eligible player list.
@@ -798,7 +822,7 @@ public final class Game {
     }
 
     // Given an initialised game, run turns until winners are found.
-    public void turnLoop() {
+    public void startGameLoop() {
         do {
             runTurn();
         } while (getWinners().isEmpty());

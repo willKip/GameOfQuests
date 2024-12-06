@@ -84,8 +84,6 @@ public class Player {
     }
 
     private void trim() {
-        // Assignment 1 Note: Can assume selection made by user is valid
-
         while (getHandSize() > 12) {
             String prompt = "You have too many cards in your hand. (" + getHandSize() + "/12)"
                             + "\nPlease enter a card position and hit enter to discard it:";

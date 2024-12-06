@@ -1,5 +1,6 @@
 node_modules/
 package-lock.json
+/.idea/codeStyles/codeStyleConfig.xml
 
 target/
 !.mvn/wrapper/maven-wrapper.jar
