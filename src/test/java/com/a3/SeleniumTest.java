@@ -15,8 +15,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 import static java.lang.Thread.sleep;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -25,7 +24,7 @@ public class SeleniumTest {
     // General delay after each action
     private static final int COMMAND_DELAY_MS = 800;
     // How long to keep the test window open after all tests have ended. Negative value will close it immediately.
-    private static final int PERSIST_WINDOW_MS = -1;
+    private static final int PERSIST_WINDOW_MS = 10000;
 
     private WebDriver driver;
     private WebElement outputConsole;
@@ -130,7 +129,7 @@ public class SeleniumTest {
                   () -> assertEquals("F5 F5 F15 F30 S10", getHandAsString(3), "P3"),
                   () -> assertEquals("F15 F15 F40 L20", getHandAsString(4), "P4"));
 
-        // TODO: assert that players declared as winners?
+        // Partial game scenario; winner declaration is not made
     }
 
     @Test
@@ -221,7 +220,13 @@ public class SeleniumTest {
                   () -> assertEquals("F20 F40 D5 D5 S10 H10 H10 H10 H10 B15 B15 L20", getHandAsString(3), "P3"),
                   () -> assertEquals("F15 F15 F20 F25 F30 F50 F70 L20 L20", getHandAsString(4), "P4"));
 
-        // TODO: assert that players declared as winners?
+        String last5Lines = consoleLastNLines(5);
+        assertAll("Correct winners are displayed",
+                  () -> assertTrue(last5Lines.contains("The game has concluded!"), "Print that game has finished"),
+                  () -> assertFalse(last5Lines.contains("P1"), "P1 has not won"),
+                  () -> assertTrue(last5Lines.contains("P2"), "P2 has won"),
+                  () -> assertFalse(last5Lines.contains("P3"), "P3 has not won"),
+                  () -> assertTrue(last5Lines.contains("P4"), "P4 has won"));
     }
 
     @Test
@@ -333,7 +338,13 @@ public class SeleniumTest {
                   () -> assertEquals("F10 F25 F30 F40 F50 S10 S10 H10 H10 L20", getHandAsString(3), "P3"),
                   () -> assertEquals("F25 F25 F30 F50 F70 D5 D5 S10 S10 B15 L20", getHandAsString(4), "P4"));
 
-        // TODO: assert that players declared as winners?
+        String last5Lines = consoleLastNLines(5);
+        assertAll("Correct winners are displayed",
+                  () -> assertTrue(last5Lines.contains("The game has concluded!"), "Print that game has finished"),
+                  () -> assertFalse(last5Lines.contains("P1"), "P1 has not won"),
+                  () -> assertFalse(last5Lines.contains("P2"), "P2 has not won"),
+                  () -> assertTrue(last5Lines.contains("P3"), "P3 has won"),
+                  () -> assertFalse(last5Lines.contains("P4"), "P4 has not won"));
     }
 
     @Test
@@ -376,7 +387,7 @@ public class SeleniumTest {
                   () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 L20", getHandAsString(3), "P3"),
                   () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 E30", getHandAsString(4), "P4"));
 
-        // TODO: assert that players declared as winners?
+        // Partial game scenario; winner declaration is not made
     }
     /* SCENARIO DEFINITIONS END */
 
@@ -494,6 +505,7 @@ public class SeleniumTest {
     }
 
     // Return the last n lines of the page console ('\n'-separated) as a string.
+    @SuppressWarnings("SameParameterValue")
     private String consoleLastNLines(int n) {
         final List<String> stringLines = Arrays.asList(outputConsole.getText().split("\n"));
         final int stringLineCount = stringLines.size();

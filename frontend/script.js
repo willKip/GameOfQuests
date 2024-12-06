@@ -37,9 +37,8 @@ async function sendText() {
     const textToSend = inputTextArea.value; // Save text in text area
     inputTextArea.value = ""; // Clear text area
 
-    console.log(`Sending '${textToSend}'...`);
-
     try {
+        console.log(`Sending '${textToSend}'...`);
         const response = await fetch(`${API_BASE_URL}/submit?submittedText=${textToSend}`, {method: "POST"});
         const gameState = await response.json();
         updatePage(gameState);
@@ -91,8 +90,6 @@ function updatePage(gameState) {
 
         // Add received game text to the console
         appendToConsole(gameState["gameText"]);
-
-        console.log(JSON.stringify(gameState["currSelectionMenu"]));
 
         // Update card selection table
         cardSelectionTable.innerHTML = ""; // Wipe table contents
