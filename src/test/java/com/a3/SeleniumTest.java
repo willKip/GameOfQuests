@@ -68,6 +68,7 @@ public class SeleniumTest {
         if (PERSIST_WINDOW_MS >= 0) {
             sleep(PERSIST_WINDOW_MS);
         }
+        driver.close();
         driver.quit();
     }
 
