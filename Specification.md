@@ -1,0 +1,68 @@
+# How to Play
+
+- The objective is for some of its 4 players to accumulate enough *shields* to be knighted.
+	- *Shields* are acquired by successfully completing *quests*.
+	- In order to become a knight and win, a player needs to gain *7* shields.
+	- All players who have accumulated 7 or more shields by the completion of the current quest are declared the winners of the game.
+- The game consists of two decks:
+	- *Adventure Deck* - 100x Adventure Cards, 2 types:
+		- 50x *Foe Cards*, consisting of the letter F followed by a value:
+			- 8x F5
+			- 7x F10
+			- 8x F15
+			- 7x F20
+			- 7x F25
+			- 4x F30
+			- 4x F35
+			- 2x F40
+			- 2x F50
+			- 1x F70
+		- 50x *Weapon Cards* - **(Swords come before Horses when sorting by value ascending.)**
+			- 6x D5 (Daggers)
+			- 16x S10 (Swords)
+			- 12x H10 (Horses)
+			- 8x B15 (Battle-axes)
+			- 6x L20 (Lances)
+			- 2x E30 (Excaliburs)
+	- *Event Deck* - 17x cards, two types:
+		- 12x *"Q" (Quest) Cards* - Letter Q followed by a number ranging from 2 to 5, specifying the number of *stages* associated with this quest. A quest of *n* stages will earn its winner(s) *n* shields.
+			- 3x Q2, 4x Q3, 3x Q4, 2x Q5
+		- 5x *"E" (Event) Cards*
+			- 1x *"Plague"* - The player who draws this card immediately loses 2x Shields, to a minimum of 0.
+			- 2x *"Queen's Favor"* - The player who draws this card immediately draws 2x Adventure Cards.
+			- 2x *"Prosperity"* - All players immediately draw 2x Adventure Cards.
+- A discard pile is kept for each of these two decks. Once a deck runs out of cards, its corresponding discard pile is shuffled, and reused as the deck.
+	- *Adventure Discard Pile*
+	- *Event Discard Pile*
+- Displaying the hand of a player means listing foes first in increasing order, then weapons, also in increasing order (Swords come before Horses).
+- The game has exactly 4 *players*.
+	- The order of play is `P1 > P2 > P3 > P4 > P1 > ...`
+- When the game is started, each player automatically receives 12x random Adventure Cards from the Adventure Deck (which must be correctly updated).
+	- Throughout the game, adventure cards are drawn, played, and discarded.
+	- A player must always keep a *maximum of 12* adventure cards in their hand after drawing adventure cards (by choosing and discarding excess ones).
+- The *current player* (the player whose turn it is) draws from the Event Deck.
+	- If that card is an Event Card, its effect is carried out, the card is immediately discarded, and the turn of the current player ends.
+	- If that card is a Quest Card:
+		- The current player, the one who drew the Quest, may elect to sponsor that quest, or decline to.
+		- If that player declines sponsoring the current quest, the next player in the order of play is given the opportunity to sponsor that quest, and so on.
+			- If all players decline, that Quest Card is considered completed, and **discarded**; the current player's turn ends with nothing else happening.
+		- When a player decides to sponsor a quest, they build each *stage* of that quest using the Adventure cards currently in their hand. The cards making up each stage of that quest are only visible to the sponsor of the quest.
+			- Each stage must consist of *exactly 1x* Foe card, and *0 or more non-repeated (unique)* Weapon cards. (Invalid stages are rejected as shown in UC-05)
+			- The *value* of a stage is computed as the total of the values of its Foe card and Weapon card(s).
+				- e.g. F10 + H10 + L20 = Stage Value 40
+			- Each stage must be identified: that is, the sponsor must specify which set of cards are for the first stage, which for the second, and so on.
+			- **The value of each stage must be strictly greater than the value of the stage that precedes it**. This rule must be enforced by the game, signalling an error to the sponsor if it is not respected.
+		- Once a quest is fully built, each stage of the quest (in order) is resolved as follows:
+			- each player *other* than the sponsor is prompted to decide whether they will participate in it. (Wipe screen for each turn transition)
+			- If there are any participants for that stage, then each of them draws 1x Adventure card (and reduces their hand to 12 cards if necessary)
+			- Each participant for that stage then prepares, in turn, an attack consisting of 1 or more *non-repeated* Weapon cards. The value of the attack is the sum of the values of the weapons. All cards used in the attack must be discarded **immediately**. Return cards then check their values.
+			- A participant in the current stage becomes a participant for the next stage of the quest *if and only if* their attack has a value *greater than or equal to* the value of the current stage.
+				- If this is the last stage of the quest, the participant has won the quest, and will earn the number of shields associated with that quest (= number of stages) once the stage is completed.
+				- Multiple winners of the Quest may occur if multiple players meet the required attack value at the final stage.
+			- A participant with an attack of value strictly smaller than the current stage value *fails* the quest, cannot participate in its subsequent stages (if any), and will receive no shields.
+			- If all participants of the current stage fail, then the quest has no winner, and is abandoned (considered completed). The next stages, if any, are not resolved.
+		- Once a quest is completed in any way:
+			- Shields (1 per stage) are distributed to each of the winners of the quest, if any. The sponsor does **not** receive any shields.
+				- At this point, one or more players may have reached 7 Shields; if so, they are reported by the game as the winners of the game, which then ends.
+			- If no winners of the game have resulted, the sponsor now discards **all** the Adventure cards used to build the quest, and then draws the *same* number of Adventure cards + Adventure cards equal to the number of stages in the quest. (If necessary, the sponsor then reduces their hand to 12 adventure cards.)
+			- After the sponsor has discarded all cards used for the quest and then drawn new ones, the turn of the current player (i.e. the one who initially offered the sponsorship of the current quest) ends; the next player according to the order of play becomes the current player and plays. (There are no concurrent quests.)
