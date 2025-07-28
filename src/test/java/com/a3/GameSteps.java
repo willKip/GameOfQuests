@@ -19,7 +19,8 @@ public class GameSteps {
     }
 
     // Interpret a word as a player ID (e.g. P1, P20)
-    @ParameterType("P[0-9]+") // Match on "P" followed by any length of digits, until a whitespace is encountered
+    @ParameterType("P[0-9]+") // Match on "P" followed by any length of digits, until a whitespace
+                              // is encountered
     public Player player(String id) {
         return game.getPlayerByID(id);
     }
@@ -30,7 +31,8 @@ public class GameSteps {
         return new Card(id);
     }
 
-    // Interpret space-separated card IDs (or names) between square brackets (e.g. [F5 Horse]) as cards
+    // Interpret space-separated card IDs (or names) between square brackets (e.g. [F5 Horse]) as
+    // cards
     @ParameterType("\\[(.*?)\\]") // Match on the text between square brackets
     public List<Card> cardList(String ids) {
         return Card.stringToCards(ids);
@@ -49,23 +51,24 @@ public class GameSteps {
         switch (scenario) {
             case 1: // A1_scenario
                 // Rig initial hands of each player
-                game.getPlayerByID("P1")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20"));
-                game.getPlayerByID("P2")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
-                game.getPlayerByID("P3")
-                    .overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
-                game.getPlayerByID("P4")
-                    .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
+                game.getPlayerByID("P1").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20"));
+                game.getPlayerByID("P2").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+                game.getPlayerByID("P3").overwriteHand(
+                        Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+                game.getPlayerByID("P4").overwriteHand(
+                        Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
 
                 // Rig adventure deck; cards added first should be drawn last
                 rigDeck = new ArrayList<>();
-                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));  // Stage 1
-                rigDeck.addAll(Card.stringToCards("F10 Lance Lance"));       // Stage 2
-                rigDeck.addAll(Card.stringToCards("Battle-axe Sword"));      // Stage 3
-                rigDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
+                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("F10 Lance Lance")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("Battle-axe Sword")); // Stage 3
+                rigDeck.addAll(Card.stringToCards("F30 Lance")); // Stage 4
                 // 13 Sponsor reward cards
-                rigDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
+                rigDeck.addAll(
+                        Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
                 game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
                 // Rig event deck
@@ -73,28 +76,28 @@ public class GameSteps {
                 break;
             case 2: // 2winner_game_2winner_quest
                 // Rig initial hands of each player
-                game.getPlayerByID("P1")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
-                game.getPlayerByID("P2")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 B15 H10 H10 B15 B15 L20"));
-                game.getPlayerByID("P3")
-                    .overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
-                game.getPlayerByID("P4")
-                    .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
+                game.getPlayerByID("P1").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+                game.getPlayerByID("P2").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 D5 S10 B15 H10 H10 B15 B15 L20"));
+                game.getPlayerByID("P3").overwriteHand(
+                        Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+                game.getPlayerByID("P4").overwriteHand(
+                        Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
 
                 /* Rig adventure deck */
                 rigDeck = new ArrayList<>();
                 // Quest 1
-                rigDeck.addAll(Card.stringToCards("Horse Sword Battle-axe"));   // Stage 1
-                rigDeck.addAll(Card.stringToCards("Horse Lance"));              // Stage 2
-                rigDeck.addAll(Card.stringToCards("Lance Sword"));              // Stage 3
-                rigDeck.addAll(Card.stringToCards("F5 Lance"));                 // Stage 4
+                rigDeck.addAll(Card.stringToCards("Horse Sword Battle-axe")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("Horse Lance")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("Lance Sword")); // Stage 3
+                rigDeck.addAll(Card.stringToCards("F5 Lance")); // Stage 4
                 // 10 Sponsor reward cards
                 rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 S10 H10 L20"));
 
                 // Quest 2
-                rigDeck.addAll(Card.stringToCards("Dagger Horse"));         // Stage 1
-                rigDeck.addAll(Card.stringToCards("Sword Lance"));          // Stage 2
+                rigDeck.addAll(Card.stringToCards("Dagger Horse")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("Sword Lance")); // Stage 2
                 rigDeck.addAll(Card.stringToCards("Battle-axe Excalibur")); // Stage 3
                 // 7 Sponsor reward cards
                 rigDeck.addAll(Card.stringToCards("F5 F40 F70 D5 D5 S10 H10"));
@@ -107,39 +110,39 @@ public class GameSteps {
                 break;
             case 3: // 1winner_game_with_events
                 // Rig initial hands of each player
-                game.getPlayerByID("P1")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
-                game.getPlayerByID("P2")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 B15 H10 H10 B15 B15 L20"));
-                game.getPlayerByID("P3")
-                    .overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
-                game.getPlayerByID("P4")
-                    .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
+                game.getPlayerByID("P1").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+                game.getPlayerByID("P2").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 D5 S10 B15 H10 H10 B15 B15 L20"));
+                game.getPlayerByID("P3").overwriteHand(
+                        Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+                game.getPlayerByID("P4").overwriteHand(
+                        Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
 
                 /* Rig adventure deck */
                 rigDeck = new ArrayList<>();
                 // Quest 1
-                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));   // Stage 1
-                rigDeck.addAll(Card.stringToCards("F10 Lance Lance"));        // Stage 2
+                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("F10 Lance Lance")); // Stage 2
                 rigDeck.addAll(Card.stringToCards("Lance Battle-axe Sword")); // Stage 3
-                rigDeck.addAll(Card.stringToCards("F5 F30 Lance"));           // Stage 4
+                rigDeck.addAll(Card.stringToCards("F5 F30 Lance")); // Stage 4
 
                 // 12 Sponsor reward cards
                 rigDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10"));
 
                 // 8 Prosperity triggered cards
-                rigDeck.addAll(Card.stringToCards("F70 Dagger"));           // P1
-                rigDeck.addAll(Card.stringToCards("Lance Excalibur"));      // P2
-                rigDeck.addAll(Card.stringToCards("Battle-axe Lance"));     // P3
-                rigDeck.addAll(Card.stringToCards("Sword Horse"));          // P4
+                rigDeck.addAll(Card.stringToCards("F70 Dagger")); // P1
+                rigDeck.addAll(Card.stringToCards("Lance Excalibur")); // P2
+                rigDeck.addAll(Card.stringToCards("Battle-axe Lance")); // P3
+                rigDeck.addAll(Card.stringToCards("Sword Horse")); // P4
 
                 // 2 Queen's Favor triggered cards for P4
                 rigDeck.addAll(Card.stringToCards("Sword Lance"));
 
                 // Quest 2
-                rigDeck.addAll(Card.stringToCards("D5 D5 D5"));  // Stage 1
-                rigDeck.addAll(Card.stringToCards("S10 H10"));   // Stage 2
-                rigDeck.addAll(Card.stringToCards("B15 B15"));   // Stage 3
+                rigDeck.addAll(Card.stringToCards("D5 D5 D5")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("S10 H10")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("B15 B15")); // Stage 3
                 // 7 Sponsor reward cards
                 rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 D5 H10 L20"));
 
@@ -147,24 +150,30 @@ public class GameSteps {
 
                 /* Rig event deck */
                 rigDeck = new ArrayList<>(Card.stringToCards("Q4 Plague Prosperity"));
-                rigDeck.add(new Card("Queen's Favor")); // Space in name necessitates separate addition
+                rigDeck.add(new Card("Queen's Favor")); // Space in name necessitates separate
+                                                        // addition
                 rigDeck.add(new Card("Q3"));
 
                 game.getEventDeck().addToDrawPile(rigDeck.reversed());
                 break;
             case 4: // 0_winner_quest
-                // Rig initial hands of each player. P1 will sponsor; other players all lose in the first round
-                // Other players will start with empty hands and use the single cards they draw from deciding to
+                // Rig initial hands of each player. P1 will sponsor; other players all lose in the
+                // first round
+                // Other players will start with empty hands and use the single cards they draw from
+                // deciding to
                 // participate in the first round.
-                game.getPlayerByID("P1").overwriteHand(Card.stringToCards("F15 Battle-axe F40 Sword Lance Horse"));
+                game.getPlayerByID("P1")
+                        .overwriteHand(Card.stringToCards("F15 Battle-axe F40 Sword Lance Horse"));
                 game.getPlayerByID("P2").overwriteHand(Card.stringToCards(""));
                 game.getPlayerByID("P3").overwriteHand(Card.stringToCards(""));
                 game.getPlayerByID("P4").overwriteHand(Card.stringToCards(""));
 
                 // Rig adventure deck; cards added first should be drawn last
                 rigDeck = new ArrayList<>();
-                rigDeck.addAll(Card.stringToCards("Sword Battle-axe Lance"));  // Stage 1, player participation
-                rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 D5"));  // Sponsor rewards
+                rigDeck.addAll(Card.stringToCards("Sword Battle-axe Lance")); // Stage 1, player
+                                                                              // participation
+                rigDeck.addAll(Card.stringToCards("F5 F10 F15 F20 F40 F70 D5 D5")); // Sponsor
+                                                                                    // rewards
                 game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
                 // Rig event deck with one Q2 on top
@@ -180,8 +189,7 @@ public class GameSteps {
         game.setCurrentPlayer(p);
         game.setCurrentEvent(game.drawEventCard());
         assertEquals("Correct quest card drawn",
-                     new Card(Card.CardType.QUEST, "Quest", 'Q', stages),
-                     game.getCurrentEventCard());
+                new Card(Card.CardType.QUEST, "Quest", 'Q', stages), game.getCurrentEventCard());
     }
 
     @When("{player} draws the event {eventCard}")
@@ -210,7 +218,8 @@ public class GameSteps {
         assertEquals("Player should be the sponsor to build stages", p, game.getSponsor());
         assertEquals("Stage number should be correct", game.viewQuestStages().size() + 1, stage);
 
-        game.addInput(Game.buildDiscardString(game.viewEffectiveSponsorHand(), stageCards) + "quit\n");
+        game.addInput(
+                Game.buildDiscardString(game.viewEffectiveSponsorHand(), stageCards) + "quit\n");
         game.buildAndAddStage();
     }
 
@@ -225,21 +234,24 @@ public class GameSteps {
     public void player_stage_withdraw(Player p) {
         game.addInput("y\n"); // Agree to withdraw
         game.promptWithdraw(p);
-        assertFalse("Player should be removed from eligible list after withdrawing", game.viewEligible().contains(p));
+        assertFalse("Player should be removed from eligible list after withdrawing",
+                game.viewEligible().contains(p));
     }
 
     @Then("{player} decides to participate in the stage, drawing {card}")
     public void player_stage_participate(Player p, Card drawn) {
-        player_stage_participate_discard(p, drawn, null); // Discarding nothing because no trim needed
+        player_stage_participate_discard(p, drawn, null); // Discarding nothing because no trim
+                                                          // needed
     }
 
     @Then("{player} decides to participate in the stage, drawing {card} and trimming {card}")
     public void player_stage_participate_discard(Player p, Card drawn, Card toDiscard) {
         List<Card> expectedHand = new ArrayList<>(p.viewHand()); // Expected hand to test against
-        expectedHand.add(drawn);        // Add card that should be drawn
+        expectedHand.add(drawn); // Add card that should be drawn
         Collections.sort(expectedHand); // Sort hand
 
-        // Agree to participate (by refusing to withdraw), discard card from new over-capacity hand, end turn
+        // Agree to participate (by refusing to withdraw), discard card from new over-capacity hand,
+        // end turn
         game.addInput("n\n" + Game.buildDiscardString(expectedHand, toDiscard) + "\n");
         game.promptWithdraw(p);
 
@@ -247,7 +259,8 @@ public class GameSteps {
         if (toDiscard != null) {
             expectedHand.remove(toDiscard);
         }
-        assertEquals("Hand modified as expected after participation draw", expectedHand, p.getHand());
+        assertEquals("Hand modified as expected after participation draw", expectedHand,
+                p.getHand());
     }
 
     @Then("{player} attacks with {cardList}")
@@ -292,17 +305,17 @@ public class GameSteps {
     }
 
     @Then("the sponsor updates their hand, drawing {cardList} and trimming {cardList}")
-    public void quest_finished_sponsor_updates_hand_with_discard(List<Card> toDraw, List<Card> toTrim) {
+    public void quest_finished_sponsor_updates_hand_with_discard(List<Card> toDraw,
+            List<Card> toTrim) {
         Player sponsor = game.getSponsor();
 
-        // Sponsor will discard all cards used to build the quest and draw as many, and additionally draw
+        // Sponsor will discard all cards used to build the quest and draw as many, and additionally
+        // draw
         // cards equal to the number of stages in the quest.
         assertEquals("Must draw correct amount of cards in step definition",
-                     game.cardsInQuest() + game.questLength(),
-                     toDraw.size());
+                game.cardsInQuest() + game.questLength(), toDraw.size());
         assertEquals("Must trim correct amount of cards in step definition",
-                     Math.max(0, (sponsor.getHandSize() + game.questLength()) - 12),
-                     toTrim.size());
+                Math.max(0, (sponsor.getHandSize() + game.questLength()) - 12), toTrim.size());
 
         List<Card> expectedHand = new ArrayList<>(game.viewEffectiveSponsorHand());
         expectedHand.addAll(toDraw);
@@ -317,7 +330,8 @@ public class GameSteps {
         for (final Card c : toTrim) {
             expectedHand.remove(c);
         }
-        assertEquals("Sponsor hand is updated correctly after quest ends", expectedHand, sponsor.getHand());
+        assertEquals("Sponsor hand is updated correctly after quest ends", expectedHand,
+                sponsor.getHand());
     }
 
     @Then("{player} won the game")

@@ -1,43 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>A Game of Quests</title>
-    <link href="./style.css" rel="stylesheet">
-</head>
-<body>
-<div id="buttonContainer">
-    <button id="startButton" onclick="startGame()">Start Random Game</button>
-    <button id="scenarioButton1" onclick="startGame(1)">Start Game (Scenario 1: <b>A1_scenario</b>)</button>
-    <button id="scenarioButton2" onclick="startGame(2)">Start Game (Scenario 2: <b>2winner_game_2winner_quest</b>)
-    </button>
-    <button id="scenarioButton3" onclick="startGame(3)">Start Game (Scenario 3: <b>1winner_game_with_events</b>)
-    </button>
-    <button id="scenarioButton4" onclick="startGame(4)">Start Game (Scenario 4: <b>0_winner_quest</b>)</button>
-</div>
-<div id="consoleContainer">
-    <div class="consoleWindow" id="playerInfoConsole">
-        <table id="playerInfoTable">
-            <tr>
-                <td>[Player info will be displayed here...]</td>
-            </tr>
-        </table>
-    </div>
-    <div class="consoleWindow" id="cardSelectionConsole">
-        <table id="cardSelectionTable">
-            <tr>
-                <td>[Available cards to select will be displayed here...]</td>
-            </tr>
-        </table>
-    </div>
-    <p class="consoleWindow" id="outputConsole">[Waiting for user to select a game...]</p>
-    <div id="inputForm">
-        <label for="inputTextArea"></label>
-        <input disabled id="inputTextArea" type="text"/>
-        <button disabled id="inputSubmitButton" onclick="sendText()"><s>Send</s><br>(Start a game first!)</button>
-    </div>
-</div>
-<iframe id="formTarget" name="formTarget" style="display: none;"></iframe>
-<script src="./script.js"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>A Game of Quests</title>
+        <link href="./style.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="buttonContainer">
+            <button id="startButton" onclick="startGame()">Start Random Game</button>
+            <button id="scenarioButton1" onclick="startGame(1)">Start Game (Scenario 1: <b>A1_scenario</b>)</button>
+            <button id="scenarioButton2" onclick="startGame(2)">
+                Start Game (Scenario 2: <b>2winner_game_2winner_quest</b>)
+            </button>
+            <button id="scenarioButton3" onclick="startGame(3)">
+                Start Game (Scenario 3: <b>1winner_game_with_events</b>)
+            </button>
+            <button id="scenarioButton4" onclick="startGame(4)">Start Game (Scenario 4: <b>0_winner_quest</b>)</button>
+        </div>
+        <div id="consoleContainer">
+            <div class="consoleWindow" id="playerInfoConsole">
+                <table id="playerInfoTable">
+                    <tr>
+                        <td>[Player info will be displayed here...]</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="consoleWindow" id="cardSelectionConsole">
+                <table id="cardSelectionTable">
+                    <tr>
+                        <td>[Available cards to select will be displayed here...]</td>
+                    </tr>
+                </table>
+            </div>
+            <p class="consoleWindow" id="outputConsole">[Waiting for user to select a game...]</p>
+            <div id="inputForm">
+                <label for="inputTextArea"></label>
+                <input disabled id="inputTextArea" type="text" />
+                <button disabled id="inputSubmitButton" onclick="sendText()">
+                    <s>Send</s><br />(Start a game first!)
+                </button>
+            </div>
+        </div>
+        <iframe id="formTarget" name="formTarget" style="display: none"></iframe>
+        <script src="./script.js"></script>
+    </body>
 </html>

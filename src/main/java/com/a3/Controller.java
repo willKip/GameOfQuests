@@ -33,7 +33,8 @@ public class Controller {
 
     @PostMapping("/start")
     public Map<String, Object> start(
-            @RequestParam(value = "scenario", defaultValue = "0") String scenarioId) throws InterruptedException {
+            @RequestParam(value = "scenario", defaultValue = "0") String scenarioId)
+            throws InterruptedException {
         executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             try {
@@ -47,8 +48,9 @@ public class Controller {
     }
 
     @PostMapping("/submit")
-    public Map<String, Object> submit(@RequestParam(value = "submittedText", defaultValue = "")
-                                      String submittedText) throws IOException, InterruptedException {
+    public Map<String, Object> submit(
+            @RequestParam(value = "submittedText", defaultValue = "") String submittedText)
+            throws IOException, InterruptedException {
         writeToStream.write((submittedText + "\n").getBytes());
         writeToStream.flush();
         return getGameState();
@@ -81,8 +83,8 @@ public class Controller {
 
     private void initIO() throws IOException {
         readFromStream = new PipedInputStream();
-        writeToStream  = new PipedOutputStream(readFromStream);
-        outputBuffer   = new StringWriter();
+        writeToStream = new PipedOutputStream(readFromStream);
+        outputBuffer = new StringWriter();
     }
 
     private void newGame(int scenarioId) throws IOException {
@@ -92,30 +94,32 @@ public class Controller {
         game = new Game(new Scanner(readFromStream), new PrintWriter(outputBuffer));
         game.initGame(); // Set up a new game with a standard deck and random hands per player.
         game.enableInputEcho(); // Input to the game will be displayed in the output
-        game.setSelectionMenuRedirected(); // Hides card selection menu in the text console since webpage UI shows it
+        game.setSelectionMenuRedirected(); // Hides card selection menu in the text console since
+                                           // webpage UI shows it
 
         ArrayList<Card> rigDeck;
 
         switch (scenarioId) {
             case 1: // A1_scenario
                 // Rig initial hands of each player
-                game.getPlayerByID("P1")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20"));
-                game.getPlayerByID("P2")
-                    .overwriteHand(Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
-                game.getPlayerByID("P3")
-                    .overwriteHand(Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
-                game.getPlayerByID("P4")
-                    .overwriteHand(Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
+                game.getPlayerByID("P1").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 D5 S10 S10 H10 H10 B15 B15 L20"));
+                game.getPlayerByID("P2").overwriteHand(
+                        Card.stringToCards("F5 F5 F15 F15 F40 D5 S10 H10 H10 B15 B15 E30"));
+                game.getPlayerByID("P3").overwriteHand(
+                        Card.stringToCards("F5 F5 F5 F15 D5 S10 S10 S10 H10 H10 B15 L20"));
+                game.getPlayerByID("P4").overwriteHand(
+                        Card.stringToCards("F5 F15 F15 F40 D5 D5 S10 H10 H10 B15 L20 E30"));
 
                 // Rig adventure deck; cards added first should be drawn last
                 rigDeck = new ArrayList<>();
-                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe"));  // Stage 1
-                rigDeck.addAll(Card.stringToCards("F10 Lance Lance"));       // Stage 2
-                rigDeck.addAll(Card.stringToCards("Battle-axe Sword"));      // Stage 3
-                rigDeck.addAll(Card.stringToCards("F30 Lance"));             // Stage 4
+                rigDeck.addAll(Card.stringToCards("F30 Sword Battle-axe")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("F10 Lance Lance")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("Battle-axe Sword")); // Stage 3
+                rigDeck.addAll(Card.stringToCards("F30 Lance")); // Stage 4
                 // 13 Sponsor reward cards
-                rigDeck.addAll(Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
+                rigDeck.addAll(
+                        Card.stringToCards("F5 F5 F5 F10 F15 F20 F40 F70 D5 D5 S10 H10 L20"));
                 game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
                 // Rig event deck
@@ -135,19 +139,20 @@ public class Controller {
                 /* Rig adventure deck */
                 rigDeck = new ArrayList<>();
                 // Quest 1
-                rigDeck.addAll(Card.stringToCards("F5 F40 F10"));   // Stage 1
-                rigDeck.addAll(Card.stringToCards("F10 F30"));      // Stage 2
-                rigDeck.addAll(Card.stringToCards("F30 F15"));      // Stage 3
-                rigDeck.addAll(Card.stringToCards("F15 F20"));      // Stage 4
+                rigDeck.addAll(Card.stringToCards("F5 F40 F10")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("F10 F30")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("F30 F15")); // Stage 3
+                rigDeck.addAll(Card.stringToCards("F15 F20")); // Stage 4
                 // 11 Sponsor reward cards for P1
                 rigDeck.addAll(Card.stringToCards("F5 F10 F15 F15 F20 F20 F20 F20 F25 F25 F30"));
 
                 // Quest 2
                 rigDeck.addAll(Card.stringToCards("Dagger Dagger")); // Stage 1
-                rigDeck.addAll(Card.stringToCards("F15 F15"));       // Stage 2
-                rigDeck.addAll(Card.stringToCards("F25 F25"));       // Stage 3
+                rigDeck.addAll(Card.stringToCards("F15 F15")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("F25 F25")); // Stage 3
                 // 8 Sponsor reward cards for P3
-                rigDeck.addAll(Card.stringToCards("F20 F20 F25 F30 Sword Battle-axe Battle-axe Lance"));
+                rigDeck.addAll(
+                        Card.stringToCards("F20 F20 F25 F30 Sword Battle-axe Battle-axe Lance"));
 
                 game.getAdventureDeck().addToDrawPile(rigDeck.reversed());
 
@@ -169,27 +174,27 @@ public class Controller {
                 /* Rig adventure deck */
                 rigDeck = new ArrayList<>();
                 // Quest 1
-                rigDeck.addAll(Card.stringToCards("F5 F10 F20"));   // Stage 1
-                rigDeck.addAll(Card.stringToCards("F15 F5 F25"));   // Stage 2
-                rigDeck.addAll(Card.stringToCards("F5 F10 F20"));   // Stage 3
-                rigDeck.addAll(Card.stringToCards("F5 F10 F20"));   // Stage 4
+                rigDeck.addAll(Card.stringToCards("F5 F10 F20")); // Stage 1
+                rigDeck.addAll(Card.stringToCards("F15 F5 F25")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("F5 F10 F20")); // Stage 3
+                rigDeck.addAll(Card.stringToCards("F5 F10 F20")); // Stage 4
 
                 // 8 Sponsor reward cards for P1
                 rigDeck.addAll(Card.stringToCards("F5 F5 F10 F10 F15 F15 F15 F15"));
 
                 // 8 Prosperity triggered cards; order starts with current player P3!
-                rigDeck.addAll(Card.stringToCards("Battle-axe F40"));   // P3
-                rigDeck.addAll(Card.stringToCards("Dagger Dagger"));    // P4
-                rigDeck.addAll(Card.stringToCards("F25 F25"));          // P1
-                rigDeck.addAll(Card.stringToCards("Horse Sword"));      // P2
+                rigDeck.addAll(Card.stringToCards("Battle-axe F40")); // P3
+                rigDeck.addAll(Card.stringToCards("Dagger Dagger")); // P4
+                rigDeck.addAll(Card.stringToCards("F25 F25")); // P1
+                rigDeck.addAll(Card.stringToCards("Horse Sword")); // P2
 
                 // 2 Queen's Favor triggered cards for P4
                 rigDeck.addAll(Card.stringToCards("F30 F25"));
 
                 // Quest 2
                 rigDeck.addAll(Card.stringToCards("Battle-axe Horse F50")); // Stage 1
-                rigDeck.addAll(Card.stringToCards("Sword Sword"));          // Stage 2
-                rigDeck.addAll(Card.stringToCards("F40 F50"));              // Stage 3
+                rigDeck.addAll(Card.stringToCards("Sword Sword")); // Stage 2
+                rigDeck.addAll(Card.stringToCards("F40 F50")); // Stage 3
                 // 8 Sponsor reward cards for P1
                 rigDeck.addAll(Card.stringToCards("Horse Horse Horse Sword Sword Sword Sword F35"));
 
@@ -197,7 +202,8 @@ public class Controller {
 
                 /* Rig event deck */
                 rigDeck = new ArrayList<>(Card.stringToCards("Q4 Plague Prosperity"));
-                rigDeck.add(new Card("Queen's Favor")); // Space in name necessitates separate addition
+                rigDeck.add(new Card("Queen's Favor")); // Space in name necessitates separate
+                                                        // addition
                 rigDeck.add(new Card("Q3"));
 
                 game.getEventDeck().addToDrawPile(rigDeck.reversed());
@@ -206,12 +212,12 @@ public class Controller {
                 // Rig initial hands of each player
                 game.getPlayerByID("P1").overwriteHand(Card.stringToCards(
                         "F50 F70 Dagger Dagger Horse Horse Sword Sword Battle-axe Battle-axe Lance Lance"));
-                game.getPlayerByID("P2").overwriteHand(Card.stringToCards(
-                        "F5 F5 F10 F15 F15 F20 F20 F25 F30 F30 F40 Excalibur"));
-                game.getPlayerByID("P3").overwriteHand(Card.stringToCards(
-                        "F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 Lance"));
-                game.getPlayerByID("P4").overwriteHand(Card.stringToCards(
-                        "F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 Excalibur"));
+                game.getPlayerByID("P2").overwriteHand(
+                        Card.stringToCards("F5 F5 F10 F15 F15 F20 F20 F25 F30 F30 F40 Excalibur"));
+                game.getPlayerByID("P3").overwriteHand(
+                        Card.stringToCards("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 Lance"));
+                game.getPlayerByID("P4").overwriteHand(
+                        Card.stringToCards("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 Excalibur"));
 
                 // Rig adventure deck; cards added first should be drawn last
                 rigDeck = new ArrayList<>();

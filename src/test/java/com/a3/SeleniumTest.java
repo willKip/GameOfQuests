@@ -25,7 +25,8 @@ public class SeleniumTest {
     private static final int COMMAND_DELAY_MS = 700;
     // Delay after tests, to allow time for confirming results.
     private static final int AFTER_TEST_DELAY_MS = 3000;
-    // How long to keep the test window open after all tests have ended. Negative value will close it immediately.
+    // How long to keep the test window open after all tests have ended. Negative
+    // value will close it immediately.
     private static final int PERSIST_WINDOW_MS = 7000;
 
     private WebDriver driver;
@@ -40,7 +41,8 @@ public class SeleniumTest {
             frontendURI = Paths.get("frontend/index.html").toUri().toString();
         } catch (IOError e) {
             // FALLBACK IF RUNNING INDEX.HTML DOESN'T WORK:
-            // Run the backend, then run server in the frontend directory with 'npx http-server' and paste the URL here
+            // Run the backend, then run server in the frontend directory with 'npx
+            // http-server' and paste the URL here
             frontendURI = "http://127.0.0.1:8081";
         }
 
@@ -52,8 +54,8 @@ public class SeleniumTest {
 
         /* Find and save references to common elements */
         outputConsole = driver.findElement(By.id("outputConsole"));
-        textArea      = driver.findElement(By.id("inputTextArea"));
-        sendButton    = driver.findElement(By.id("inputSubmitButton"));
+        textArea = driver.findElement(By.id("inputTextArea"));
+        sendButton = driver.findElement(By.id("inputSubmitButton"));
 
         assertEquals("A Game of Quests", driver.getTitle(), "Correct window is opened");
     }
@@ -116,26 +118,26 @@ public class SeleniumTest {
 
         // Sponsor P2 trims
         pickCards("F5 F5 F10 F70");
-        // (Do not send <return> here, it will move on to the next turn and potentially draw more cards)
+        // (Do not send <return> here, it will move on to the next turn and potentially
+        // draw more cards)
 
         /* Asserts */
-        assertAll("Shield count",
-                  () -> assertEquals(0, readShieldCount(1), "P1"),
-                  () -> assertEquals(0, readShieldCount(2), "P2"),
-                  () -> assertEquals(0, readShieldCount(3), "P3"),
-                  () -> assertEquals(4, readShieldCount(4), "P4"));
+        assertAll("Shield count", () -> assertEquals(0, readShieldCount(1), "P1"),
+                () -> assertEquals(0, readShieldCount(2), "P2"),
+                () -> assertEquals(0, readShieldCount(3), "P3"),
+                () -> assertEquals(4, readShieldCount(4), "P4"));
 
-        assertAll("Hand size",
-                  () -> assertEquals(9, readCardCount(1), "P1"),
-                  () -> assertEquals(12, readCardCount(2), "P2"),
-                  () -> assertEquals(5, readCardCount(3), "P3"),
-                  () -> assertEquals(4, readCardCount(4), "P4"));
+        assertAll("Hand size", () -> assertEquals(9, readCardCount(1), "P1"),
+                () -> assertEquals(12, readCardCount(2), "P2"),
+                () -> assertEquals(5, readCardCount(3), "P3"),
+                () -> assertEquals(4, readCardCount(4), "P4"));
 
-        // A1_scenario does not specify specific cards for P2; they draw 13 random cards and can trim whichever ones.
+        // A1_scenario does not specify specific cards for P2; they draw 13 random cards
+        // and can trim whichever ones.
         assertAll("Cards in hand",
-                  () -> assertEquals("F5 F10 F15 F15 F30 H10 B15 B15 L20", getHandAsString(1), "P1"),
-                  () -> assertEquals("F5 F5 F15 F30 S10", getHandAsString(3), "P3"),
-                  () -> assertEquals("F15 F15 F40 L20", getHandAsString(4), "P4"));
+                () -> assertEquals("F5 F10 F15 F15 F30 H10 B15 B15 L20", getHandAsString(1), "P1"),
+                () -> assertEquals("F5 F5 F15 F30 S10", getHandAsString(3), "P3"),
+                () -> assertEquals("F15 F15 F40 L20", getHandAsString(4), "P4"));
 
         // Partial game scenario; winner declaration is not made
     }
@@ -210,31 +212,33 @@ public class SeleniumTest {
         sendReturn();
 
         /* Asserts */
-        assertAll("Shield count",
-                  () -> assertEquals(0, readShieldCount(1), "P1"),
-                  () -> assertEquals(7, readShieldCount(2), "P2"),
-                  () -> assertEquals(0, readShieldCount(3), "P3"),
-                  () -> assertEquals(7, readShieldCount(4), "P4"));
+        assertAll("Shield count", () -> assertEquals(0, readShieldCount(1), "P1"),
+                () -> assertEquals(7, readShieldCount(2), "P2"),
+                () -> assertEquals(0, readShieldCount(3), "P3"),
+                () -> assertEquals(7, readShieldCount(4), "P4"));
 
-        assertAll("Hand size",
-                  () -> assertEquals(12, readCardCount(1), "P1"),
-                  () -> assertEquals(9, readCardCount(2), "P2"),
-                  () -> assertEquals(12, readCardCount(3), "P3"),
-                  () -> assertEquals(9, readCardCount(4), "P4"));
+        assertAll("Hand size", () -> assertEquals(12, readCardCount(1), "P1"),
+                () -> assertEquals(9, readCardCount(2), "P2"),
+                () -> assertEquals(12, readCardCount(3), "P3"),
+                () -> assertEquals(9, readCardCount(4), "P4"));
 
         assertAll("Cards in hand",
-                  () -> assertEquals("F15 F15 F20 F20 F20 F20 F25 F25 F30 H10 B15 L20", getHandAsString(1), "P1"),
-                  () -> assertEquals("F10 F15 F15 F25 F30 F40 F50 L20 L20", getHandAsString(2), "P2"),
-                  () -> assertEquals("F20 F40 D5 D5 S10 H10 H10 H10 H10 B15 B15 L20", getHandAsString(3), "P3"),
-                  () -> assertEquals("F15 F15 F20 F25 F30 F50 F70 L20 L20", getHandAsString(4), "P4"));
+                () -> assertEquals("F15 F15 F20 F20 F20 F20 F25 F25 F30 H10 B15 L20",
+                        getHandAsString(1), "P1"),
+                () -> assertEquals("F10 F15 F15 F25 F30 F40 F50 L20 L20", getHandAsString(2), "P2"),
+                () -> assertEquals("F20 F40 D5 D5 S10 H10 H10 H10 H10 B15 B15 L20",
+                        getHandAsString(3), "P3"),
+                () -> assertEquals("F15 F15 F20 F25 F30 F50 F70 L20 L20", getHandAsString(4),
+                        "P4"));
 
         String last5Lines = consoleLastNLines(5);
         assertAll("Correct winners are displayed",
-                  () -> assertTrue(last5Lines.contains("The game has concluded!"), "Print that game has finished"),
-                  () -> assertFalse(last5Lines.contains("P1"), "P1 has not won"),
-                  () -> assertTrue(last5Lines.contains("P2"), "P2 has won"),
-                  () -> assertFalse(last5Lines.contains("P3"), "P3 has not won"),
-                  () -> assertTrue(last5Lines.contains("P4"), "P4 has won"));
+                () -> assertTrue(last5Lines.contains("The game has concluded!"),
+                        "Print that game has finished"),
+                () -> assertFalse(last5Lines.contains("P1"), "P1 has not won"),
+                () -> assertTrue(last5Lines.contains("P2"), "P2 has won"),
+                () -> assertFalse(last5Lines.contains("P3"), "P3 has not won"),
+                () -> assertTrue(last5Lines.contains("P4"), "P4 has won"));
     }
 
     @Test
@@ -285,14 +289,15 @@ public class SeleniumTest {
         // P2 draws Plague, loses 2 shields
         sendReturn();
 
-        // P3 draws Prosperity, all 4 players receive 2 adventure cards (NOTE: starting from current player).
-        pickCards("F5");     // P3
+        // P3 draws Prosperity, all 4 players receive 2 adventure cards (NOTE: starting
+        // from current player).
+        pickCards("F5"); // P3
         sendReturn();
-        pickCards("F20");    // P4
+        pickCards("F20"); // P4
         sendReturn();
         pickCards("F5 F10"); // P1
         sendReturn();
-        pickCards("F5");     // P2
+        pickCards("F5"); // P2
         sendReturn();
         sendReturn();
 
@@ -328,31 +333,33 @@ public class SeleniumTest {
         sendReturn();
 
         /* Asserts */
-        assertAll("Shield count",
-                  () -> assertEquals(0, readShieldCount(1), "P1"),
-                  () -> assertEquals(5, readShieldCount(2), "P2"),
-                  () -> assertEquals(7, readShieldCount(3), "P3"),
-                  () -> assertEquals(4, readShieldCount(4), "P4"));
+        assertAll("Shield count", () -> assertEquals(0, readShieldCount(1), "P1"),
+                () -> assertEquals(5, readShieldCount(2), "P2"),
+                () -> assertEquals(7, readShieldCount(3), "P3"),
+                () -> assertEquals(4, readShieldCount(4), "P4"));
 
-        assertAll("Hand size",
-                  () -> assertEquals(12, readCardCount(1), "P1"),
-                  () -> assertEquals(9, readCardCount(2), "P2"),
-                  () -> assertEquals(10, readCardCount(3), "P3"),
-                  () -> assertEquals(11, readCardCount(4), "P4"));
+        assertAll("Hand size", () -> assertEquals(12, readCardCount(1), "P1"),
+                () -> assertEquals(9, readCardCount(2), "P2"),
+                () -> assertEquals(10, readCardCount(3), "P3"),
+                () -> assertEquals(11, readCardCount(4), "P4"));
 
         assertAll("Cards in hand",
-                  () -> assertEquals("F25 F25 F35 D5 D5 S10 S10 S10 S10 H10 H10 H10", getHandAsString(1), "P1"),
-                  () -> assertEquals("F15 F25 F30 F40 S10 S10 S10 H10 E30", getHandAsString(2), "P2"),
-                  () -> assertEquals("F10 F25 F30 F40 F50 S10 S10 H10 H10 L20", getHandAsString(3), "P3"),
-                  () -> assertEquals("F25 F25 F30 F50 F70 D5 D5 S10 S10 B15 L20", getHandAsString(4), "P4"));
+                () -> assertEquals("F25 F25 F35 D5 D5 S10 S10 S10 S10 H10 H10 H10",
+                        getHandAsString(1), "P1"),
+                () -> assertEquals("F15 F25 F30 F40 S10 S10 S10 H10 E30", getHandAsString(2), "P2"),
+                () -> assertEquals("F10 F25 F30 F40 F50 S10 S10 H10 H10 L20", getHandAsString(3),
+                        "P3"),
+                () -> assertEquals("F25 F25 F30 F50 F70 D5 D5 S10 S10 B15 L20", getHandAsString(4),
+                        "P4"));
 
         String last5Lines = consoleLastNLines(5);
         assertAll("Correct winners are displayed",
-                  () -> assertTrue(last5Lines.contains("The game has concluded!"), "Print that game has finished"),
-                  () -> assertFalse(last5Lines.contains("P1"), "P1 has not won"),
-                  () -> assertFalse(last5Lines.contains("P2"), "P2 has not won"),
-                  () -> assertTrue(last5Lines.contains("P3"), "P3 has won"),
-                  () -> assertFalse(last5Lines.contains("P4"), "P4 has not won"));
+                () -> assertTrue(last5Lines.contains("The game has concluded!"),
+                        "Print that game has finished"),
+                () -> assertFalse(last5Lines.contains("P1"), "P1 has not won"),
+                () -> assertFalse(last5Lines.contains("P2"), "P2 has not won"),
+                () -> assertTrue(last5Lines.contains("P3"), "P3 has won"),
+                () -> assertFalse(last5Lines.contains("P4"), "P4 has not won"));
     }
 
     @Test
@@ -362,38 +369,42 @@ public class SeleniumTest {
         clickScenarioButton(4);
 
         // P1: agree to sponsor Q2
-        sponsorAndBuildQuest(List.of("F50 Dagger Sword Horse Axe Lance", "F70 Dagger Sword Horse Axe Lance"));
+        sponsorAndBuildQuest(
+                List.of("F50 Dagger Sword Horse Axe Lance", "F70 Dagger Sword Horse Axe Lance"));
 
         // Stage 1
         participateAndTrim("F5"); // P2 participates
         participateAndTrim("F15"); // P3 participates
         participateAndTrim("F10"); // P4 participates
-        buildAttack("Excalibur");   // P2 attacks, loses
+        buildAttack("Excalibur"); // P2 attacks, loses
         buildAttack(); // P3 attacks with nothing, loses
         buildAttack(); // P4 attacks with nothing, loses
 
         // Sponsor P1 trims
         pickCards("F5 F10");
-        // (Do not send <return> here, it will move on to the next turn and potentially draw more cards)
+        // (Do not send <return> here, it will move on to the next turn and potentially
+        // draw more cards)
 
         /* Asserts */
-        assertAll("Shield count",
-                  () -> assertEquals(0, readShieldCount(1), "P1"),
-                  () -> assertEquals(0, readShieldCount(2), "P2"),
-                  () -> assertEquals(0, readShieldCount(3), "P3"),
-                  () -> assertEquals(0, readShieldCount(4), "P4"));
+        assertAll("Shield count", () -> assertEquals(0, readShieldCount(1), "P1"),
+                () -> assertEquals(0, readShieldCount(2), "P2"),
+                () -> assertEquals(0, readShieldCount(3), "P3"),
+                () -> assertEquals(0, readShieldCount(4), "P4"));
 
-        assertAll("Hand size",
-                  () -> assertEquals(12, readCardCount(1), "P1"),
-                  () -> assertEquals(11, readCardCount(2), "P2"),
-                  () -> assertEquals(12, readCardCount(3), "P3"),
-                  () -> assertEquals(12, readCardCount(4), "P4"));
+        assertAll("Hand size", () -> assertEquals(12, readCardCount(1), "P1"),
+                () -> assertEquals(11, readCardCount(2), "P2"),
+                () -> assertEquals(12, readCardCount(3), "P3"),
+                () -> assertEquals(12, readCardCount(4), "P4"));
 
         assertAll("Cards in hand",
-                  () -> assertEquals("F15 D5 D5 D5 D5 S10 S10 S10 H10 H10 H10 H10", getHandAsString(1), "P1"),
-                  () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F30 F30 F40", getHandAsString(2), "P2"),
-                  () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 L20", getHandAsString(3), "P3"),
-                  () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 E30", getHandAsString(4), "P4"));
+                () -> assertEquals("F15 D5 D5 D5 D5 S10 S10 S10 H10 H10 H10 H10",
+                        getHandAsString(1), "P1"),
+                () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F30 F30 F40", getHandAsString(2),
+                        "P2"),
+                () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F40 L20",
+                        getHandAsString(3), "P3"),
+                () -> assertEquals("F5 F5 F10 F15 F15 F20 F20 F25 F25 F30 F50 E30",
+                        getHandAsString(4), "P4"));
 
         // Partial game scenario; winner declaration is not made
     }
@@ -467,13 +478,14 @@ public class SeleniumTest {
                 case "excalibur" -> cardName = "E30";
             }
 
-            List<WebElement> cardMatches = driver.findElements(By.xpath(
-                    "//table[@id='cardSelectionTable']//td[text() = '" + cardName + "']"));
+            List<WebElement> cardMatches = driver.findElements(
+                    By.xpath("//table[@id='cardSelectionTable']//td[text() = '" + cardName + "']"));
 
             if (cardMatches.isEmpty()) {
                 throw new RuntimeException("'" + cardName + "' not found in selection!");
             } else {
-                String cardIndex = Objects.requireNonNull(cardMatches.getFirst().getAttribute("id")).split("_")[1];
+                String cardIndex = Objects.requireNonNull(cardMatches.getFirst().getAttribute("id"))
+                        .split("_")[1];
                 send(cardIndex);
             }
         }
@@ -483,7 +495,8 @@ public class SeleniumTest {
         textArea.sendKeys(text);
         sleep(COMMAND_DELAY_MS);
         sendButton.click();
-        sleep(Math.max(300, COMMAND_DELAY_MS)); // Maintain generous minimum of 300ms delay for backend to update
+        sleep(Math.max(300, COMMAND_DELAY_MS)); // Maintain generous minimum of 300ms delay for
+                                                // backend to update
     }
 
     private void clickScenarioButton(int scenarioNum) throws InterruptedException {
@@ -501,8 +514,8 @@ public class SeleniumTest {
 
     // Return a space-separated string of the specified player's hand, ordered.
     private String getHandAsString(int playerNum) {
-        List<WebElement> cardElements = driver.findElements(By.xpath(
-                "//td[starts-with(@id, 'P" + playerNum + "_card_')]"));
+        List<WebElement> cardElements =
+                driver.findElements(By.xpath("//td[starts-with(@id, 'P" + playerNum + "_card_')]"));
 
         StringJoiner sj = new StringJoiner(" ");
         for (WebElement card : cardElements) {
@@ -517,6 +530,7 @@ public class SeleniumTest {
     private String consoleLastNLines(int n) {
         final List<String> stringLines = Arrays.asList(outputConsole.getText().split("\n"));
         final int stringLineCount = stringLines.size();
-        return String.join("\n", stringLines.subList(Math.max(0, stringLineCount - n), stringLineCount));
+        return String.join("\n",
+                stringLines.subList(Math.max(0, stringLineCount - n), stringLineCount));
     }
 }

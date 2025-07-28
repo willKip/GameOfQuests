@@ -10,17 +10,19 @@ public class Card implements Comparable<Card> {
     private final char cardSymbol;
     private final int value;
 
-    public Card(final CardType cardType, final String cardName, final char cardSymbol, final int value) {
+    public Card(final CardType cardType, final String cardName, final char cardSymbol,
+            final int value) {
         if (!Character.isUpperCase(cardSymbol)) {
             throw new RuntimeException("Invalid card symbol '" + cardSymbol + "'!");
         }
-        this.cardType   = cardType;
-        this.cardName   = cardName;
+        this.cardType = cardType;
+        this.cardName = cardName;
         this.cardSymbol = cardSymbol;
-        this.value      = value;
+        this.value = value;
     }
 
-    // Construct and return a card based on the ID given (e.g. Q2, S10), OR pre-defined alias (e.g. "Sword" for S10)
+    // Construct and return a card based on the ID given (e.g. Q2, S10), OR pre-defined alias (e.g.
+    // "Sword" for S10)
     public Card(final String s) throws IllegalArgumentException {
         if (s.length() < 2) {
             throw new IllegalArgumentException("Card ID string '" + s + "' is too short!");
@@ -37,13 +39,14 @@ public class Card implements Comparable<Card> {
         if (value != null) {
             // String is a valid card alias
             if (s.matches("Plague|Queen's Favor|Prosperity")) {
-                type   = CardType.EVENT;
+                type = CardType.EVENT;
                 symbol = 'E';
             } else {
                 type = CardType.WEAPON;
             }
             name = s;
-        } else if (Character.isUpperCase(symbol) && remainder.chars().allMatch(Character::isDigit)) {
+        } else if (Character.isUpperCase(symbol)
+                && remainder.chars().allMatch(Character::isDigit)) {
             // Given string is a valid card ID format (e.g. D5, H10, Q4) for Foe/Weapon/Quest
             value = Integer.valueOf(remainder);
             switch (symbol) {
@@ -71,15 +74,15 @@ public class Card implements Comparable<Card> {
         if (type == CardType.WEAPON) {
             Integer trueValue = getValue(name);
             if (!Objects.equals(value, trueValue)) {
-                throw new IllegalArgumentException(
-                        "Card '" + name + "' should have value '" + trueValue + "'! (Given: '" + value + "')");
+                throw new IllegalArgumentException("Card '" + name + "' should have value '"
+                        + trueValue + "'! (Given: '" + value + "')");
             }
         }
 
-        this.cardType   = type;
-        this.cardName   = name;
+        this.cardType = type;
+        this.cardName = name;
         this.cardSymbol = symbol;
-        this.value      = value;
+        this.value = value;
     }
 
     // From the given list of cards, return a space-separated list of their IDs as a string.
@@ -108,28 +111,19 @@ public class Card implements Comparable<Card> {
     }
 
     private static String weaponSymbolToName(final char c) {
-        final Map<Character, String> SYMBOL_TO_NAME = Map.ofEntries(entry('D', "Dagger"),
-                                                                    entry('S', "Sword"),
-                                                                    entry('H', "Horse"),
-                                                                    entry('B', "Battle-axe"),
-                                                                    entry('L', "Lance"),
-                                                                    entry('E', "Excalibur"),
-                                                                    entry('F', "Foe"),
-                                                                    entry('Q', "Quest"));
+        final Map<Character, String> SYMBOL_TO_NAME =
+                Map.ofEntries(entry('D', "Dagger"), entry('S', "Sword"), entry('H', "Horse"),
+                        entry('B', "Battle-axe"), entry('L', "Lance"), entry('E', "Excalibur"),
+                        entry('F', "Foe"), entry('Q', "Quest"));
         return SYMBOL_TO_NAME.get(c);
     }
 
     // Retrieve value of Weapon or Event card.
     private static Integer getValue(final String s) {
-        final Map<String, Integer> NAME_TO_VALUE = Map.ofEntries(entry("Dagger", 5),
-                                                                 entry("Sword", 10),
-                                                                 entry("Horse", 10),
-                                                                 entry("Battle-axe", 15),
-                                                                 entry("Lance", 20),
-                                                                 entry("Excalibur", 30),
-                                                                 entry("Plague", 2),
-                                                                 entry("Queen's Favor", 2),
-                                                                 entry("Prosperity", 2));
+        final Map<String, Integer> NAME_TO_VALUE =
+                Map.ofEntries(entry("Dagger", 5), entry("Sword", 10), entry("Horse", 10),
+                        entry("Battle-axe", 15), entry("Lance", 20), entry("Excalibur", 30),
+                        entry("Plague", 2), entry("Queen's Favor", 2), entry("Prosperity", 2));
         return NAME_TO_VALUE.get(s);
     }
 
@@ -158,7 +152,7 @@ public class Card implements Comparable<Card> {
 
         // Type, name, symbol, value must all be equal
         return this.cardType == that.cardType && Objects.equals(this.cardName, that.cardName)
-               && Objects.equals(this.cardSymbol, that.cardSymbol) && this.value == that.value;
+                && Objects.equals(this.cardSymbol, that.cardSymbol) && this.value == that.value;
     }
 
     @Override
@@ -180,7 +174,8 @@ public class Card implements Comparable<Card> {
             if (this.cardType == CardType.WEAPON && ord == 0) {
                 if (Objects.equals(this.cardName, "Sword") && Objects.equals(c.cardName, "Horse")) {
                     ord = -1;
-                } else if (Objects.equals(this.cardName, "Horse") && Objects.equals(c.cardName, "Sword")) {
+                } else if (Objects.equals(this.cardName, "Horse")
+                        && Objects.equals(c.cardName, "Sword")) {
                     ord = 1;
                 }
             }
@@ -190,5 +185,7 @@ public class Card implements Comparable<Card> {
     }
 
     // All possible card types; the order here also defines sorting order.
-    public enum CardType {FOE, WEAPON, QUEST, EVENT}
+    public enum CardType {
+        FOE, WEAPON, QUEST, EVENT
+    }
 }

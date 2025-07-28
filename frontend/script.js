@@ -7,7 +7,7 @@ const sendButton = document.getElementById("inputSubmitButton");
 const inputTextArea = document.getElementById("inputTextArea");
 
 // Enable pressing <Enter> to send text from the text area.
-inputTextArea.addEventListener("keyup", event => {
+inputTextArea.addEventListener("keyup", (event) => {
     if (event.key === "Enter") sendButton.click();
 });
 
@@ -23,7 +23,7 @@ async function startGame(scenario = 0) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/start?scenario=${scenario}`, {method: "POST"});
+        const response = await fetch(`${API_BASE_URL}/start?scenario=${scenario}`, { method: "POST" });
         const gameState = await response.json();
         updatePage(gameState);
     } catch (error) {
@@ -39,7 +39,7 @@ async function sendText() {
 
     try {
         console.log(`Sending '${textToSend}'...`);
-        const response = await fetch(`${API_BASE_URL}/submit?submittedText=${textToSend}`, {method: "POST"});
+        const response = await fetch(`${API_BASE_URL}/submit?submittedText=${textToSend}`, { method: "POST" });
         const gameState = await response.json();
         updatePage(gameState);
     } catch (error) {
@@ -116,7 +116,7 @@ function updatePage(gameState) {
         const sortedPIDs = Object.keys(gameState["players"]);
         sortedPIDs.sort(); // Sort by player IDs, ascending
         sortedPIDs.forEach((playerID, index) => {
-            const {shields, handSize, hand} = gameState["players"][playerID];
+            const { shields, handSize, hand } = gameState["players"][playerID];
             const cardList = hand.split(" ");
 
             const row = playerInfoTable.insertRow(index);

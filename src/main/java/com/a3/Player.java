@@ -10,7 +10,7 @@ public class Player {
 
     public Player(final int num) {
         this.number = num;
-        this.hand   = new ArrayList<>();
+        this.hand = new ArrayList<>();
     }
 
     // From the given list of players, return a comma-separated list of their IDs as a string.
@@ -52,7 +52,8 @@ public class Player {
     }
 
     // Overwrite the player's hand with the cards in the collection given.
-    // Existing cards will be wiped. If the new hand has too many cards, a trim dialogue will be triggered afterwards.
+    // Existing cards will be wiped. If the new hand has too many cards, a trim dialogue will be
+    // triggered afterwards.
     public void overwriteHand(final Collection<Card> cards) {
         hand.clear();
         addToHand(cards);
@@ -86,11 +87,12 @@ public class Player {
     private void trim() {
         while (getHandSize() > 12) {
             String prompt = "You have too many cards in your hand. (" + getHandSize() + "/12)"
-                            + "\nPlease enter a card position and hit enter to discard it:";
+                    + "\nPlease enter a card position and hit enter to discard it:";
 
             String userInput = Game.cardSelection(prompt, hand);
 
-            boolean isInteger = !userInput.isBlank() && userInput.chars().allMatch(Character::isDigit);
+            boolean isInteger =
+                    !userInput.isBlank() && userInput.chars().allMatch(Character::isDigit);
             if (isInteger) {
                 int selected = Integer.parseInt(userInput) - 1; // Adjust for 0-index
                 if (selected >= 0 && selected < getHandSize()) {

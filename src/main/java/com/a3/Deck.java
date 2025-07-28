@@ -11,7 +11,7 @@ public class Deck {
     private final List<Card> discardPile;
 
     public Deck() {
-        this.drawPile    = new ArrayList<>();
+        this.drawPile = new ArrayList<>();
         this.discardPile = new ArrayList<>();
     }
 
@@ -48,7 +48,8 @@ public class Deck {
     }
 
     // Returns the total number of cards in the deck and its discard pile.
-    // NOTE: will NOT count any cards that are currently drawn from the deck (e.g. in a player's hand).
+    // NOTE: will NOT count any cards that are currently drawn from the deck (e.g. in a player's
+    // hand).
     public int totalSize() {
         return drawPileSize() + discardPileSize();
     }
@@ -69,7 +70,8 @@ public class Deck {
     }
 
     // Call whenever the draw pile may run out of cards after an operation;
-    // if so, and there are cards in the discard pile, it will be shuffled and used as the new draw pile.
+    // if so, and there are cards in the discard pile, it will be shuffled and used as the new draw
+    // pile.
     private void refresh() {
         if (drawPileSize() == 0 && discardPileSize() > 0) {
             drawPile.addAll(discardPile); // Copy over all cards in discard pile to draw pile
