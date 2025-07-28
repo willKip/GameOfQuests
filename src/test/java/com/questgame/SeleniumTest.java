@@ -1,4 +1,4 @@
-package com.a3;
+package com.questgame;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -22,12 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SeleniumTest {
     /* TEST CONSTANTS */
     // General delay after each action
-    private static final int COMMAND_DELAY_MS = 700;
-    // Delay after tests, to allow time for confirming results.
-    private static final int AFTER_TEST_DELAY_MS = 3000;
+    private static final int COMMAND_DELAY_MS = 300;
+    // Delay after tests, to allow time for confirming results. Negative value will move onto the
+    // next test immediately.
+    private static final int AFTER_TEST_DELAY_MS = -1;
     // How long to keep the test window open after all tests have ended. Negative
     // value will close it immediately.
-    private static final int PERSIST_WINDOW_MS = 7000;
+    private static final int PERSIST_WINDOW_MS = 1000;
 
     private WebDriver driver;
     private WebElement outputConsole;
@@ -60,11 +61,15 @@ public class SeleniumTest {
         assertEquals("A Game of Quests", driver.getTitle(), "Correct window is opened");
     }
 
+    @SuppressWarnings("unused")
     @AfterEach
     void delayAfterTest() throws InterruptedException {
-        sleep(AFTER_TEST_DELAY_MS);
+        if (AFTER_TEST_DELAY_MS >= 0) {
+            sleep(AFTER_TEST_DELAY_MS);
+        }
     }
 
+    @SuppressWarnings("unused")
     @AfterAll
     void teardownWindow() throws InterruptedException {
         if (PERSIST_WINDOW_MS >= 0) {

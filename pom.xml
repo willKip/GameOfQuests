@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.a3</groupId>
-    <artifactId>A3-williamlee-101181435</artifactId>
+    <groupId>com.questgame</groupId>
+    <artifactId>aGameOfQuests</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>A3-williamlee-101181435</name>
+    <name>aGameOfQuests</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

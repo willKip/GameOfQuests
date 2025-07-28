@@ -1,4 +1,4 @@
-package com.a3;
+package com.questgame;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

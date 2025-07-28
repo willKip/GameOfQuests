@@ -1,10 +1,12 @@
 # A Game of Quests
 
+![](examplegif.gif)
+
 ## How to Run
 
 - The Chrome web browser and an IDE (IntelliJ, Visual Studio Code etc.) is necessary to run the game and its tests.
 - Before running anything, make sure Maven dependencies have been reloaded.
-- **Start Backend**: In an IDE, open [Application.java](src/main/java/com/a3/Application.java) and run
+- **Start Backend**: In an IDE, open [Application.java](src/main/java/com/questgame/Application.java) and run
   `main()`.
 
 ### Playing the game manually
@@ -15,4 +17,4 @@
   sent by clicking the button or pressing Enter.
 
 ### Selenium Tests (IDE)
-- The tests are defined in [SeleniumTest.java](src/test/java/com/a3/SeleniumTest.java). All can be run sequentially in an IDE by running the `SeleniumTest` class: a browser window will be opened automatically for testing, and close automatically after test completion.
+- The tests are defined in [SeleniumTest.java](src/test/java/com/questgame/SeleniumTest.java). All can be run sequentially in an IDE by running the `SeleniumTest` class: a browser window will be opened automatically for testing, and close automatically after test completion.

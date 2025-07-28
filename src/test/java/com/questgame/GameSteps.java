@@ -1,4 +1,4 @@
-package com.a3;
+package com.questgame;
 
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.ParameterType;

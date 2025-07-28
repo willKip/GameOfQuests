@@ -1,4 +1,4 @@
-package com.a3;
+package com.questgame;
 
 import java.io.PrintWriter;
 import java.util.Scanner;

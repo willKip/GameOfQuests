@@ -1,4 +1,4 @@
-package com.a3;
+package com.questgame;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
